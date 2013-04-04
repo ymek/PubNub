@@ -155,7 +155,7 @@
                                                                                      kPNServiceMainDomain]
                                                                          withString:@""];
 
-        self.origin = [NSString stringWithFormat:@"%@-%d.%@", subDomain, PNRandomInteger(), kPNServiceMainDomain];
+        self.origin = [NSString stringWithFormat:@"%@-%ld.%@", subDomain, (long)PNRandomInteger(), kPNServiceMainDomain];
     }
     else {
 
