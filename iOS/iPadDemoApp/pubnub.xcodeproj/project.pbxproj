@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5ABF564F17ECA79500C505F2 /* Swizzler.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABF564C17ECA79500C505F2 /* Swizzler.m */; };
+		5ABF565417ECA79D00C505F2 /* HowToTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABF565317ECA79D00C505F2 /* HowToTests.m */; };
+		5ABF565A17ECA89200C505F2 /* W_ChaosTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABF565917ECA89200C505F2 /* W_ChaosTest.m */; };
+		5ABF565D17ECA8AE00C505F2 /* TimeOutTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABF565C17ECA8AE00C505F2 /* TimeOutTest.m */; };
 		7902452C167B5F6100E36546 /* PNWriteBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 7902452B167B5F6100E36546 /* PNWriteBuffer.m */; };
 		7902452D167B5F6100E36546 /* PNWriteBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 7902452B167B5F6100E36546 /* PNWriteBuffer.m */; };
 		7902B9E01679E72000DE2BBB /* PNLatencyMeasureRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 7902B9DF1679E72000DE2BBB /* PNLatencyMeasureRequest.m */; };
@@ -222,6 +226,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5ABF564B17ECA79500C505F2 /* Swizzler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Swizzler.h; sourceTree = "<group>"; };
+		5ABF564C17ECA79500C505F2 /* Swizzler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Swizzler.m; sourceTree = "<group>"; };
+		5ABF565217ECA79D00C505F2 /* HowToTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HowToTests.h; sourceTree = "<group>"; };
+		5ABF565317ECA79D00C505F2 /* HowToTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HowToTests.m; sourceTree = "<group>"; };
+		5ABF565817ECA89200C505F2 /* W_ChaosTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = W_ChaosTest.h; sourceTree = "<group>"; };
+		5ABF565917ECA89200C505F2 /* W_ChaosTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = W_ChaosTest.m; sourceTree = "<group>"; };
+		5ABF565B17ECA8AE00C505F2 /* TimeOutTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeOutTest.h; sourceTree = "<group>"; };
+		5ABF565C17ECA8AE00C505F2 /* TimeOutTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeOutTest.m; sourceTree = "<group>"; };
 		7902452A167B5F6100E36546 /* PNWriteBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PNWriteBuffer.h; sourceTree = "<group>"; };
 		7902452B167B5F6100E36546 /* PNWriteBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNWriteBuffer.m; sourceTree = "<group>"; };
 		7902452E167B69FF00E36546 /* PNBaseRequest+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PNBaseRequest+Protected.h"; sourceTree = "<group>"; };
@@ -495,6 +507,35 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5ABF564617ECA78C00C505F2 /* ChaosTest */ = {
+			isa = PBXGroup;
+			children = (
+				5ABF565817ECA89200C505F2 /* W_ChaosTest.h */,
+				5ABF565917ECA89200C505F2 /* W_ChaosTest.m */,
+			);
+			path = ChaosTest;
+			sourceTree = "<group>";
+		};
+		5ABF564A17ECA79500C505F2 /* TimeOutTest */ = {
+			isa = PBXGroup;
+			children = (
+				5ABF564B17ECA79500C505F2 /* Swizzler.h */,
+				5ABF564C17ECA79500C505F2 /* Swizzler.m */,
+				5ABF565B17ECA8AE00C505F2 /* TimeOutTest.h */,
+				5ABF565C17ECA8AE00C505F2 /* TimeOutTest.m */,
+			);
+			path = TimeOutTest;
+			sourceTree = "<group>";
+		};
+		5ABF565117ECA79D00C505F2 /* HowToTests */ = {
+			isa = PBXGroup;
+			children = (
+				5ABF565217ECA79D00C505F2 /* HowToTests.h */,
+				5ABF565317ECA79D00C505F2 /* HowToTests.m */,
+			);
+			path = HowToTests;
+			sourceTree = "<group>";
+		};
 		79024528167B5F3B00E36546 /* Buffers */ = {
 			isa = PBXGroup;
 			children = (
@@ -680,6 +721,9 @@
 		79C32256166DF848006DB535 /* pubnubTests */ = {
 			isa = PBXGroup;
 			children = (
+				5ABF565117ECA79D00C505F2 /* HowToTests */,
+				5ABF564A17ECA79500C505F2 /* TimeOutTest */,
+				5ABF564617ECA78C00C505F2 /* ChaosTest */,
 				9645C0FA174FDA7D00F82D09 /* RequestTests */,
 				79DC835F1773A8680061A76C /* PNCryptoHelperTest.h */,
 				79DC83601773A8680061A76C /* PNCryptoHelperTest.m */,
@@ -1330,6 +1374,10 @@
 				DD71B0AD141CDCDA0B429436 /* NSDate+PNAdditions.m in Sources */,
 				DD71BA1EF7F550439DC89C28 /* UIApplication+PNAdditions.m in Sources */,
 				DD71B84F04A062C955ED3457 /* PNNetworkHelper.m in Sources */,
+				5ABF564F17ECA79500C505F2 /* Swizzler.m in Sources */,
+				5ABF565417ECA79D00C505F2 /* HowToTests.m in Sources */,
+				5ABF565A17ECA89200C505F2 /* W_ChaosTest.m in Sources */,
+				5ABF565D17ECA8AE00C505F2 /* TimeOutTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
