@@ -14,6 +14,7 @@
 #import "PNConstants.h"
 #import "PNDataManager.h"
 #import "PNConnection.h"
+#import "PNHereNowResponseParser.h"
 #import "Swizzler.h"
 
 @interface TimeOutTest () <PNDelegate>
@@ -128,6 +129,33 @@
 	[Swizzler unswizzleFromReceipt:receipt];
 }
 
+- (void)test30ParticipantsListForChannelTimeout1
+{
+	SwizzleReceipt *receipt = [self setFakeReadStreamContent];
+
+	notificationParticipantsListCalled = NO;
+	for( int i=0; i<pnChannels.count; i++ )
+	{
+		__block NSDate *start = [NSDate date];
+		__block BOOL isCompletionBlockCalled = NO;
+
+		[PubNub requestParticipantsListForChannel:pnChannels[i]
+							  withCompletionBlock:^(NSArray *udids, PNChannel *channel, PNError *error)
+		 {
+			 isCompletionBlockCalled = YES;
+			 NSTimeInterval interval = -[start timeIntervalSinceNow];
+			 STAssertEqualsWithAccuracy( interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout, 1, @"Timeout [PubNub sharedInstance].configuration.subscriptionRequestTimeout no correct, %d instead of %d", interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout);
+			 STAssertNotNil( error, @"requestParticipantsList error must be not nil");
+		 }];
+		for( int j=0; j<[PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout+1 &&
+			isCompletionBlockCalled == NO && notificationParticipantsListCalled == NO; j++ )
+			[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
+		STAssertTrue(isCompletionBlockCalled, @"Completion block not called");
+		STAssertTrue(notificationParticipantsListCalled, @"Notification not called");
+	}
+	[Swizzler unswizzleFromReceipt:receipt];
+}
+
 //history timeout
 - (void)pubnubClient:(PubNub *)client didFailHistoryDownloadForChannel:(PNChannel *)channel withError:(PNError *)error
 {
@@ -189,7 +217,7 @@
 			 isCompletionBlockCalled = YES;
 			 NSTimeInterval interval = -[start timeIntervalSinceNow];
 			 STAssertEqualsWithAccuracy( interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout, 1, @"Timeout [PubNub sharedInstance].configuration.subscriptionRequestTimeout no correct, %d instead of %d", interval, [PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout);
-			 STAssertFalse(messageSendingState==PNMessageSendingError, @"messageSendingState==PNMessageSendingError %@", data);
+			 STAssertFalse(messageSendingState==PNMessageSent, @"messageSendingState==PNMessageSent %@", data);
 		 }];
 		for( int j=0; j<[PubNub sharedInstance].configuration.nonSubscriptionRequestTimeout+1 &&
 			isCompletionBlockCalled == NO && notificationFailMessageSendCalled == NO; j++ )
@@ -228,13 +256,20 @@
 	STAssertTrue(notificationTokenReceiveDidFailCallled, @"Notification not called");
 }
 
+//return [Swizzler swizzleSelector:@selector(parsedData)
+//			 forInstancesOfClass:[PNHereNowResponseParser class]
+//
+//return [Swizzler swizzleSelector:@selector(handleReadStreamHasData)
+//			 forInstancesOfClass:[PNConnection class]
+
 -(SwizzleReceipt*)setFakeReadStreamContent {
-	return [Swizzler swizzleSelector:@selector(handleReadStreamHasData)
-	  forInstancesOfClass:[PNConnection class]
-				withBlock:
- ^(id self, SEL sel){
-	 PNLog(PNLogGeneralLevel, nil, @"PNConnection fake handleReadStreamHasData");
- }];
+	return [Swizzler swizzleSelector:@selector(parsedData)
+				 forInstancesOfClass:[PNHereNowResponseParser class]
+						   withBlock:
+			^(id self, SEL sel){
+				PNLog(PNLogGeneralLevel, nil, @"PNConnection fake handleReadStreamHasData");
+				return nil;
+			}];
 }
 
 @end

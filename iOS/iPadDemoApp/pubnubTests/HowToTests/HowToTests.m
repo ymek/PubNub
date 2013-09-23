@@ -349,7 +349,11 @@
 {
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
-    [PubNub setConfiguration:[PNDataManager sharedInstance].configuration];
+    [PubNub setConfiguration:[PNConfiguration defaultConfiguration]];
+//	PNConfiguration *configuration = [PNConfiguration configurationForOrigin:@"chaos.pubnub.com" publishKey:@"demo" subscribeKey:@"demo" secretKey: nil cipherKey: nil];
+//	//	configuration.autoReconnectClient = NO;
+//	[PubNub setConfiguration: configuration];
+
     [PubNub connectWithSuccessBlock:^(NSString *origin) {
 
         PNLog(PNLogGeneralLevel, nil, @"{BLOCK} PubNub client connected to: %@", origin);

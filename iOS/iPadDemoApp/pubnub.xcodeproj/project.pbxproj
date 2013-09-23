@@ -9,8 +9,117 @@
 /* Begin PBXBuildFile section */
 		5ABF564F17ECA79500C505F2 /* Swizzler.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABF564C17ECA79500C505F2 /* Swizzler.m */; };
 		5ABF565417ECA79D00C505F2 /* HowToTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABF565317ECA79D00C505F2 /* HowToTests.m */; };
-		5ABF565A17ECA89200C505F2 /* W_ChaosTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABF565917ECA89200C505F2 /* W_ChaosTest.m */; };
-		5ABF565D17ECA8AE00C505F2 /* TimeOutTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABF565C17ECA8AE00C505F2 /* TimeOutTest.m */; };
+		5AC3CC9B17F09110007BCF35 /* PNAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 79C32277166DFA42006DB535 /* PNAppDelegate.m */; };
+		5AC3CC9C17F09110007BCF35 /* PNIdentificationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 79C32279166DFA42006DB535 /* PNIdentificationViewController.m */; };
+		5AC3CC9D17F09110007BCF35 /* PubNub.m in Sources */ = {isa = PBXBuildFile; fileRef = 79C3229F166E0291006DB535 /* PubNub.m */; };
+		5AC3CC9E17F09110007BCF35 /* PNConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 79C322A9166E0568006DB535 /* PNConfiguration.m */; };
+		5AC3CC9F17F09110007BCF35 /* PNError.m in Sources */ = {isa = PBXBuildFile; fileRef = 79A8B5CA166FB69800C64BCF /* PNError.m */; };
+		5AC3CCA017F09110007BCF35 /* PNJSONSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 7966DFC3166FD60900E07B40 /* PNJSONSerialization.m */; };
+		5AC3CCA117F09110007BCF35 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 7966DFC8166FD94D00E07B40 /* JSONKit.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		5AC3CCA217F09110007BCF35 /* JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 7966DFCC166FDC7C00E07B40 /* JSON.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		5AC3CCA317F09110007BCF35 /* PNObservationCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 7966DFD1166FF1F800E07B40 /* PNObservationCenter.m */; };
+		5AC3CCA417F09110007BCF35 /* PNReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 79ECCF1A167217D2005E83B3 /* PNReachability.m */; };
+		5AC3CCA517F09110007BCF35 /* PNChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = 792C1F5616788B370054E18E /* PNChannel.m */; };
+		5AC3CCA617F09110007BCF35 /* PNChannelPresence.m in Sources */ = {isa = PBXBuildFile; fileRef = 792C1F5F16788B910054E18E /* PNChannelPresence.m */; };
+		5AC3CCA717F09110007BCF35 /* PNPresenceEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 792C1F6316788BA50054E18E /* PNPresenceEvent.m */; };
+		5AC3CCA817F09110007BCF35 /* PNMessagingChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = 792C1F671678915A0054E18E /* PNMessagingChannel.m */; };
+		5AC3CCA917F09110007BCF35 /* PNConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 792C1F6D167896E30054E18E /* PNConnection.m */; };
+		5AC3CCAA17F09110007BCF35 /* PNConnectionChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = 792C1F70167896E30054E18E /* PNConnectionChannel.m */; };
+		5AC3CCAB17F09110007BCF35 /* PNBaseRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 792C1F77167897210054E18E /* PNBaseRequest.m */; };
+		5AC3CCAC17F09110007BCF35 /* PNSubscribeRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 792C1F7B1678B29F0054E18E /* PNSubscribeRequest.m */; };
+		5AC3CCAD17F09110007BCF35 /* PNLeaveRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 792C1F811678C0EF0054E18E /* PNLeaveRequest.m */; };
+		5AC3CCAE17F09110007BCF35 /* PNTimeTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 792C1FAA1678D5C40054E18E /* PNTimeTokenRequest.m */; };
+		5AC3CCAF17F09110007BCF35 /* PNLatencyMeasureRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 7902B9DF1679E72000DE2BBB /* PNLatencyMeasureRequest.m */; };
+		5AC3CCB017F09110007BCF35 /* PNRequestsQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 7902B9E41679EEFC00DE2BBB /* PNRequestsQueue.m */; };
+		5AC3CCB117F09110007BCF35 /* PNWriteBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 7902452B167B5F6100E36546 /* PNWriteBuffer.m */; };
+		5AC3CCB217F09110007BCF35 /* PNServiceChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = 79FFF67B167C919E008093F2 /* PNServiceChannel.m */; };
+		5AC3CCB317F09110007BCF35 /* NSMutableArray+PNAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 79FFF695167E5C66008093F2 /* NSMutableArray+PNAdditions.m */; };
+		5AC3CCB417F09110007BCF35 /* PNResponseDeserialize.m in Sources */ = {isa = PBXBuildFile; fileRef = 79EB391D1681E58300696025 /* PNResponseDeserialize.m */; };
+		5AC3CCB517F09110007BCF35 /* PNResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 79EB392516835B7C00696025 /* PNResponse.m */; };
+		5AC3CCB617F09110007BCF35 /* PNMessagePostRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71BD044CE5084B595E4049 /* PNMessagePostRequest.m */; };
+		5AC3CCB717F09110007BCF35 /* PNResponseParser.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71B423D8CA1AE27101AADB /* PNResponseParser.m */; };
+		5AC3CCB817F09110007BCF35 /* PNMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71BEB42DA849259AE8B3FE /* PNMessage.m */; };
+		5AC3CCB917F09110007BCF35 /* PNTimeTokenResponseParser.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71B967C56CA2E8F66085ED /* PNTimeTokenResponseParser.m */; };
+		5AC3CCBA17F09110007BCF35 /* PNOperationStatusResponseParser.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71BC9D2981921C81222119 /* PNOperationStatusResponseParser.m */; };
+		5AC3CCBB17F09110007BCF35 /* PNActionResponseParser.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71BFF2EA1C95EFF0E4D5C1 /* PNActionResponseParser.m */; };
+		5AC3CCBC17F09110007BCF35 /* PNHereNowResponseParser.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71B91C791941E31535DF8C /* PNHereNowResponseParser.m */; };
+		5AC3CCBD17F09110007BCF35 /* PNOperationStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71B60939665AFE8C50DB18 /* PNOperationStatus.m */; };
+		5AC3CCBE17F09110007BCF35 /* PNHereNow.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71BCD209608045985EB1E5 /* PNHereNow.m */; };
+		5AC3CCBF17F09110007BCF35 /* PNChannelEventsResponseParser.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71B11B1A0A39CB79D9A732 /* PNChannelEventsResponseParser.m */; };
+		5AC3CCC017F09110007BCF35 /* PNChannelEvents.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71BBE9C6FD0288E40E0AF3 /* PNChannelEvents.m */; };
+		5AC3CCC117F09110007BCF35 /* PNErrorResponseParser.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71B326EB1944A304EC9F83 /* PNErrorResponseParser.m */; };
+		5AC3CCC217F09110007BCF35 /* NSData+PNAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71B722B045E8BD81EC3FD3 /* NSData+PNAdditions.m */; };
+		5AC3CCC317F09110007BCF35 /* PNDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71BD8F3333E37E45EE02FB /* PNDataManager.m */; };
+		5AC3CCC417F09110007BCF35 /* PNMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 79EBCA2016AC576F00E616E8 /* PNMainViewController.m */; };
+		5AC3CCC517F09110007BCF35 /* PNMessagesHistory.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71B286201A499AF1BF1146 /* PNMessagesHistory.m */; };
+		5AC3CCC617F09110007BCF35 /* PNMessageHistoryRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71B455AB1D54D008B5A281 /* PNMessageHistoryRequest.m */; };
+		5AC3CCC717F09110007BCF35 /* PNChannelInformationView.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71BC87C9BF1AFABB834C04 /* PNChannelInformationView.m */; };
+		5AC3CCC817F09110007BCF35 /* PNChannelCreationView.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71B1B508470B43E7736E42 /* PNChannelCreationView.m */; };
+		5AC3CCC917F09110007BCF35 /* PNShadowEnableView.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71BBD22F323D67157AC023 /* PNShadowEnableView.m */; };
+		5AC3CCCA17F09110007BCF35 /* NSString+PNDemoAddition.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71B1720D2FC6C2462806A1 /* NSString+PNDemoAddition.m */; };
+		5AC3CCCB17F09110007BCF35 /* PNChannelHistoryView.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71BC1360B4DBE34024889A /* PNChannelHistoryView.m */; };
+		5AC3CCCC17F09110007BCF35 /* PNChannelHistoryParser.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71B576F8AED5052F97524F /* PNChannelHistoryParser.m */; };
+		5AC3CCCD17F09110007BCF35 /* PNHereNowRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71B802270DA9A20B5EE51D /* PNHereNowRequest.m */; };
+		5AC3CCCE17F09110007BCF35 /* PNChannelCell.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71BB8E2C46A0CF5D1810D7 /* PNChannelCell.m */; };
+		5AC3CCCF17F09110007BCF35 /* NSString+PNAddition.m in Sources */ = {isa = PBXBuildFile; fileRef = 799A5ADE16DD55F8007025AF /* NSString+PNAddition.m */; };
+		5AC3CCD017F09110007BCF35 /* PNCryptoHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 79C9D72816F28F9500E91D74 /* PNCryptoHelper.m */; };
+		5AC3CCD117F09110007BCF35 /* PNReachabilityTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9645C0F8174FDA7D00F82D09 /* PNReachabilityTest.m */; };
+		5AC3CCD217F09110007BCF35 /* PNBaseRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9645C0FC174FDA7D00F82D09 /* PNBaseRequestTest.m */; };
+		5AC3CCD317F09110007BCF35 /* PNHereNowRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9645C0FE174FDA7D00F82D09 /* PNHereNowRequestTest.m */; };
+		5AC3CCD417F09110007BCF35 /* PNLatencyMeasureRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9645C100174FDA7D00F82D09 /* PNLatencyMeasureRequestTest.m */; };
+		5AC3CCD517F09110007BCF35 /* PNLeaveRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9645C104174FDA7D00F82D09 /* PNLeaveRequestTest.m */; };
+		5AC3CCD617F09110007BCF35 /* PNMessageHistoryRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9645C106174FDA7D00F82D09 /* PNMessageHistoryRequestTest.m */; };
+		5AC3CCD717F09110007BCF35 /* PNMessagePostRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9645C108174FDA7D00F82D09 /* PNMessagePostRequestTest.m */; };
+		5AC3CCD817F09110007BCF35 /* PNSubscribeRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9645C10A174FDA7D00F82D09 /* PNSubscribeRequestTest.m */; };
+		5AC3CCD917F09110007BCF35 /* PNTimeTokenRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9645C10C174FDA7D00F82D09 /* PNTimeTokenRequestTest.m */; };
+		5AC3CCDA17F09110007BCF35 /* PNConnectionChannelTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9645C10D174FDA7D00F82D09 /* PNConnectionChannelTest.m */; };
+		5AC3CCDB17F09110007BCF35 /* PNConnectionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9645C10E174FDA7D00F82D09 /* PNConnectionTest.m */; };
+		5AC3CCDC17F09110007BCF35 /* PNServiceChannelTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9645C112174FDA7D00F82D09 /* PNServiceChannelTest.m */; };
+		5AC3CCDD17F09110007BCF35 /* PNMessagingChannelTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9645C0F9174FDA7D00F82D09 /* PNMessagingChannelTest.m */; };
+		5AC3CCDE17F09110007BCF35 /* PNDate.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71B2B401801E6BB220AC5B /* PNDate.m */; };
+		5AC3CCDF17F09110007BCF35 /* PNPushNotificationsStateChangeRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71B97C01B078DA4A8E24FD /* PNPushNotificationsStateChangeRequest.m */; };
+		5AC3CCE017F09110007BCF35 /* PNPushNotificationsEnabledChannelsRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71B4A03AB1CE1FBD1F80DE /* PNPushNotificationsEnabledChannelsRequest.m */; };
+		5AC3CCE117F09110007BCF35 /* PNPushNotificationsRemoveRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71BDBC5D7446ED0B1AFAEA /* PNPushNotificationsRemoveRequest.m */; };
+		5AC3CCE217F09110007BCF35 /* NSArray+PNAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71BF0849ECAF30E4469DEE /* NSArray+PNAdditions.m */; };
+		5AC3CCE317F09110007BCF35 /* NSInvocation+PNAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71BD0B45B32E0F7D40C2CD /* NSInvocation+PNAdditions.m */; };
+		5AC3CCE417F09110007BCF35 /* PNCryptoHelperTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 79DC83601773A8680061A76C /* PNCryptoHelperTest.m */; };
+		5AC3CCE517F09110007BCF35 /* NSDate+PNAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71B67D54B0FC5FE3102ED7 /* NSDate+PNAdditions.m */; };
+		5AC3CCE617F09110007BCF35 /* UIApplication+PNAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71BB37E642F712B43C3664 /* UIApplication+PNAdditions.m */; };
+		5AC3CCE717F09110007BCF35 /* PNNetworkHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = DD71B8349EEED7B38FAF19DE /* PNNetworkHelper.m */; };
+		5AC3CCEA17F09110007BCF35 /* W_ChaosTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABF565917ECA89200C505F2 /* W_ChaosTest.m */; };
+		5AC3CCED17F09110007BCF35 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79C32250166DF848006DB535 /* SenTestingKit.framework */; };
+		5AC3CCEE17F09110007BCF35 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79C3222C166DF847006DB535 /* UIKit.framework */; };
+		5AC3CCEF17F09110007BCF35 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79C3222E166DF847006DB535 /* Foundation.framework */; };
+		5AC3CCF017F09110007BCF35 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79ECCF351675DFB5005E83B3 /* SystemConfiguration.framework */; };
+		5AC3CCF117F09110007BCF35 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 792C1F3F16777BD40054E18E /* CFNetwork.framework */; };
+		5AC3CCF217F09110007BCF35 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD71BF43E328EDCD6FF8F254 /* Security.framework */; };
+		5AC3CCF317F09110007BCF35 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD71B83AEEA2DBCDE169F068 /* QuartzCore.framework */; };
+		5AC3CCF417F09110007BCF35 /* libz.1.2.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DD71B1E2DB5B835A0C695908 /* libz.1.2.5.dylib */; };
+		5AC3CCF517F09110007BCF35 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79C32230166DF847006DB535 /* CoreGraphics.framework */; };
+		5AC3CCF717F09110007BCF35 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 79C32259166DF848006DB535 /* InfoPlist.strings */; };
+		5AC3CCF817F09110007BCF35 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 79C32285166DFA56006DB535 /* InfoPlist.strings */; };
+		5AC3CCF917F09110007BCF35 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 79C3228A166DFA56006DB535 /* Default-568h@2x.png */; };
+		5AC3CCFA17F09110007BCF35 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 79C3228B166DFA56006DB535 /* Default.png */; };
+		5AC3CCFB17F09110007BCF35 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 79C3228C166DFA56006DB535 /* Default@2x.png */; };
+		5AC3CCFC17F09110007BCF35 /* pubnub-large.png in Resources */ = {isa = PBXBuildFile; fileRef = DD71B75FC2A1E90064167370 /* pubnub-large.png */; };
+		5AC3CCFD17F09110007BCF35 /* PNIdentificationViewController~ipad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 79DA9A3616AC0DC1000AE3A1 /* PNIdentificationViewController~ipad.xib */; };
+		5AC3CCFE17F09110007BCF35 /* PNIdentificationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 79DA9A3A16AC0DF7000AE3A1 /* PNIdentificationViewController.xib */; };
+		5AC3CCFF17F09110007BCF35 /* red-button.png in Resources */ = {isa = PBXBuildFile; fileRef = 79DA9A5216AC101D000AE3A1 /* red-button.png */; };
+		5AC3CD0017F09110007BCF35 /* background.png in Resources */ = {isa = PBXBuildFile; fileRef = 79DA9A5916AC1172000AE3A1 /* background.png */; };
+		5AC3CD0117F09110007BCF35 /* PNMainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 79EBCA2716AC578900E616E8 /* PNMainViewController.xib */; };
+		5AC3CD0217F09110007BCF35 /* PNMainViewController~ipad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 79EBCA2A16AC579D00E616E8 /* PNMainViewController~ipad.xib */; };
+		5AC3CD0317F09110007BCF35 /* left-single-entry-background.png in Resources */ = {isa = PBXBuildFile; fileRef = DD71B51E11D1E063A1AC9714 /* left-single-entry-background.png */; };
+		5AC3CD0417F09110007BCF35 /* right-single-entry-background.png in Resources */ = {isa = PBXBuildFile; fileRef = DD71BCBCB80DE682EE0D5602 /* right-single-entry-background.png */; };
+		5AC3CD0517F09110007BCF35 /* left-section-header-background.png in Resources */ = {isa = PBXBuildFile; fileRef = DD71BDDDEF09AD121CF5E771 /* left-section-header-background.png */; };
+		5AC3CD0617F09110007BCF35 /* right-section-header-background.png in Resources */ = {isa = PBXBuildFile; fileRef = DD71B1A253ABE258B2CCF9F2 /* right-section-header-background.png */; };
+		5AC3CD0717F09110007BCF35 /* side-menu-background.png in Resources */ = {isa = PBXBuildFile; fileRef = DD71BF3FAB64C46ADBF20C9F /* side-menu-background.png */; };
+		5AC3CD0817F09110007BCF35 /* pubnub-large2.png in Resources */ = {isa = PBXBuildFile; fileRef = DD71BA90D925864CA27764CD /* pubnub-large2.png */; };
+		5AC3CD0917F09110007BCF35 /* white-button.png in Resources */ = {isa = PBXBuildFile; fileRef = DD71B76AAA1DD2BD6FBF5A92 /* white-button.png */; };
+		5AC3CD0A17F09110007BCF35 /* PNChannelInformationView~ipad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 790E637916AD6AEB00CAD373 /* PNChannelInformationView~ipad.xib */; };
+		5AC3CD0B17F09110007BCF35 /* PNChannelCreationView~ipad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 790E63BB16ADA98700CAD373 /* PNChannelCreationView~ipad.xib */; };
+		5AC3CD0C17F09110007BCF35 /* PNChannelHistoryView~ipad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 79EBCA7C16ADEC4400E616E8 /* PNChannelHistoryView~ipad.xib */; };
+		5AC3CD1317F09179007BCF35 /* Swizzler.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABF564C17ECA79500C505F2 /* Swizzler.m */; };
+		5AC3CD1417F091A8007BCF35 /* TimeOutTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABF565C17ECA8AE00C505F2 /* TimeOutTest.m */; };
 		7902452C167B5F6100E36546 /* PNWriteBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 7902452B167B5F6100E36546 /* PNWriteBuffer.m */; };
 		7902452D167B5F6100E36546 /* PNWriteBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 7902452B167B5F6100E36546 /* PNWriteBuffer.m */; };
 		7902B9E01679E72000DE2BBB /* PNLatencyMeasureRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 7902B9DF1679E72000DE2BBB /* PNLatencyMeasureRequest.m */; };
@@ -216,6 +325,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		5AC3CC9917F09110007BCF35 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 79C3221F166DF847006DB535 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 79C32227166DF847006DB535;
+			remoteInfo = pubnub;
+		};
 		79C32254166DF848006DB535 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 79C3221F166DF847006DB535 /* Project object */;
@@ -234,6 +350,14 @@
 		5ABF565917ECA89200C505F2 /* W_ChaosTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = W_ChaosTest.m; sourceTree = "<group>"; };
 		5ABF565B17ECA8AE00C505F2 /* TimeOutTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeOutTest.h; sourceTree = "<group>"; };
 		5ABF565C17ECA8AE00C505F2 /* TimeOutTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeOutTest.m; sourceTree = "<group>"; };
+		5AC3CC2417F08FC2007BCF35 /* pubnubTestChaos-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "pubnubTestChaos-Info.plist"; sourceTree = "<group>"; };
+		5AC3CC2617F08FC2007BCF35 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		5AC3CC2817F08FC2007BCF35 /* pubnubTestChaos.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pubnubTestChaos.h; sourceTree = "<group>"; };
+		5AC3CC2917F08FC2007BCF35 /* pubnubTestChaos.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = pubnubTestChaos.m; sourceTree = "<group>"; };
+		5AC3CC2B17F08FC2007BCF35 /* pubnubTestChaos-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "pubnubTestChaos-Prefix.pch"; sourceTree = "<group>"; };
+		5AC3CC9617F090EE007BCF35 /* pubnub copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "pubnub copy-Info.plist"; path = "/Users/tuller/work/pubnub FuncTest/iOS/iPadDemoApp/pubnub copy-Info.plist"; sourceTree = "<absolute>"; };
+		5AC3CD1117F09110007BCF35 /* pubnubTests copy.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "pubnubTests copy.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5AC3CD1217F09110007BCF35 /* pubnubTests copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "pubnubTests copy-Info.plist"; path = "/Users/tuller/work/pubnub FuncTest/iOS/iPadDemoApp/pubnubTests copy-Info.plist"; sourceTree = "<absolute>"; };
 		7902452A167B5F6100E36546 /* PNWriteBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PNWriteBuffer.h; sourceTree = "<group>"; };
 		7902452B167B5F6100E36546 /* PNWriteBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNWriteBuffer.m; sourceTree = "<group>"; };
 		7902452E167B69FF00E36546 /* PNBaseRequest+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PNBaseRequest+Protected.h"; sourceTree = "<group>"; };
@@ -473,6 +597,22 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		5AC3CCEC17F09110007BCF35 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5AC3CCED17F09110007BCF35 /* SenTestingKit.framework in Frameworks */,
+				5AC3CCEE17F09110007BCF35 /* UIKit.framework in Frameworks */,
+				5AC3CCEF17F09110007BCF35 /* Foundation.framework in Frameworks */,
+				5AC3CCF017F09110007BCF35 /* SystemConfiguration.framework in Frameworks */,
+				5AC3CCF117F09110007BCF35 /* CFNetwork.framework in Frameworks */,
+				5AC3CCF217F09110007BCF35 /* Security.framework in Frameworks */,
+				5AC3CCF317F09110007BCF35 /* QuartzCore.framework in Frameworks */,
+				5AC3CCF417F09110007BCF35 /* libz.1.2.5.dylib in Frameworks */,
+				5AC3CCF517F09110007BCF35 /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		79C32225166DF847006DB535 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -534,6 +674,26 @@
 				5ABF565317ECA79D00C505F2 /* HowToTests.m */,
 			);
 			path = HowToTests;
+			sourceTree = "<group>";
+		};
+		5AC3CC2217F08FC2007BCF35 /* pubnubTestChaos */ = {
+			isa = PBXGroup;
+			children = (
+				5AC3CC2817F08FC2007BCF35 /* pubnubTestChaos.h */,
+				5AC3CC2917F08FC2007BCF35 /* pubnubTestChaos.m */,
+				5AC3CC2317F08FC2007BCF35 /* Supporting Files */,
+			);
+			path = pubnubTestChaos;
+			sourceTree = "<group>";
+		};
+		5AC3CC2317F08FC2007BCF35 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				5AC3CC2417F08FC2007BCF35 /* pubnubTestChaos-Info.plist */,
+				5AC3CC2517F08FC2007BCF35 /* InfoPlist.strings */,
+				5AC3CC2B17F08FC2007BCF35 /* pubnubTestChaos-Prefix.pch */,
+			);
+			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 		79024528167B5F3B00E36546 /* Buffers */ = {
@@ -668,8 +828,11 @@
 			children = (
 				79C32232166DF847006DB535 /* pubnub */,
 				79C32256166DF848006DB535 /* pubnubTests */,
+				5AC3CC2217F08FC2007BCF35 /* pubnubTestChaos */,
 				79C3222B166DF847006DB535 /* Frameworks */,
 				79C32229166DF847006DB535 /* Products */,
+				5AC3CC9617F090EE007BCF35 /* pubnub copy-Info.plist */,
+				5AC3CD1217F09110007BCF35 /* pubnubTests copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -678,6 +841,7 @@
 			children = (
 				79C32228166DF847006DB535 /* pubnub.app */,
 				79C3224F166DF848006DB535 /* pubnubTests.octest */,
+				5AC3CD1117F09110007BCF35 /* pubnubTests copy.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1080,6 +1244,25 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		5AC3CC9717F09110007BCF35 /* pubnubTestChaos */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5AC3CD0E17F09110007BCF35 /* Build configuration list for PBXNativeTarget "pubnubTestChaos" */;
+			buildPhases = (
+				5AC3CC9A17F09110007BCF35 /* Sources */,
+				5AC3CCEC17F09110007BCF35 /* Frameworks */,
+				5AC3CCF617F09110007BCF35 /* Resources */,
+				5AC3CD0D17F09110007BCF35 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5AC3CC9817F09110007BCF35 /* PBXTargetDependency */,
+			);
+			name = pubnubTestChaos;
+			productName = pubnubTests;
+			productReference = 5AC3CD1117F09110007BCF35 /* pubnubTests copy.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
 		79C32227166DF847006DB535 /* pubnub */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 79C32261166DF848006DB535 /* Build configuration list for PBXNativeTarget "pubnub" */;
@@ -1140,11 +1323,41 @@
 			targets = (
 				79C32227166DF847006DB535 /* pubnub */,
 				79C3224E166DF848006DB535 /* pubnubTests */,
+				5AC3CC9717F09110007BCF35 /* pubnubTestChaos */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		5AC3CCF617F09110007BCF35 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5AC3CCF717F09110007BCF35 /* InfoPlist.strings in Resources */,
+				5AC3CCF817F09110007BCF35 /* InfoPlist.strings in Resources */,
+				5AC3CCF917F09110007BCF35 /* Default-568h@2x.png in Resources */,
+				5AC3CCFA17F09110007BCF35 /* Default.png in Resources */,
+				5AC3CCFB17F09110007BCF35 /* Default@2x.png in Resources */,
+				5AC3CCFC17F09110007BCF35 /* pubnub-large.png in Resources */,
+				5AC3CCFD17F09110007BCF35 /* PNIdentificationViewController~ipad.xib in Resources */,
+				5AC3CCFE17F09110007BCF35 /* PNIdentificationViewController.xib in Resources */,
+				5AC3CCFF17F09110007BCF35 /* red-button.png in Resources */,
+				5AC3CD0017F09110007BCF35 /* background.png in Resources */,
+				5AC3CD0117F09110007BCF35 /* PNMainViewController.xib in Resources */,
+				5AC3CD0217F09110007BCF35 /* PNMainViewController~ipad.xib in Resources */,
+				5AC3CD0317F09110007BCF35 /* left-single-entry-background.png in Resources */,
+				5AC3CD0417F09110007BCF35 /* right-single-entry-background.png in Resources */,
+				5AC3CD0517F09110007BCF35 /* left-section-header-background.png in Resources */,
+				5AC3CD0617F09110007BCF35 /* right-section-header-background.png in Resources */,
+				5AC3CD0717F09110007BCF35 /* side-menu-background.png in Resources */,
+				5AC3CD0817F09110007BCF35 /* pubnub-large2.png in Resources */,
+				5AC3CD0917F09110007BCF35 /* white-button.png in Resources */,
+				5AC3CD0A17F09110007BCF35 /* PNChannelInformationView~ipad.xib in Resources */,
+				5AC3CD0B17F09110007BCF35 /* PNChannelCreationView~ipad.xib in Resources */,
+				5AC3CD0C17F09110007BCF35 /* PNChannelHistoryView~ipad.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		79C32226166DF847006DB535 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1205,6 +1418,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		5AC3CD0D17F09110007BCF35 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
 		79C3224D166DF848006DB535 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1221,6 +1447,92 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		5AC3CC9A17F09110007BCF35 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5AC3CC9B17F09110007BCF35 /* PNAppDelegate.m in Sources */,
+				5AC3CC9C17F09110007BCF35 /* PNIdentificationViewController.m in Sources */,
+				5AC3CC9D17F09110007BCF35 /* PubNub.m in Sources */,
+				5AC3CC9E17F09110007BCF35 /* PNConfiguration.m in Sources */,
+				5AC3CC9F17F09110007BCF35 /* PNError.m in Sources */,
+				5AC3CCA017F09110007BCF35 /* PNJSONSerialization.m in Sources */,
+				5AC3CCA117F09110007BCF35 /* JSONKit.m in Sources */,
+				5AC3CCA217F09110007BCF35 /* JSON.m in Sources */,
+				5AC3CCA317F09110007BCF35 /* PNObservationCenter.m in Sources */,
+				5AC3CCA417F09110007BCF35 /* PNReachability.m in Sources */,
+				5AC3CCA517F09110007BCF35 /* PNChannel.m in Sources */,
+				5AC3CCA617F09110007BCF35 /* PNChannelPresence.m in Sources */,
+				5AC3CCA717F09110007BCF35 /* PNPresenceEvent.m in Sources */,
+				5AC3CCA817F09110007BCF35 /* PNMessagingChannel.m in Sources */,
+				5AC3CCA917F09110007BCF35 /* PNConnection.m in Sources */,
+				5AC3CCAA17F09110007BCF35 /* PNConnectionChannel.m in Sources */,
+				5AC3CCAB17F09110007BCF35 /* PNBaseRequest.m in Sources */,
+				5AC3CCAC17F09110007BCF35 /* PNSubscribeRequest.m in Sources */,
+				5AC3CCAD17F09110007BCF35 /* PNLeaveRequest.m in Sources */,
+				5AC3CCAE17F09110007BCF35 /* PNTimeTokenRequest.m in Sources */,
+				5AC3CCAF17F09110007BCF35 /* PNLatencyMeasureRequest.m in Sources */,
+				5AC3CCB017F09110007BCF35 /* PNRequestsQueue.m in Sources */,
+				5AC3CCB117F09110007BCF35 /* PNWriteBuffer.m in Sources */,
+				5AC3CCB217F09110007BCF35 /* PNServiceChannel.m in Sources */,
+				5AC3CCB317F09110007BCF35 /* NSMutableArray+PNAdditions.m in Sources */,
+				5AC3CCB417F09110007BCF35 /* PNResponseDeserialize.m in Sources */,
+				5AC3CCB517F09110007BCF35 /* PNResponse.m in Sources */,
+				5AC3CCB617F09110007BCF35 /* PNMessagePostRequest.m in Sources */,
+				5AC3CCB717F09110007BCF35 /* PNResponseParser.m in Sources */,
+				5AC3CCB817F09110007BCF35 /* PNMessage.m in Sources */,
+				5AC3CCB917F09110007BCF35 /* PNTimeTokenResponseParser.m in Sources */,
+				5AC3CCBA17F09110007BCF35 /* PNOperationStatusResponseParser.m in Sources */,
+				5AC3CCBB17F09110007BCF35 /* PNActionResponseParser.m in Sources */,
+				5AC3CCBC17F09110007BCF35 /* PNHereNowResponseParser.m in Sources */,
+				5AC3CCBD17F09110007BCF35 /* PNOperationStatus.m in Sources */,
+				5AC3CCBE17F09110007BCF35 /* PNHereNow.m in Sources */,
+				5AC3CCBF17F09110007BCF35 /* PNChannelEventsResponseParser.m in Sources */,
+				5AC3CCC017F09110007BCF35 /* PNChannelEvents.m in Sources */,
+				5AC3CCC117F09110007BCF35 /* PNErrorResponseParser.m in Sources */,
+				5AC3CCC217F09110007BCF35 /* NSData+PNAdditions.m in Sources */,
+				5AC3CCC317F09110007BCF35 /* PNDataManager.m in Sources */,
+				5AC3CCC417F09110007BCF35 /* PNMainViewController.m in Sources */,
+				5AC3CCC517F09110007BCF35 /* PNMessagesHistory.m in Sources */,
+				5AC3CCC617F09110007BCF35 /* PNMessageHistoryRequest.m in Sources */,
+				5AC3CCC717F09110007BCF35 /* PNChannelInformationView.m in Sources */,
+				5AC3CCC817F09110007BCF35 /* PNChannelCreationView.m in Sources */,
+				5AC3CCC917F09110007BCF35 /* PNShadowEnableView.m in Sources */,
+				5AC3CCCA17F09110007BCF35 /* NSString+PNDemoAddition.m in Sources */,
+				5AC3CCCB17F09110007BCF35 /* PNChannelHistoryView.m in Sources */,
+				5AC3CCCC17F09110007BCF35 /* PNChannelHistoryParser.m in Sources */,
+				5AC3CCCD17F09110007BCF35 /* PNHereNowRequest.m in Sources */,
+				5AC3CCCE17F09110007BCF35 /* PNChannelCell.m in Sources */,
+				5AC3CCCF17F09110007BCF35 /* NSString+PNAddition.m in Sources */,
+				5AC3CCD017F09110007BCF35 /* PNCryptoHelper.m in Sources */,
+				5AC3CCD117F09110007BCF35 /* PNReachabilityTest.m in Sources */,
+				5AC3CCD217F09110007BCF35 /* PNBaseRequestTest.m in Sources */,
+				5AC3CCD317F09110007BCF35 /* PNHereNowRequestTest.m in Sources */,
+				5AC3CCD417F09110007BCF35 /* PNLatencyMeasureRequestTest.m in Sources */,
+				5AC3CCD517F09110007BCF35 /* PNLeaveRequestTest.m in Sources */,
+				5AC3CCD617F09110007BCF35 /* PNMessageHistoryRequestTest.m in Sources */,
+				5AC3CCD717F09110007BCF35 /* PNMessagePostRequestTest.m in Sources */,
+				5AC3CCD817F09110007BCF35 /* PNSubscribeRequestTest.m in Sources */,
+				5AC3CCD917F09110007BCF35 /* PNTimeTokenRequestTest.m in Sources */,
+				5AC3CCDA17F09110007BCF35 /* PNConnectionChannelTest.m in Sources */,
+				5AC3CCDB17F09110007BCF35 /* PNConnectionTest.m in Sources */,
+				5AC3CCDC17F09110007BCF35 /* PNServiceChannelTest.m in Sources */,
+				5AC3CCDD17F09110007BCF35 /* PNMessagingChannelTest.m in Sources */,
+				5AC3CCDE17F09110007BCF35 /* PNDate.m in Sources */,
+				5AC3CCDF17F09110007BCF35 /* PNPushNotificationsStateChangeRequest.m in Sources */,
+				5AC3CCE017F09110007BCF35 /* PNPushNotificationsEnabledChannelsRequest.m in Sources */,
+				5AC3CCE117F09110007BCF35 /* PNPushNotificationsRemoveRequest.m in Sources */,
+				5AC3CCE217F09110007BCF35 /* NSArray+PNAdditions.m in Sources */,
+				5AC3CCE317F09110007BCF35 /* NSInvocation+PNAdditions.m in Sources */,
+				5AC3CCE417F09110007BCF35 /* PNCryptoHelperTest.m in Sources */,
+				5AC3CCE517F09110007BCF35 /* NSDate+PNAdditions.m in Sources */,
+				5AC3CCE617F09110007BCF35 /* UIApplication+PNAdditions.m in Sources */,
+				5AC3CCE717F09110007BCF35 /* PNNetworkHelper.m in Sources */,
+				5AC3CCEA17F09110007BCF35 /* W_ChaosTest.m in Sources */,
+				5AC3CD1317F09179007BCF35 /* Swizzler.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		79C32224166DF847006DB535 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1376,14 +1688,18 @@
 				DD71B84F04A062C955ED3457 /* PNNetworkHelper.m in Sources */,
 				5ABF564F17ECA79500C505F2 /* Swizzler.m in Sources */,
 				5ABF565417ECA79D00C505F2 /* HowToTests.m in Sources */,
-				5ABF565A17ECA89200C505F2 /* W_ChaosTest.m in Sources */,
-				5ABF565D17ECA8AE00C505F2 /* TimeOutTest.m in Sources */,
+				5AC3CD1417F091A8007BCF35 /* TimeOutTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		5AC3CC9817F09110007BCF35 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 79C32227166DF847006DB535 /* pubnub */;
+			targetProxy = 5AC3CC9917F09110007BCF35 /* PBXContainerItemProxy */;
+		};
 		79C32255166DF848006DB535 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 79C32227166DF847006DB535 /* pubnub */;
@@ -1392,6 +1708,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		5AC3CC2517F08FC2007BCF35 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				5AC3CC2617F08FC2007BCF35 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
 		79C32259166DF848006DB535 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -1403,6 +1727,56 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		5AC3CD0F17F09110007BCF35 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = armv7;
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/pubnub.app/pubnub";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "pubnub/pubnub-Prefix.pch";
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/pubnubTests/usr/include\"";
+				INFOPLIST_FILE = "pubnubTests copy-Info.plist";
+				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/pubnubTests/usr/lib\"";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-force_load",
+					"\"$(SRCROOT)/pubnubTests/usr/lib/libOCMock.a\"",
+				);
+				PRODUCT_NAME = "pubnubTests copy";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Debug;
+		};
+		5AC3CD1017F09110007BCF35 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = armv7;
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/pubnub.app/pubnub";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "pubnub/pubnub-Prefix.pch";
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/pubnubTests/usr/include\"";
+				INFOPLIST_FILE = "pubnubTests copy-Info.plist";
+				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/pubnubTests/usr/lib\"";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-force_load",
+					"\"$(SRCROOT)/pubnubTests/usr/lib/libOCMock.a\"",
+				);
+				PRODUCT_NAME = "pubnubTests copy";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Release;
+		};
 		79C3225F166DF848006DB535 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1466,16 +1840,18 @@
 		79C32262166DF848006DB535 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = armv7;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Vadym Osovets (TS2DHB4U39)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "pubnub/pubnub-Prefix.pch";
 				INFOPLIST_FILE = "$(SRCROOT)/pubnub/Resources/General/pubnub-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "FC1E0E1D-5D87-4BAA-A7DA-ADCB4CF80A95";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = armv7;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1483,6 +1859,7 @@
 		79C32263166DF848006DB535 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = armv7;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1493,6 +1870,7 @@
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = armv7;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -1500,6 +1878,7 @@
 		79C32265166DF848006DB535 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = armv7;
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/pubnub.app/pubnub";
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
@@ -1524,6 +1903,7 @@
 		79C32266166DF848006DB535 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = armv7;
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/pubnub.app/pubnub";
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
@@ -1548,6 +1928,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		5AC3CD0E17F09110007BCF35 /* Build configuration list for PBXNativeTarget "pubnubTestChaos" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5AC3CD0F17F09110007BCF35 /* Debug */,
+				5AC3CD1017F09110007BCF35 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		79C32222166DF847006DB535 /* Build configuration list for PBXProject "pubnub" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

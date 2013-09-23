@@ -22,14 +22,15 @@
 	NSArray *pnChannels;
 	BOOL subscribeOnChannelsFinish;
 	BOOL participantsListForChannelFinish;
+	BOOL notifyDidDisconnectWithErrorCalled;
 }
 @end
 
 @implementation W_ChaosTest
 
-//-(NSNumber *)shouldReconnectPubNubClient:(id)object {
-//	return [NSNumber numberWithBool: NO];
-//}
+-(NSNumber *)shouldReconnectPubNubClient:(id)object {
+	return [NSNumber numberWithBool: YES];
+}
 
 - (void)handleConnectionErrorOnNetworkFailure {
 	PNLog(PNLogGeneralLevel, nil, @"handleConnectionErrorOnNetworkFailure");
@@ -44,25 +45,81 @@
 }
 
 
+//- (void)notifyDelegateClientWillDisconnectWithError:(PNError *)error {
+//	PNLog(PNLogGeneralLevel, nil, @"notifyDelegateClientWillDisconnectWithError %@", error);
+//}
+
+- (void)notifyDelegateClientDidDisconnectWithError:(PNError *)error {
+	PNLog(PNLogGeneralLevel, nil, @"notifyDelegateClientDidDisconnectWithError %@", error);
+	notifyDidDisconnectWithErrorCalled = YES;
+}
+
+
+- (void)handleClientConnectionStateChange:(NSNotification *)notification {
+    // Default field values
+    BOOL connected = YES;
+    PNError *connectionError = nil;
+    NSString *origin = [PubNub sharedInstance].configuration.origin;
+
+    if([notification.name isEqualToString:kPNClientDidConnectToOriginNotification] ||
+       [notification.name isEqualToString:kPNClientDidDisconnectFromOriginNotification]) {
+
+        origin = (NSString *)notification.userInfo;
+        connected = [notification.name isEqualToString:kPNClientDidConnectToOriginNotification];
+    }
+    else if([notification.name isEqualToString:kPNClientConnectionDidFailWithErrorNotification]) {
+
+        connected = NO;
+        connectionError = (PNError *)notification.userInfo;
+    }
+}
+
+
+
 -(void)setUp {
     [super setUp];
+	NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+
+//	[notificationCenter addObserver:self
+//						   selector:@selector(handleClientConnectionStateChange:)
+//							   name:kPNClientDidConnectToOriginNotification
+//							 object:nil];
+//	[notificationCenter addObserver:self
+//						   selector:@selector(handleClientConnectionStateChange:)
+//							   name:kPNClientDidDisconnectFromOriginNotification
+//							 object:nil];
+//	[notificationCenter addObserver:self
+//						   selector:@selector(handleClientConnectionStateChange:)
+//							   name:kPNClientConnectionDidFailWithErrorNotification
+//							 object:nil];
+}
+
+- (void)test10ConnectionChaos {
 //	semaphore = dispatch_semaphore_create(0);
 //	pnChannels = [PNChannel channelsWithNames:@[@"iosdev", @"andoirddev"]];
     [PubNub setDelegate:self];
-
 	[PubNub disconnect];
+	for( int i=0; (i<100/*[PubNub sharedInstance].configuration.subscriptionRequestTimeout+1*/ &&
+		notifyDidDisconnectWithErrorCalled == NO) && ([PubNub sharedInstance].isConnected == YES); i++ )
+		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
+	STAssertFalse( [PubNub sharedInstance].isConnected, @"[PubNub sharedInstance].isConnected");
+
 	PNConfiguration *configuration = [PNConfiguration configurationForOrigin:@"chaos.pubnub.com" publishKey:@"demo" subscribeKey:@"demo" secretKey: nil cipherKey: nil];
 	//	configuration.autoReconnectClient = NO;
 	[PubNub setConfiguration: configuration];
 
+	conectedFinish = NO;
     [PubNub connectWithSuccessBlock:^(NSString *origin) {
-
+		conectedFinish = YES;
         PNLog(PNLogGeneralLevel, nil, @"{BLOCK} PubNub client connected to: %@", origin);
     }
-						 errorBlock:^(PNError *connectionError) {
-							 PNLog(PNLogGeneralLevel, nil, @"connectionError %@", connectionError);
-							 conectedFinish = YES;
+		 errorBlock:^(PNError *connectionError) {
+			 PNLog(PNLogGeneralLevel, nil, @"connectionError %@", connectionError);
+			 conectedFinish = YES;
 	 }];
+	for( int i=0; (i<100 && conectedFinish == NO); i++ )
+		[[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow: 1.0] ];
+	STAssertTrue( conectedFinish, @"conectedFinish must be YES");
 }
 //
 //- (void)test10ConnectionChaos
@@ -117,7 +174,7 @@
           channel, error);
 	participantsListForChannelFinish = YES;
 }
-- (void)test30ParticipantsListForChannelTimeout
+- (void)test30ParticipantsListForChannel
 {
 	participantsListForChannelFinish = NO;
 	PNChannel *channel = [PNChannel channelsWithNames: @[@"channel"]][0];
