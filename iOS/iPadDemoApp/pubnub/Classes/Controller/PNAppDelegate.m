@@ -129,7 +129,7 @@
     [PubNub connect];
     [PubNub subscribeOnChannel:[PNChannel channelWithName:@"iosdev2"] withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *subscribedChannels,
                                                                                                     PNError *subscribeError) {
-        
+         
         [PubNub enablePresenceObservationForChannels:subscribedChannels
                          withCompletionHandlingBlock:^(NSArray *channelsWithPresence, PNError *presenceEnabledError) {
                              
