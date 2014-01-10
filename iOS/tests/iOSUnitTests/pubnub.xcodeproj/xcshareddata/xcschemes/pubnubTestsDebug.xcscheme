@@ -145,6 +145,9 @@
                <Test
                   Identifier = "Configuration">
                </Test>
+               <Test
+                  Identifier = "PAMTestError">
+               </Test>
             </SkippedTests>
          </TestableReference>
       </Testables>
