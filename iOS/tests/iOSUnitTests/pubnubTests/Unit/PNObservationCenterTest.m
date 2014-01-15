@@ -135,7 +135,7 @@ static struct PNObservationEventsStruct PNObservationEvents = {
 	STAssertTrue( [self isObserver: self presentForEvent: PNObservationEvents.clientConnectionStateChange inCenter: center isOneTime: NO], @"empty");
 	[center removeClientConnectionStateObserver: self];
 	STAssertFalse( [self isObserver: self presentForEvent: PNObservationEvents.clientConnectionStateChange inCenter: center isOneTime: NO], @"empty");
-
+//8
 
 	[center addClientChannelSubscriptionStateObserver: self withCallbackBlock: ^(PNSubscriptionProcessState state, NSArray *a, PNError *e){}];
 	STAssertTrue( [self isObserver: self presentForEvent: PNObservationEvents.clientSubscriptionOnChannels inCenter: center isOneTime: NO], @"empty");
@@ -166,7 +166,7 @@ static struct PNObservationEventsStruct PNObservationEvents = {
 	STAssertTrue( [self isObserver: [PubNub sharedInstance] presentForEvent: PNObservationEvents.clientPresenceDisableOnChannels inCenter: center isOneTime: YES], @"empty");
 	[center removeClientAsPresenceDisabling];
 	STAssertFalse( [self isObserver: [PubNub sharedInstance] presentForEvent: PNObservationEvents.clientPresenceDisableOnChannels inCenter: center isOneTime: YES], @"empty");
-
+//20
 	[center addClientPresenceEnablingObserver: self withCallbackBlock: ^(NSArray *a, PNError *e){}];
 	STAssertTrue( [self isObserver: self presentForEvent: PNObservationEvents.clientPresenceEnableOnChannels inCenter: center isOneTime: NO], @"empty");
 	[center removeClientPresenceEnablingObserver: self];
@@ -196,6 +196,7 @@ static struct PNObservationEventsStruct PNObservationEvents = {
 	STAssertTrue( [self isObserver: self presentForEvent: PNObservationEvents.clientPushNotificationDisabling inCenter: center isOneTime: NO], @"empty");
 	[center removeClientPushNotificationsDisableObserver: self];
 	STAssertFalse( [self isObserver: self presentForEvent: PNObservationEvents.clientPushNotificationDisabling inCenter: center isOneTime: NO], @"empty");
+//32
 
 	[center addClientAsPushNotificationsEnabledChannelsObserverWithBlock: ^(NSArray *a, PNError *e){}];
 	STAssertTrue( [self isObserver: [PubNub sharedInstance] presentForEvent: PNObservationEvents.clientPushNotificationEnabledChannelsRetrieval inCenter: center isOneTime: YES], @"empty");
@@ -216,6 +217,7 @@ static struct PNObservationEventsStruct PNObservationEvents = {
 	STAssertTrue( [self isObserver: self presentForEvent: PNObservationEvents.clientPushNotificationRemovalForAllChannels inCenter: center isOneTime: NO], @"empty");
 	[center removeClientPushNotificationsRemoveObserver: self];
 	STAssertFalse( [self isObserver: self presentForEvent: PNObservationEvents.clientPushNotificationRemovalForAllChannels inCenter: center isOneTime: NO], @"empty");
+//40
 
 	[center addClientAsTimeTokenReceivingObserverWithCallbackBlock: ^(NSNumber *n, PNError *e){}];
 	STAssertTrue( [self isObserver: [PubNub sharedInstance] presentForEvent: PNObservationEvents.clientTimeTokenReceivingComplete inCenter: center isOneTime: YES], @"empty");
@@ -256,7 +258,7 @@ static struct PNObservationEventsStruct PNObservationEvents = {
 	STAssertTrue( [self isObserver: self presentForEvent: PNObservationEvents.clientReceivedHistory inCenter: center isOneTime: NO], @"empty");
 	[center removeMessageHistoryProcessingObserver: self];
 	STAssertFalse( [self isObserver: self presentForEvent: PNObservationEvents.clientReceivedHistory inCenter: center isOneTime: NO], @"empty");
-
+//56
 	[center addClientAsAccessRightsChangeObserverWithBlock: ^(PNAccessRightsCollection *c, PNError *e){}];
 	STAssertTrue( [self isObserver: [PubNub sharedInstance] presentForEvent: PNObservationEvents.clientAccessRightsChange inCenter: center isOneTime: YES], @"empty");
 	[center removeClientAsAccessRightsChangeObserver];
@@ -281,12 +283,12 @@ static struct PNObservationEventsStruct PNObservationEvents = {
 	STAssertTrue( [self isObserver: [PubNub sharedInstance] presentForEvent: PNObservationEvents.clientReceivedParticipantsList inCenter: center isOneTime: YES], @"empty");
 	[center removeClientAsParticipantsListDownloadObserver];
 	STAssertFalse( [self isObserver: [PubNub sharedInstance] presentForEvent: PNObservationEvents.clientReceivedParticipantsList inCenter: center isOneTime: YES], @"empty");
-
+//66
 	[center addChannelParticipantsListProcessingObserver: self withBlock: ^(NSArray *a, PNChannel *c, PNError *e){}];
 	STAssertTrue( [self isObserver: self presentForEvent: PNObservationEvents.clientReceivedParticipantsList inCenter: center isOneTime: NO], @"empty");
 	[center removeChannelParticipantsListProcessingObserver: self];
 	STAssertFalse( [self isObserver: self presentForEvent: PNObservationEvents.clientReceivedParticipantsList inCenter: center isOneTime: NO], @"empty");
-}
+}//68
 
 -(void)testHandle {
 	PNObservationCenter *center = [PNObservationCenter defaultCenter];
@@ -322,7 +324,7 @@ static struct PNObservationEventsStruct PNObservationEvents = {
 	[center handleClientPresenceObservationEnablingProcess: nil];
 	STAssertTrue( isCalled, @"block not called");
 	STAssertTrue( isCalled1, @"block not called");
-
+//75
 	isCalled = NO;
 	isCalled1 = NO;
 	[center addClientPresenceDisablingObserver: self withCallbackBlock: ^(NSArray *a, PNError *e){isCalled = YES;}];
@@ -364,7 +366,7 @@ static struct PNObservationEventsStruct PNObservationEvents = {
 	[center addMessageReceiveObserver: self withBlock: ^(PNMessage *m){isCalled = YES;}];
 	[center handleClientDidReceiveMessage: nil];
 	STAssertTrue( isCalled, @"block not called");
-
+//85
 	isCalled = NO;
 	[center addPresenceEventObserver: self withBlock: ^(PNPresenceEvent *e){isCalled = YES;}];
 	[center handleClientDidReceivePresenceEvent: nil];
@@ -409,7 +411,7 @@ static struct PNObservationEventsStruct PNObservationEvents = {
 	[center handleClientCompletedTimeTokenProcessing: nil];
 	STAssertTrue( isCalled, @"block not called");
 	STAssertTrue( isCalled1, @"block not called");
-}
+}//96
 
 - (BOOL)isObserver:(id)observer presentForEvent:(NSString*)event inCenter:(PNObservationCenter *)center isOneTime:(BOOL)isOneTime {
     NSMutableArray *observersData = nil;
