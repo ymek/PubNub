@@ -148,6 +148,15 @@
                <Test
                   Identifier = "PAMTestError">
                </Test>
+               <Test
+                  Identifier = "PNObservationCenterTest">
+               </Test>
+               <Test
+                  Identifier = "PNWriteBufferTest">
+               </Test>
+               <Test
+                  Identifier = "PNChannelTest">
+               </Test>
             </SkippedTests>
          </TestableReference>
       </Testables>
