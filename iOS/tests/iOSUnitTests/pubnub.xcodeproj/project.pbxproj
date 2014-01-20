@@ -19,6 +19,7 @@
 		5A9F1B6E188D42F300F1302E /* PNWriteBufferTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A9F1B6D188D42F300F1302E /* PNWriteBufferTest.m */; };
 		5A9F1B70188D5BC000F1302E /* PNChannelTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A9F1B6F188D5BC000F1302E /* PNChannelTest.m */; };
 		5A9F1B72188D846300F1302E /* PNChannelPresenceTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A9F1B71188D846300F1302E /* PNChannelPresenceTest.m */; };
+		5A9F1B74188D963E00F1302E /* PNPresenceEventTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A9F1B73188D963E00F1302E /* PNPresenceEventTest.m */; };
 		5AB35E94188007C900B23EAD /* PNObservationCenterTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5AB35E93188007C900B23EAD /* PNObservationCenterTest.m */; };
 		5ABE6C42182B9F1800204DC6 /* gistfile1.txt in Resources */ = {isa = PBXBuildFile; fileRef = 5ABE6C3F182B9F1800204DC6 /* gistfile1.txt */; };
 		5ABE6C43182B9F1800204DC6 /* TestSemaphor.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ABE6C41182B9F1800204DC6 /* TestSemaphor.m */; };
@@ -216,6 +217,7 @@
 		5A9F1B6D188D42F300F1302E /* PNWriteBufferTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PNWriteBufferTest.m; path = pubnubTests/PNWriteBufferTest.m; sourceTree = SOURCE_ROOT; };
 		5A9F1B6F188D5BC000F1302E /* PNChannelTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PNChannelTest.m; path = pubnubTests/PNChannelTest.m; sourceTree = SOURCE_ROOT; };
 		5A9F1B71188D846300F1302E /* PNChannelPresenceTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PNChannelPresenceTest.m; path = pubnubTests/PNChannelPresenceTest.m; sourceTree = SOURCE_ROOT; };
+		5A9F1B73188D963E00F1302E /* PNPresenceEventTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PNPresenceEventTest.m; path = pubnubTests/PNPresenceEventTest.m; sourceTree = SOURCE_ROOT; };
 		5AB35E93188007C900B23EAD /* PNObservationCenterTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PNObservationCenterTest.m; path = pubnubTests/Unit/PNObservationCenterTest.m; sourceTree = SOURCE_ROOT; };
 		5ABE6C3F182B9F1800204DC6 /* gistfile1.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gistfile1.txt; sourceTree = "<group>"; };
 		5ABE6C40182B9F1800204DC6 /* TestSemaphor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestSemaphor.h; sourceTree = "<group>"; };
@@ -670,6 +672,7 @@
 				5ACA67E4185B81F300C2B214 /* PNPresenceEvent+Protected.h */,
 				5ACA67E5185B81F300C2B214 /* PNPresenceEvent.h */,
 				5ACA67E6185B81F300C2B214 /* PNPresenceEvent.m */,
+				5A9F1B73188D963E00F1302E /* PNPresenceEventTest.m */,
 			);
 			path = Presence;
 			sourceTree = "<group>";
@@ -1354,6 +1357,7 @@
 				5ACA68E6185B81F300C2B214 /* PNTimeTokenRequest.m in Sources */,
 				9645C11B174FDA7D00F82D09 /* PNLeaveRequestTest.m in Sources */,
 				5ACA68C2185B81F300C2B214 /* NSData+PNAdditions.m in Sources */,
+				5A9F1B74188D963E00F1302E /* PNPresenceEventTest.m in Sources */,
 				5ACA6882185B81F300C2B214 /* PubNub.m in Sources */,
 				5A058045187D59B400EA8D47 /* PAMTest.m in Sources */,
 				5ACA68E2185B81F300C2B214 /* PNPushNotificationsStateChangeRequest.m in Sources */,

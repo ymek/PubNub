@@ -157,6 +157,9 @@
                <Test
                   Identifier = "PNChannelTest">
                </Test>
+               <Test
+                  Identifier = "PNChannelPresenceTest">
+               </Test>
             </SkippedTests>
          </TestableReference>
       </Testables>
