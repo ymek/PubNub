@@ -160,6 +160,9 @@
                <Test
                   Identifier = "PNChannelPresenceTest">
                </Test>
+               <Test
+                  Identifier = "PNPresenceEventTest">
+               </Test>
             </SkippedTests>
          </TestableReference>
       </Testables>
