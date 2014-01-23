@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0460"
+   LastUpgradeVersion = "0500"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -23,18 +23,6 @@
             </BuildableReference>
             <SkippedTests>
                <Test
-                  Identifier = "PNTimeTokenRequestTest">
-               </Test>
-               <Test
-                  Identifier = "PNSubscribeRequestTest">
-               </Test>
-               <Test
-                  Identifier = "PNServiceChannelTest">
-               </Test>
-               <Test
-                  Identifier = "PNReachabilityTest">
-               </Test>
-               <Test
                   Identifier = "ChangingChannels">
                </Test>
                <Test
@@ -51,15 +39,6 @@
                </Test>
                <Test
                   Identifier = "PNChannelConstructor">
-               </Test>
-               <Test
-                  Identifier = "PNConnectionTest">
-               </Test>
-               <Test
-                  Identifier = "PNHereNowRequestTest">
-               </Test>
-               <Test
-                  Identifier = "PNLatencyMeasureRequestTest">
                </Test>
                <Test
                   Identifier = "HowToTests/test50RequestHistoryForChannel">
@@ -92,28 +71,7 @@
                   Identifier = "AbbreviatedPresenceTest">
                </Test>
                <Test
-                  Identifier = "PNLeaveRequestTest">
-               </Test>
-               <Test
-                  Identifier = "PNMessageHistoryRequestTest">
-               </Test>
-               <Test
-                  Identifier = "PNMessagingChannelTest">
-               </Test>
-               <Test
-                  Identifier = "PNMessagePostRequestTest">
-               </Test>
-               <Test
                   Identifier = "HowToTests">
-               </Test>
-               <Test
-                  Identifier = "SendBigMessage">
-               </Test>
-               <Test
-                  Identifier = "PNCryptoHelperTest">
-               </Test>
-               <Test
-                  Identifier = "PNCryptoTest">
                </Test>
                <Test
                   Identifier = "PAMTest">
@@ -123,18 +81,6 @@
                </Test>
                <Test
                   Identifier = "TimeOutTest">
-               </Test>
-               <Test
-                  Identifier = "PNSubscribeUnsubscribeTest">
-               </Test>
-               <Test
-                  Identifier = "PNConnectionChannelTest">
-               </Test>
-               <Test
-                  Identifier = "PNCryptoHelperTest">
-               </Test>
-               <Test
-                  Identifier = "PNCryptoTest">
                </Test>
                <Test
                   Identifier = "HowToTests">
@@ -149,22 +95,13 @@
                   Identifier = "PAMTestError">
                </Test>
                <Test
-                  Identifier = "PNObservationCenterTest">
-               </Test>
-               <Test
-                  Identifier = "PNWriteBufferTest">
-               </Test>
-               <Test
-                  Identifier = "PNChannelTest">
-               </Test>
-               <Test
-                  Identifier = "PNChannelPresenceTest">
-               </Test>
-               <Test
-                  Identifier = "PNPresenceEventTest">
-               </Test>
-               <Test
                   Identifier = "PNAccessRightOptionsTest">
+               </Test>
+               <Test
+                  Identifier = "PNAccessRightsCollectionTest">
+               </Test>
+               <Test
+                  Identifier = "PNActionResponseParserTest">
                </Test>
             </SkippedTests>
          </TestableReference>

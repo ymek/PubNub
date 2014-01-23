@@ -200,8 +200,6 @@
             PNBitOn(&rights, PNReadAccessRight);
         }
 
-		NSLog(@"[sourceAccessRightsInformation hasWriteRight] %d", [sourceAccessRightsInformation hasWriteRight]);
-		NSLog(@"!PNBitIsOn(rights, PNWriteAccessRight) %d", !PNBitIsOn(rights, PNWriteAccessRight));
         if ([sourceAccessRightsInformation hasWriteRight] && !PNBitIsOn(rights, PNWriteAccessRight)) {
 
             PNBitOn(&rights, PNWriteAccessRight);
