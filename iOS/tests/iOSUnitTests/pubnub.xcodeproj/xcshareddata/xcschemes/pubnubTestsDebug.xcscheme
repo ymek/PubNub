@@ -163,6 +163,9 @@
                <Test
                   Identifier = "PNPresenceEventTest">
                </Test>
+               <Test
+                  Identifier = "PNAccessRightOptionsTest">
+               </Test>
             </SkippedTests>
          </TestableReference>
       </Testables>
