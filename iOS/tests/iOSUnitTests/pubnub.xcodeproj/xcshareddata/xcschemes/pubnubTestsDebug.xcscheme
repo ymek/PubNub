@@ -103,6 +103,72 @@
                <Test
                   Identifier = "PNActionResponseParserTest">
                </Test>
+               <Test
+                  Identifier = "SendBigMessage">
+               </Test>
+               <Test
+                  Identifier = "PNWriteBufferTest">
+               </Test>
+               <Test
+                  Identifier = "PNTimeTokenRequestTest">
+               </Test>
+               <Test
+                  Identifier = "PNSubscribeUnsubscribeTest">
+               </Test>
+               <Test
+                  Identifier = "PNSubscribeRequestTest">
+               </Test>
+               <Test
+                  Identifier = "PNServiceChannelTest">
+               </Test>
+               <Test
+                  Identifier = "PNReachabilityTest">
+               </Test>
+               <Test
+                  Identifier = "PNPresenceEventTest">
+               </Test>
+               <Test
+                  Identifier = "PNObservationCenterTest">
+               </Test>
+               <Test
+                  Identifier = "PNMessagingChannelTest">
+               </Test>
+               <Test
+                  Identifier = "PNMessagePostRequestTest">
+               </Test>
+               <Test
+                  Identifier = "PNMessageHistoryRequestTest">
+               </Test>
+               <Test
+                  Identifier = "PNLeaveRequestTest">
+               </Test>
+               <Test
+                  Identifier = "PNLatencyMeasureRequestTest">
+               </Test>
+               <Test
+                  Identifier = "PNHereNowRequestTest">
+               </Test>
+               <Test
+                  Identifier = "PNCryptoTest">
+               </Test>
+               <Test
+                  Identifier = "PNCryptoHelperTest">
+               </Test>
+               <Test
+                  Identifier = "PNConnectionTest">
+               </Test>
+               <Test
+                  Identifier = "PNConnectionChannelTest">
+               </Test>
+               <Test
+                  Identifier = "PNChannelTest">
+               </Test>
+               <Test
+                  Identifier = "PNChannelPresenceTest">
+               </Test>
+               <Test
+                  Identifier = "PNChannelEventsResponseParserTest">
+               </Test>
             </SkippedTests>
          </TestableReference>
       </Testables>
