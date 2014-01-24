@@ -169,6 +169,9 @@
                <Test
                   Identifier = "PNChannelEventsResponseParserTest">
                </Test>
+               <Test
+                  Identifier = "PNChannelHistoryParserTest">
+               </Test>
             </SkippedTests>
          </TestableReference>
       </Testables>
