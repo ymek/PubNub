@@ -1,10 +1,64 @@
+notifications:
+  email:
+    recipients:
+      - tullerVal@gmail.com
+    on_success: always
+    on_failure: always	
+
 before_install:
+- ./stubForTravis.sh &
 - sudo systemsetup -settimezone Europe/Zaporozhye
+- mkdir -p ./coverage
+- cd .bin/
+- ./copyLibs.sh
+- cd ..
+- fail=0
+
 
 language: objective-c
-script:
-- xcodebuild build -project cocoa/PubNubMacOSTestApplication/PubNubMacOSTestApplication.xcodeproj
-- xcodebuild build -project iOS/iPadDemoApp/pubnub.xcodeproj -sdk iphonesimulator ARCHS=i386 ONLY_ACTIVE_ARCH=YES VALID_ARCHS=i386
-- xcodebuild test -project iOS/tests/iOSUnitTests/pubnub.xcodeproj -scheme travis-ci -sdk iphonesimulator ONLY_ACTIVE_ARCH=YES GCC_PREPROCESSOR_DEFINITIONS="COCOAPODS=1" -configuration Debug
 
+
+
+script:
+# cocoa
+- if xcodebuild build -project cocoa/PubNubMacOSTestApplication/PubNubMacOSTestApplication.xcodeproj clean install > ./coverage/macFail.txt; then echo "success"; mv ./coverage/macFail.txt ./coverage/macSuccess.txt; else echo "fail"; fail=1; fi
+
+- if xcodebuild build -project cocoa/HOWTO/ClientSidePresence/ClientSidePresence.xcodeproj -destination 'platform=OS X,arch=x86_64' clean install > ./coverage/macClientSidePresenceFail.txt; then echo "success"; mv ./coverage/macClientSidePresenceFail.txt ./coverage/macClientSidePresenceSuccess.txt; else echo "fail"; fail=1; fi
+
+- if xcodebuild build -project cocoa/HOWTO/SimpleSubscribe/PubNubMacOSTestApplication.xcodeproj clean install > ./coverage/macPubNubMacOSTestApplicationFail.txt; then echo "success"; mv ./coverage/macPubNubMacOSTestApplicationFail.txt ./coverage/macPubNubMacOSTestApplicationSuccess.txt; else echo "fail"; fail=1; fi
+
+- if xcodebuild build -project iOS/iPadDemoApp/pubnub.xcodeproj -sdk iphonesimulator ARCHS=i386 ONLY_ACTIVE_ARCH=YES VALID_ARCHS=i386 -configuration Debug clean install > ./coverage/log_iOSFail.txt; then echo "success"; mv ./coverage/log_iOSFail.txt ./coverage/log_iOSSuccess.txt; else echo "fail"; fail=1; fi
+
+- if xcodebuild build -project ./iOS/HOWTO/APNSVideo/demo9/demo9.xcodeproj -sdk iphonesimulator ARCHS=i386 ONLY_ACTIVE_ARCH=YES VALID_ARCHS=i386 clean install > ./coverage/iOSDemoFail.txt; then echo "success"; mv ./coverage/iOSDemoFail.txt ./coverage/iOSDemoSuccess.txt; else echo "fail"; fail=1; fi
+
+- if xcodebuild build -project ./iOS/HOWTO/CallsWithoutBlocks/CallsWithoutBlocks.xcodeproj -sdk iphonesimulator ARCHS=i386 ONLY_ACTIVE_ARCH=YES VALID_ARCHS=i386 clean install > ./coverage/iOSCallsWithoutBlocksFail.txt; then echo "success"; mv ./coverage/iOSCallsWithoutBlocksFail.txt ./coverage/iOSCallsWithoutBlocksSuccess.txt; else echo "fail"; fail=1; fi
+
+- if xcodebuild build -project ./iOS/HOWTO/ClientSidePresence/ClientSidePresence.xcodeproj -sdk iphonesimulator ARCHS=i386 ONLY_ACTIVE_ARCH=YES VALID_ARCHS=i386 clean install > ./coverage/iOSClientSidePresenceFail.txt; then echo "success"; mv ./coverage/iOSClientSidePresenceFail.txt ./coverage/iOSClientSidePresenceSuccess.txt; else echo "fail"; fail=1; fi
+
+- if xcodebuild build -project ./iOS/HOWTO/HelloWorld/pubnubDemoExample.xcodeproj -sdk iphonesimulator ARCHS=i386 ONLY_ACTIVE_ARCH=YES VALID_ARCHS=i386 clean install > ./coverage/iOSpubnubDemoExampleFail.txt; then echo "success"; mv ./coverage/iOSpubnubDemoExampleFail.txt ./coverage/iOSpubnubDemoExampleSuccess.txt; else echo "fail"; fail=1; fi
+
+- if xcodebuild build -project ./iOS/HOWTO/SimpleSubscribe/PubNubDemo.xcodeproj -sdk iphonesimulator ARCHS=i386 ONLY_ACTIVE_ARCH=YES VALID_ARCHS=i386 clean install > ./coverage/iOSSimpleSubscribeFail.txt; then echo "success"; mv ./coverage/iOSSimpleSubscribeFail.txt ./coverage/iOSSimpleSubscribeSuccess.txt; else echo "fail"; fail=1; fi
+
+- if xcodebuild build -project ./iOS/HOWTO/ULSMethods/ULSMethods.xcodeproj -sdk iphonesimulator ARCHS=i386 ONLY_ACTIVE_ARCH=YES VALID_ARCHS=i386 clean install > ./coverage/iOSULSMethodsFail.txt; then echo "success"; mv ./coverage/iOSULSMethodsFail.txt ./coverage/iOSULSMethodsSuccess.txt; else echo "fail"; fail=1; fi
+
+- if xcodebuild test -project iOS/tests/iOSUnitTests/pubnub.xcodeproj -scheme MacosTestTravis -sdk macosx10.9 ONLY_ACTIVE_ARCH=NO clean install > ./coverage/MacosTestTravisFail.txt; then echo "success"; mv ./coverage/MacosTestTravisFail.txt ./coverage/MacosTestTravisSuccess.txt; else echo "fail"; fail=1; fi
+
+
+
+# - if xcodebuild build -project iOS/iPadDemoApp/pubnubForFail.xcodeproj > ./coverage/log_iOSForFailFail.txt; then echo "success"; mv ./coverage/log_iOSForFailFail.txt ./coverage/log_iOSForFailSuccess.txt; else echo "fail"; fail=1; fi
+
+# - if xcodebuild test -project iOS/tests/iOSUnitTests/pubnub.xcodeproj -scheme unitTest -sdk iphonesimulator ONLY_ACTIVE_ARCH=YES -configuration Debug > ./coverage/log_Test_unitTestFail.txt; then echo "success"; mv ./coverage/log_Test_unitTestFail.txt ./coverage/log_Test_unitTestSuccess.txt; else echo "fail"; fail=1;  fi
+
+- if xcodebuild test -project iOS/tests/iOSUnitTests/pubnub.xcodeproj -scheme travis-ci -sdk iphonesimulator ONLY_ACTIVE_ARCH=YES -configuration Debug > ./coverage/log_Test_iOSFail.txt; then echo "success"; mv ./coverage/log_Test_iOSFail.txt ./coverage/log_Test_iOSSuccess.txt; else echo "fail"; fail=1; fi
+
+- if [ "$fail" = "1" ]; then echo "Please, check logs"; xcodebuild build -project fail.xcodeproj; fi
+
+after_failure:
+- echo "fail" > ./coverage/fail.txt
+
+after_success:
+- rm ./coverage/fail.txt
+
+after_script:
+- ./update-gh-pages.sh $fail
 

@@ -383,7 +383,7 @@
 		5A198E97181593EC00D20005 /* ChangingChannels.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChangingChannels.m; sourceTree = "<group>"; };
 		5A1ACB7218EEB6EE00D0BF24 /* HowToSleepMacTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HowToSleepMacTest.m; path = pubnubTests/HowToTests/HowToSleepMacTest.m; sourceTree = SOURCE_ROOT; };
 		5A3A057F1823EE18009CF68B /* PNChannelConstructor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNChannelConstructor.m; sourceTree = "<group>"; };
-		5A4826D618632BBF008370E2 /* ChannelLimitTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChannelLimitTest.m; sourceTree = "<group>"; };
+		5A4826D618632BBF008370E2 /* ChannelLimitTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ChannelLimitTest.m; path = ../../../pubnubTests/ChannelLimitTest.m; sourceTree = "<group>"; };
 		5A4ED25618A51DB8002C7E8D /* HowToTestsCompressed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HowToTestsCompressed.m; sourceTree = "<group>"; };
 		5A65FDCB18EB522700FFEC42 /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libOCMock.a; path = pubnubTests/usr/iOS/libOCMock.a; sourceTree = "<group>"; };
 		5A65FDCE18EB523500FFEC42 /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
@@ -1250,6 +1250,7 @@
 				5ACCA97917F3201D00FE90CF /* Swizzler.m */,
 				79DC835F1773A8680061A76C /* PNCryptoHelperTest.h */,
 				79DC83601773A8680061A76C /* PNCryptoHelperTest.m */,
+				5A4826D618632BBF008370E2 /* ChannelLimitTest.m */,
 				5ADD307C189AADDB00688B3E /* UnitTests */,
 				5ACCA97717F3201D00FE90CF /* TimeOutTest */,
 				5ACCA99817F3208200FE90CF /* ChaosTest */,
@@ -1361,7 +1362,6 @@
 				5ADD30DD189ABEEA00688B3E /* PNHereNowResponseParserTest.m */,
 				5A9461C118A16699004190FB /* PNDateTest.m */,
 				5A9461BF18A14D49004190FB /* PNConfigurationTest.m */,
-				5A4826D618632BBF008370E2 /* ChannelLimitTest.m */,
 			);
 			name = UnitTests;
 			path = ../../../pubnubTests;
