@@ -8,14 +8,10 @@
 
 #import "BVAppDelegate.h"
 #import "BVBackgroundHelper.h"
+#import "BVAlertView.h"
 
 
-#pragma mark Static
-
-static NSTimeInterval const kBVMessageSendInterval = 1.0f;
-
-
-#pragma mark - Private interface declaration
+#pragma mark Private interface declaration
 
 @interface BVAppDelegate () <PNDelegate>
 
@@ -28,9 +24,7 @@ static NSTimeInterval const kBVMessageSendInterval = 1.0f;
 
 #pragma mark - Instance methods
 
-#pragma mark - Handler methods
-
-- (void)handleMessageSendTimer:(NSTimer *)timer;
+- (void)preparePubNubClient;
 
 #pragma mark -
 
@@ -45,61 +39,77 @@ static NSTimeInterval const kBVMessageSendInterval = 1.0f;
 
 #pragma mark - Instance methods
 
-#pragma mark - Handler methods
-
-- (void)handleMessageSendTimer:(NSTimer *)timer {
+- (void)preparePubNubClient {
     
-    if ([[PubNub sharedInstance] isConnected]) {
-        
-        NSString *context = @"FOREGROUND";
-        NSInteger currentValue = 0;
-        NSTimeInterval timeInBackgroundHasLeft = [UIApplication sharedApplication].backgroundTimeRemaining;
-        NSString *backgroundInfo = @"";
+    [[PNObservationCenter defaultCenter] removeMessageReceiveObserver:self];
+    [[PNObservationCenter defaultCenter] addMessageReceiveObserver:self withBlock:^(PNMessage *message) {
         
         if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
             
-            _backgroundExecutionDuration++;
-            context = @"BACKGROUND";
-            backgroundInfo = [NSString stringWithFormat:@". %f seconds or %d minutes left to work in background",
-                              timeInBackgroundHasLeft, (int)(timeInBackgroundHasLeft/60)];
-            currentValue = self.backgroundExecutionDuration;
+            if ([message.message isKindOfClass:[NSDictionary class]] && [message.message valueForKey:@"pong"] == nil) {
+                
+                UILocalNotification *notification = [UILocalNotification new];
+                notification.alertBody = [NSString stringWithFormat:@"PubNub received:\n%@", message.message];
+                notification.alertAction = @"Back to PubNub";
+                notification.soundName = UILocalNotificationDefaultSoundName;
+                notification.applicationIconBadgeNumber = ([UIApplication sharedApplication].applicationIconBadgeNumber + 1);
+                
+                [[UIApplication sharedApplication] presentLocalNotificationNow:notification];
+                
+                [PubNub sendMessage:@{@"pong":message.message} toChannel:message.channel];
+            }
         }
-        else {
-            
-            _foregroundExecutionDuration++;
-            currentValue = self.foregroundExecutionDuration;
-        }
+    }];
+    
+    
+    [PubNub setConfiguration:[PNConfiguration defaultConfiguration]];
+    
+    BVAlertView *progressAlertView = [BVAlertView viewForProcessProgress];
+    [progressAlertView showInView:self.window.rootViewController.view];
+    [PubNub connectWithSuccessBlock:^(NSString *origin) {
         
-        [PubNub sendMessage:[NSString stringWithFormat:@"In %@ for %ld seconds or %ld minutes%@",
-                             context, (long)currentValue, (long)(currentValue/60), backgroundInfo]
-                  toChannel:[PNChannel channelWithName:@"iosdev-voip-background"]];
+        [PubNub subscribeOnChannel:[PNChannel channelWithName:@"iosdev-background"]
+       withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *channels, PNError *subscribeError) {
+           
+           [progressAlertView dismissWithAnimation:YES];
+       }];
     }
+                         errorBlock:^(PNError *connectionError) {
+                             
+                             NSString *detailedDescription = @"Waiting for internet connection check.";
+                             if (connectionError) {
+                                 
+                                 detailedDescription = [NSString stringWithFormat:@"PubNub client unable to connect because of error: %@",
+                                                        connectionError.localizedFailureReason];
+                             }
+                             
+                             BVAlertView *view = [BVAlertView viewWithTitle:@"Connection state" type:BVAlertWarning
+                                                               shortMessage:@"Unable to connect." detailedMessage:detailedDescription
+                                                          cancelButtonTitle:@"OK" otherButtonTitles:nil andEventHandlingBlock:NULL];
+                             [view showInView:self.window.rootViewController.view];
+                             
+                             [progressAlertView dismissWithAnimation:YES];
+                         }];
+    
+    [[UIApplication sharedApplication] setKeepAliveTimeout:600 handler:^{
+        
+        [PubNub disconnect];
+        [self preparePubNubClient];
+    }];
 }
-
 
 #pragma mark - UIApplication delegate methods
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
-    [BVBackgroundHelper launch];
-    [PubNub setupWithConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
-    [PubNub connect];
-    [PubNub subscribeOnChannel:[PNChannel channelWithName:@"iosdev-voip-background"]];
-    
+    [self preparePubNubClient];
     
     return YES;
 }
 
-
-#pragma mark - PNDelegate methods
-
-- (void)pubnubClient:(PubNub *)client didConnectToOrigin:(NSString *)origin {
+- (void)applicationDidBecomeActive:(UIApplication *)application {
     
-    if (self.backgroundExecutionDuration == 0) {
-        
-        [NSTimer scheduledTimerWithTimeInterval:kBVMessageSendInterval target:self selector:@selector(handleMessageSendTimer:)
-                                       userInfo:nil repeats:YES];
-    }
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
 }
 
 #pragma mark -

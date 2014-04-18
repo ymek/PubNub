@@ -7,6 +7,7 @@
 //
 
 #import "BVBackgroundHelper.h"
+#import <CoreLocation/CoreLocation.h>
 
 
 #pragma mark Static
@@ -16,53 +17,44 @@ static NSTimeInterval const kBVBackgroundTimerExecutionInterval = 5.0f;
 
 #pragma mark - Private interface declaration
 
-@interface BVBackgroundHelper ()
+@interface BVBackgroundHelper () <CLLocationManagerDelegate>
 
 
 #pragma mark - Properties
 
 /**
- Stores reference on block which will handle background task execution completion to reissue request for extension once
- more.
+ Stores reference on configured location manager which will allow application work while it in background.
  */
-@property (nonatomic, copy) void(^backgroundHandlerBlock)(void);
+@property (nonatomic, strong) CLLocationManager *locationManager;
 
 /**
- Stores reference on identifier for recently launched background execution task.
+ Mode which should be used to try keep application run in background persistently.
  */
-@property (nonatomic, assign) UIBackgroundTaskIdentifier backgroundTaskIdentifier;
-
-/**
- Stores whether previous background execution task expired or not.
- */
-@property (nonatomic, assign, getter = isTaskExpired) BOOL taskExpired;
-
-@property (nonatomic, assign) NSInteger backgroundExecutionDuration;
+@property (nonatomic, assign) BVBackgroundSupportMode backgroundSupportMode;
 
 
 #pragma mark - Class methods
 
 + (BVBackgroundHelper *)sharedInstance;
 
-/**
- Extend time which can be used by application for tasks execution while in background execution context.
- */
-+ (void)prolongueBackgroundExecutionTime;
-
 
 #pragma mark - Instance methods
 
 /**
+ Terinate perviously activated helper mode.
+ */
+- (void)stop;
+
+/**
  Launch code which will make sure that application is busy and system won't suspend it.
  */
-- (void)launchProlongueTask;
+- (void)launch;
 
 
 #pragma mark - Handler methods
 
 - (void)handleApplicationDidEnterBackground:(NSNotification *)notification;
 - (void)handleApplicationDidBecomeActive:(NSNotification *)notification;
-- (void)handleTimer:(NSTimer *)timer;
 
 #pragma mark -
 
@@ -90,39 +82,10 @@ static NSTimeInterval const kBVBackgroundTimerExecutionInterval = 5.0f;
     return _sharedInstance;
 }
 
-+ (void)launch {
++ (void)launchForMode:(BVBackgroundSupportMode)backgroundSupportMode {
     
-    // Trigger singleton creation.
-    [self sharedInstance];
-    
-    NSLog(@"[BVBackgroundHelper] Helper started it's work and observation.");
-    
-    // Check whether application launched while in background so we can extend our background execution time right away.
-    if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
-        
-        [self prolongueBackgroundExecutionTime];
-    }
+    [self sharedInstance].backgroundSupportMode = backgroundSupportMode;
 }
-
-+ (void)prolongueBackgroundExecutionTime {
-    
-    if ([self sharedInstance].backgroundTaskIdentifier == UIBackgroundTaskInvalid) {
-        
-        NSLog(@"[BVBackgroundHelper::Prolongue] Launch background execution period prolongue");
-        
-        [[self sharedInstance] launchProlongueTask];
-        [self sharedInstance].backgroundTaskIdentifier = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:[self sharedInstance].backgroundHandlerBlock];
-        
-        [self sharedInstance].backgroundExecutionDuration = 0;
-        [NSTimer scheduledTimerWithTimeInterval:kBVBackgroundTimerExecutionInterval target:[self sharedInstance]
-                                       selector:@selector(handleTimer:) userInfo:nil repeats:YES];
-    }
-    else {
-        
-        NSLog(@"[BVBackgroundHelper::Prolongue] Already running background exection period prolongue code");
-    }
-}
-
 
 #pragma mark - Instance methods
 
@@ -130,25 +93,6 @@ static NSTimeInterval const kBVBackgroundTimerExecutionInterval = 5.0f;
     
     // Check whether initialization has been successful or not.
     if ((self = [super init])) {
-        
-        self.backgroundTaskIdentifier = UIBackgroundTaskInvalid;
-        
-        __block __pn_desired_weak __typeof(self) weakSelf = self;
-        self.backgroundHandlerBlock = ^{
-            
-            [[UIApplication sharedApplication] endBackgroundTask:weakSelf.backgroundTaskIdentifier];
-            weakSelf.backgroundTaskIdentifier = UIBackgroundTaskInvalid;
-            weakSelf.backgroundTaskIdentifier = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:weakSelf.backgroundHandlerBlock];
-            
-            NSLog(@"[BVBackgroundHelper::Prolongue] Background execution period prolongue expired");
-            
-            weakSelf.taskExpired = YES;
-            while(weakSelf.isTaskExpired) {
-                
-                [NSThread sleepForTimeInterval:1];
-            }
-            [weakSelf launchProlongueTask];
-        };
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleApplicationDidEnterBackground:)
                                                      name:UIApplicationDidEnterBackgroundNotification object:nil];
@@ -160,21 +104,91 @@ static NSTimeInterval const kBVBackgroundTimerExecutionInterval = 5.0f;
     return self;
 }
 
-- (void)launchProlongueTask {
+- (void)stop {
     
-    NSLog(@"[BVBackgroundHelper::Task] Launch prolongue task");
-    
-    __block __pn_desired_weak __typeof(self) weakSelf = self;
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        
-        while ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground && !weakSelf.isTaskExpired) {
+    switch (self.backgroundSupportMode) {
             
-            [NSThread sleepForTimeInterval:1];
-        }
-        
-        weakSelf.taskExpired = NO;
-    });
+        case BVBackgroundSupportGPSMode:
+            
+            NSLog(@"[BVBackgroundHelper::Stop] VoIP type background support mode.");
+            
+            break;
+        case BVBackgroundSupportVoIPMode:
+            
+            NSLog(@"[BVBackgroundHelper::Stop] GPS type background support mode.");
+            
+            self.locationManager = nil;
+            
+            break;
+            
+        default:
+            break;
+    }
 }
+
+- (void)launch {
+    
+    NSLog(@"[BVBackgroundHelper::Task] Launch ");
+    
+    switch (self.backgroundSupportMode) {
+            
+        case BVBackgroundSupportGPSMode:
+            
+            NSLog(@"[BVBackgroundHelper::Launch] GPS type background support mode.");
+            
+            self.locationManager = [CLLocationManager new];
+            
+            if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
+                
+                [self.locationManager startUpdatingLocation];
+            }
+            
+            break;
+        case BVBackgroundSupportVoIPMode:
+            
+            NSLog(@"[BVBackgroundHelper::Launch] VoIP type background support mode.");
+            
+            break;
+            
+        default:
+            break;
+    }
+}
+
+- (void)setBackgroundSupportMode:(BVBackgroundSupportMode)backgroundSupportMode {
+    
+    BOOL isModeChanged = _backgroundSupportMode != backgroundSupportMode;
+    _backgroundSupportMode = backgroundSupportMode;
+    
+    if (isModeChanged) {
+        
+        [self stop];
+        [self launch];
+    }
+}
+
+- (void)setLocationManager:(CLLocationManager *)locationManager {
+    
+    if (!locationManager) {
+        
+        [_locationManager stopUpdatingLocation];
+        _locationManager.delegate = nil;
+    }
+    else {
+        
+        locationManager.delegate = self;
+        locationManager.pausesLocationUpdatesAutomatically = NO;
+        locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation;
+        locationManager.distanceFilter = 5;
+        if ([CLLocationManager authorizationStatus] != kCLAuthorizationStatusAuthorized) {
+            
+            [locationManager startUpdatingLocation];
+            [locationManager stopUpdatingLocation];
+        }
+    }
+    _locationManager = locationManager;
+}
+
 
 #pragma mark - Handler methods
 
@@ -182,35 +196,39 @@ static NSTimeInterval const kBVBackgroundTimerExecutionInterval = 5.0f;
     
     NSLog(@"[BVBackgroundHelper::State] Application entered background execution context");
     
-    [[self class] prolongueBackgroundExecutionTime];
+    switch (self.backgroundSupportMode) {
+            
+        case BVBackgroundSupportGPSMode:
+                
+            [self.locationManager startUpdatingLocation];
+            
+            break;
+        case BVBackgroundSupportVoIPMode:
+            
+            break;
+            
+        default:
+            break;
+    }
 }
 
 - (void)handleApplicationDidBecomeActive:(NSNotification *)notification {
     
     NSLog(@"[BVBackgroundHelper::State] Application entered foreground execution context");
     
-    if (self.backgroundTaskIdentifier != UIBackgroundTaskInvalid) {
-        
-        NSLog(@"[BVBackgroundHelper::Prolongue] Suspend background execution period prolongue");
-        
-        [[UIApplication sharedApplication] endBackgroundTask:self.backgroundTaskIdentifier];
-        self.backgroundTaskIdentifier = UIBackgroundTaskInvalid;
-    }
-}
-
-- (void)handleTimer:(NSTimer *)timer {
-    
-    _backgroundExecutionDuration += (int)timer.timeInterval;
-    
-    if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
-        
-        NSLog(@"[BVBackgroundHelper::Background] In background for %ld seconds (%ld minutes)",
-              (long)self.backgroundExecutionDuration, (long)(self.backgroundExecutionDuration/60));
-    }
-    else {
-        
-        self.backgroundExecutionDuration = 0;
-        [timer invalidate];
+    switch (self.backgroundSupportMode) {
+            
+        case BVBackgroundSupportGPSMode:
+            
+            [self.locationManager stopUpdatingLocation];
+            
+            break;
+        case BVBackgroundSupportVoIPMode:
+            
+            break;
+            
+        default:
+            break;
     }
 }
 

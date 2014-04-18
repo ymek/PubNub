@@ -1520,6 +1520,7 @@ void writeStreamCallback(CFWriteStreamRef stream, CFStreamEventType type, void *
     if (isStreamReady) {
 
         isStreamReady = CFReadStreamSetProperty(readStream, kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanTrue);
+        isStreamReady = CFReadStreamSetProperty(readStream, kCFStreamNetworkServiceType, kCFStreamNetworkServiceTypeVoIP);
     }
 
     if (self.streamSecuritySettings != NULL && isStreamReady) {
