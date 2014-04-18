@@ -41,13 +41,6 @@
 
 #pragma mark - Instance methods
 
-- (void)awakeFromNib {
-    
-    // Forward method call to the super class
-    [super awakeFromNib];
-}
-
-
 #pragma mark - Handler methods
 
 - (IBAction)handleButtonTap:(id)sender {
