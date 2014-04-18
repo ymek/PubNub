@@ -15,7 +15,7 @@
 		79B285D519001C9200C6B281 /* BVRoundedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 79B285D419001C9200C6B281 /* BVRoundedView.m */; };
 		79B285D819001D2800C6B281 /* BVPopoverView.m in Sources */ = {isa = PBXBuildFile; fileRef = 79B285D719001D2800C6B281 /* BVPopoverView.m */; };
 		79B285DB19001DD100C6B281 /* BVShadowEnableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 79B285DA19001DD100C6B281 /* BVShadowEnableView.m */; };
-		79B285DF19001F0200C6B281 /* UIScreen+BVAddition.m in Sources */ = {isa = PBXBuildFile; fileRef = 79B285DE19001F0200C6B281 /* UIScreen+BVAddition.m */; };
+		79B285E6190197BC00C6B281 /* UIScreen+BVAddition.m in Sources */ = {isa = PBXBuildFile; fileRef = 79B285E3190197BC00C6B281 /* UIScreen+BVAddition.m */; };
 		79CD874C18F72693009208B2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79CD874B18F72693009208B2 /* Foundation.framework */; };
 		79CD874E18F72693009208B2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79CD874D18F72693009208B2 /* CoreGraphics.framework */; };
 		79CD875018F72693009208B2 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79CD874F18F72693009208B2 /* UIKit.framework */; };
@@ -113,9 +113,9 @@
 		79B285D719001D2800C6B281 /* BVPopoverView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BVPopoverView.m; sourceTree = "<group>"; };
 		79B285D919001DD100C6B281 /* BVShadowEnableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BVShadowEnableView.h; sourceTree = "<group>"; };
 		79B285DA19001DD100C6B281 /* BVShadowEnableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BVShadowEnableView.m; sourceTree = "<group>"; };
-		79B285DC19001ECF00C6B281 /* BVAlertViewDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BVAlertViewDelegate.h; sourceTree = SOURCE_ROOT; };
-		79B285DD19001F0200C6B281 /* UIScreen+BVAddition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScreen+BVAddition.h"; sourceTree = SOURCE_ROOT; };
-		79B285DE19001F0200C6B281 /* UIScreen+BVAddition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScreen+BVAddition.m"; sourceTree = SOURCE_ROOT; };
+		79B285E2190197BC00C6B281 /* UIScreen+BVAddition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScreen+BVAddition.h"; sourceTree = "<group>"; };
+		79B285E3190197BC00C6B281 /* UIScreen+BVAddition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScreen+BVAddition.m"; sourceTree = "<group>"; };
+		79B285E5190197BC00C6B281 /* BVAlertViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BVAlertViewDelegate.h; sourceTree = "<group>"; };
 		79CD874818F72693009208B2 /* backgroundvoip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = backgroundvoip.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		79CD874B18F72693009208B2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		79CD874D18F72693009208B2 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -383,6 +383,32 @@
 			path = Base;
 			sourceTree = "<group>";
 		};
+		79B285E0190197BC00C6B281 /* Misc */ = {
+			isa = PBXGroup;
+			children = (
+				79B285E1190197BC00C6B281 /* Categories */,
+				79B285E4190197BC00C6B281 /* Protocols */,
+			);
+			path = Misc;
+			sourceTree = "<group>";
+		};
+		79B285E1190197BC00C6B281 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				79B285E2190197BC00C6B281 /* UIScreen+BVAddition.h */,
+				79B285E3190197BC00C6B281 /* UIScreen+BVAddition.m */,
+			);
+			path = Categories;
+			sourceTree = "<group>";
+		};
+		79B285E4190197BC00C6B281 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				79B285E5190197BC00C6B281 /* BVAlertViewDelegate.h */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
 		79CD873F18F72693009208B2 = {
 			isa = PBXGroup;
 			children = (
@@ -438,7 +464,7 @@
 			isa = PBXGroup;
 			children = (
 				79CD878818F7294C009208B2 /* Controller */,
-				79CD878F18F7294C009208B2 /* Misc */,
+				79B285E0190197BC00C6B281 /* Misc */,
 				79CD879218F7294C009208B2 /* Model */,
 				792618BE18FFC707005DE3CA /* View */,
 			);
@@ -454,32 +480,6 @@
 				792618C618FFD0DD005DE3CA /* BVMainViewController.m */,
 			);
 			path = Controller;
-			sourceTree = "<group>";
-		};
-		79CD878F18F7294C009208B2 /* Misc */ = {
-			isa = PBXGroup;
-			children = (
-				79CD879018F7294C009208B2 /* Categories */,
-				79CD879118F7294C009208B2 /* Protocols */,
-			);
-			path = Misc;
-			sourceTree = "<group>";
-		};
-		79CD879018F7294C009208B2 /* Categories */ = {
-			isa = PBXGroup;
-			children = (
-				79B285DD19001F0200C6B281 /* UIScreen+BVAddition.h */,
-				79B285DE19001F0200C6B281 /* UIScreen+BVAddition.m */,
-			);
-			path = Categories;
-			sourceTree = "<group>";
-		};
-		79CD879118F7294C009208B2 /* Protocols */ = {
-			isa = PBXGroup;
-			children = (
-				79B285DC19001ECF00C6B281 /* BVAlertViewDelegate.h */,
-			);
-			path = Protocols;
 			sourceTree = "<group>";
 		};
 		79CD879218F7294C009208B2 /* Model */ = {
@@ -960,7 +960,7 @@
 				79CD887F18F7294C009208B2 /* PNResponseParser.m in Sources */,
 				79CD886A18F7294C009208B2 /* BVAppDelegate.m in Sources */,
 				79CD889618F7294C009208B2 /* NSDictionary+PNAdditions.m in Sources */,
-				79B285DF19001F0200C6B281 /* UIScreen+BVAddition.m in Sources */,
+				79B285E6190197BC00C6B281 /* UIScreen+BVAddition.m in Sources */,
 				79CD888418F7294C009208B2 /* PNAccessRightsInformation.m in Sources */,
 				79CD888F18F7294C009208B2 /* PNOperationStatus.m in Sources */,
 				79CD889B18F7294C009208B2 /* PNAccessRightsAuditRequest.m in Sources */,
