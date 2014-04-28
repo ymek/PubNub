@@ -1796,6 +1796,7 @@ void writeStreamCallback(CFWriteStreamRef stream, CFStreamEventType type, void *
     if (isStreamReady) {
         
         isStreamReady = CFWriteStreamSetProperty(writeStream, kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanTrue);
+        isStreamReady = CFWriteStreamSetProperty(writeStream, kCFStreamNetworkServiceType, kCFStreamNetworkServiceTypeVoIP);
     }
 
 
