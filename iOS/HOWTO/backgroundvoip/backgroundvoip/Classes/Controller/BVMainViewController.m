@@ -44,21 +44,6 @@
 #pragma mark - Handler methods
 
 - (IBAction)handleButtonTap:(id)sender {
-    
-    if ([sender isEqual:self.gpsButton]) {
-        
-        NSLog(@"USE GPS");
-        self.voipButton.enabled = YES;
-        ((BVButton *)sender).enabled = NO;
-        [BVBackgroundHelper launchForMode:BVBackgroundSupportGPSMode];
-    }
-    else {
-        
-        NSLog(@"USE VoIP");
-        self.gpsButton.enabled = YES;
-        ((BVButton *)sender).enabled = NO;
-        [BVBackgroundHelper launchForMode:BVBackgroundSupportVoIPMode];
-    }
 }
 
 

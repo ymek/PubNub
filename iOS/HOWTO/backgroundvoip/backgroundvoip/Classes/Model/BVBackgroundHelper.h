@@ -9,28 +9,7 @@
 #import <Foundation/Foundation.h>
 
 
-#pragma mark Structures
-
-typedef enum _BVBackgroundSupportMode {
-    
-    /**
-     Background support mode is unknown or not set ye.
-     */
-    BVBackgroundSupportUnknownMode,
-    
-    /**
-     Background operation should be supported by enabling GSP radio for persistent operation.
-     */
-    BVBackgroundSupportGPSMode,
-    
-    /**
-     Background operation should be supported by enabling VoIP socket and it's usage by continuous pinging.
-     */
-    BVBackgroundSupportVoIPMode
-} BVBackgroundSupportMode;
-
-
-#pragma mark - Public interface declaration
+#pragma mark Public interface declaration
 
 @interface BVBackgroundHelper : NSObject
 
@@ -38,12 +17,22 @@ typedef enum _BVBackgroundSupportMode {
 #pragma mark - Class methods
 
 /**
- Launch helper which will handle application transitions and try to extend background execution time.
- 
- @param backgroundSupportMode
- Mode which should be used by helper to keep app running in background and accept data.
+ Perform helper initialization and prepare it to handle all application transitions and \b PubNub client state change.
+
+ @param completionHandler
+ Block which is used by helper to notify user about initial configuration completed. Block pass reference on block
+ which should be called by user when he will complete his part of PubNub and application stack configuration.
+
+ @param reinitializationBlock
+ Block which will be called from background helper in case if application stack reinitialization will be required.
  */
-+ (void)launchForMode:(BVBackgroundSupportMode)backgroundSupportMode;
++ (void)prepareWithInitializationCompleteHandler:(void(^)(void(^)(void)))completionHandler
+                        andReinitializationBlock:(void(^)(void))reinitializationBlock;
+
+/**
+ Forward connection request to the \b PubNub client for further processing.
+ */
++ (void)connectWithSuccessBlock:(void(^)(NSString *))success errorBlock:(void(^)(PNError *))failure;
 
 #pragma mark -
 
