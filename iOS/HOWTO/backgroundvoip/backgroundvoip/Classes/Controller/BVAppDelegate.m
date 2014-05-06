@@ -42,7 +42,7 @@
     [PubNub setConfiguration:[PNConfiguration defaultConfiguration]];
     [BVBackgroundHelper prepareWithInitializationCompleteHandler:^(void (^completionBlock)(void)) {
 
-        [PubNub subscribeOnChannel:[PNChannel channelWithName:@"a"]
+        [PubNub subscribeOnChannel:[PNChannel channelWithName:@"iosdev-background"]
         withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *array, PNError *error) {
 
             [progressAlertView dismissWithAnimation:YES];

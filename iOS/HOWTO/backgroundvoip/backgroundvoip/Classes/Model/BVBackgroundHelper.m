@@ -13,6 +13,11 @@
 #pragma mark Static
 
 /**
+ Stores reference on action which should be treated as APNS notification simulation.
+ */
+static NSString * const kBVMessageAPNSAction = @"apns";
+
+/**
  Stores reference on key under which concrete notification identifier is stored.
  */
 static NSString * const kBVNotificationIdentifierKey = @"identifier";
@@ -26,12 +31,34 @@ static NSString * const kBVBackgroundHelperNotificationIdentifier = @"com.backgr
 /**
  Stores reference on minimum difference in time before local notification should be reissued.
  */
-static NSTimeInterval const kBVBackgroundMinimumTimeBeforeNotificationFire = 5.0f;
+static NSTimeInterval const kBVBackgroundMinimumTimeBeforeNotificationFire = 15.0f;
 
 /**
  Stores reference on interval after which local notification should be checked.
  */
-static NSTimeInterval const kBVLocalNotificationCheckInterval = 3.0f;
+static NSTimeInterval const kBVLocalNotificationCheckInterval = 4.0f;
+
+
+#pragma mark - Structures
+
+struct BVMessagePayloadKeysStruct {
+    
+    /**
+     Under this key expected action is stored.
+     */
+    __unsafe_unretained NSString *actionType;
+    
+    /**
+     Under this key store message which should be shown with notification center.
+     */
+    __unsafe_unretained NSString *message;
+};
+
+struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
+    
+    .actionType = @"action",
+    .message = @"message"
+};
 
 
 #pragma mark - Private interface declaration
@@ -136,6 +163,11 @@ static NSTimeInterval const kBVLocalNotificationCheckInterval = 3.0f;
 - (void)handleApplicationDidEnterBackground:(NSNotification *)notification;
 - (void)handleApplicationDidBecomeActive:(NSNotification *)notification;
 
+
+#pragma mark - Misc methods
+
+- (void)handleNewMessage:(PNMessage *)message;
+
 #pragma mark -
 
 
@@ -198,41 +230,22 @@ static NSTimeInterval const kBVLocalNotificationCheckInterval = 3.0f;
                                                                                 PNError *connectionError) {
 
             if (connected) {
-
-                // Lets subscribe on some controlling channel which will be responsible for awakening application to
-                // accept new portion of data.
-                [PubNub subscribeOnChannel:[PNChannel channelWithName:@"iosdev-background"]
-               withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *array, PNError *subscribeError) {
-
-                    // Ensure that PubNub client completed subscription to the controlling channel.
-                    if (state != PNSubscriptionProcessNotSubscribedState) {
-
-                        PNLog(PNLogGeneralLevel, weakSelf, @"{INFO} Whoooray, controlling channel plugged in and ready "
-                              "to send commands.");
-
-                        void(^completionHandler)(void) = ^{
-
-                            [weakSelf startBackgroundSupport];
-                        };
-                        if (weakSelf.completionHandler) {
-
-                            // Passing block which will be called by user at the end of his preparations to switch
-                            // execution mode back to VoIP style.
-                            weakSelf.completionHandler(completionHandler);
-                        }
-                        else {
-
-                            completionHandler();
-                        }
-                    }
-                    else if (subscribeError){
-
-                        PNLog(PNLogGeneralLevel, weakSelf, @"{ERROR} Looks like there is no ability to subscribe on "
-                              "controlling channel because of error: %@", subscribeError.localizedFailureReason);
-                        
-                        [weakSelf startBackgroundSupport];
-                    }
-                }];
+                
+                void(^completionHandler)(void) = ^{
+                    
+                    [weakSelf startBackgroundSupport];
+                };
+                
+                if (weakSelf.completionHandler) {
+                    
+                    // Passing block which will be called by user at the end of his preparations to switch
+                    // execution mode back to VoIP style.
+                    weakSelf.completionHandler(completionHandler);
+                }
+                else {
+                    
+                    completionHandler();
+                }
             }
             // Looks like client is unable to connect because of some reasons (no internet connection or troubles
             // with SSL),
@@ -262,6 +275,11 @@ static NSTimeInterval const kBVLocalNotificationCheckInterval = 3.0f;
                 
                 [weakSelf startBackgroundSupport];
             }
+        }];
+        
+        [[PNObservationCenter defaultCenter] addMessageReceiveObserver:self withBlock:^(PNMessage *message) {
+            
+            [self handleNewMessage:message];
         }];
 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleApplicationDidEnterBackground:)
@@ -438,7 +456,7 @@ static NSTimeInterval const kBVLocalNotificationCheckInterval = 3.0f;
 - (void)rescheduleReminderNotification {
     
     // Calculate how much time is left before loocal notification will appear.
-    NSTimeInterval timeBeforeNotificationApper = [[NSDate date] timeIntervalSinceDate:self.nextLocalNotificationFireDate];
+    NSTimeInterval timeBeforeNotificationApper = [self.nextLocalNotificationFireDate timeIntervalSinceDate:[NSDate date]];
     
     // Checking whether helper should update local notification data or schedule new one.
     if (!self.nextLocalNotificationFireDate ||
@@ -454,8 +472,8 @@ static NSTimeInterval const kBVLocalNotificationCheckInterval = 3.0f;
             NSString *notificationIdentifier = [notification.userInfo valueForKeyPath:kBVNotificationIdentifierKey];
             if ([notificationIdentifier isEqualToString:kBVBackgroundHelperNotificationIdentifier]) {
                 
-                
                 reminderNotification = notification;
+                [[UIApplication sharedApplication] cancelLocalNotification:notification];
             }
         }];
         
@@ -467,6 +485,7 @@ static NSTimeInterval const kBVLocalNotificationCheckInterval = 3.0f;
             reminderNotification = [UILocalNotification new];
             reminderNotification.alertBody = @"Launch me please ;)";
             reminderNotification.alertAction = @"Launch...";
+            reminderNotification.userInfo = @{kBVNotificationIdentifierKey:kBVBackgroundHelperNotificationIdentifier};
             
             // Storing date for future computations
             self.nextLocalNotificationFireDate = [NSDate dateWithTimeIntervalSinceNow:60.0f];
@@ -486,7 +505,6 @@ static NSTimeInterval const kBVLocalNotificationCheckInterval = 3.0f;
             
             // Update actual reminder will be fired in 60 seconds (if it won't be canceled by nex round of application activity).
             reminderNotification.fireDate = self.nextLocalNotificationFireDate;
-            [[UIApplication sharedApplication] cancelLocalNotification:reminderNotification];
         }
         
         if (shouldSchedule && [UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
@@ -501,8 +519,6 @@ static NSTimeInterval const kBVLocalNotificationCheckInterval = 3.0f;
     // Checking whether local notification has been scheduled before or not.
     if (self.nextLocalNotificationFireDate) {
         
-        __block UILocalNotification *reminderNotification;
-        
         // Make a copy, so it won't be mutabed while iterated.
         NSArray *notifications = [[UIApplication sharedApplication].scheduledLocalNotifications copy];
         [[notifications copy] enumerateObjectsUsingBlock:^(UILocalNotification *notification, NSUInteger notificationIdx,
@@ -511,15 +527,9 @@ static NSTimeInterval const kBVLocalNotificationCheckInterval = 3.0f;
             NSString *notificationIdentifier = [notification.userInfo valueForKeyPath:kBVNotificationIdentifierKey];
             if ([notificationIdentifier isEqualToString:kBVBackgroundHelperNotificationIdentifier]) {
                 
-                
-                reminderNotification = notification;
+                [[UIApplication sharedApplication] cancelLocalNotification:notification];
             }
         }];
-        
-        if (reminderNotification) {
-            
-            [[UIApplication sharedApplication] cancelLocalNotification:reminderNotification];
-        }
         
         self.nextLocalNotificationFireDate = nil;
     }
@@ -559,10 +569,38 @@ static NSTimeInterval const kBVLocalNotificationCheckInterval = 3.0f;
 
     NSLog(@"[BVBackgroundHelper::State] Application entered foreground execution context");
 
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
     [self stopLocalNotificationCheck];
     [self cancelReminderNotification];
     [self stopBackgroundSupport];
 }
+
+
+
+#pragma mark - Misc methods
+
+- (void)handleNewMessage:(PNMessage *)message {
+    
+    if ([message.message isKindOfClass:[NSDictionary class]]) {
+        
+        NSDictionary *messagePayload = (NSDictionary *)message.message;
+        if ([[messagePayload valueForKeyPath:BVMessagePayloadKeys.actionType] isEqualToString:kBVMessageAPNSAction]) {
+            
+            id message = [messagePayload valueForKeyPath:BVMessagePayloadKeys.message];
+            NSInteger applicationBadgeCount = [UIApplication sharedApplication].applicationIconBadgeNumber;
+            [UIApplication sharedApplication].applicationIconBadgeNumber = (applicationBadgeCount + 1);
+            
+            UILocalNotification *messageNotification = [UILocalNotification new];
+            messageNotification.alertBody = message;
+            messageNotification.alertAction = @"Show application";
+            messageNotification.fireDate = [NSDate date];
+            [[UIApplication sharedApplication] scheduleLocalNotification:messageNotification];
+        }
+    }
+}
+
+
+#pragma mark - AVAudioSession delegate methods
 
 - (void)beginInterruption {
     
