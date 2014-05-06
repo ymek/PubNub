@@ -7,49 +7,39 @@
 //
 
 #import "BVBackgroundHelper.h"
-#import <CoreLocation/CoreLocation.h>
+#import <AVFoundation/AVFoundation.h>
 
 
 #pragma mark Static
 
 /**
- How many seconds it is allowed to use GPS radio to keep application working in background.
- After timeout application will be registered for awaken on intervals (those which is used to maintain connection
- once per 10 minutes).
+ Stores reference on key under which concrete notification identifier is stored.
  */
-static NSTimeInterval const kBVMaximumGPSSupportedBackgroundActivity = 90.0f;
+static NSString * const kBVNotificationIdentifierKey = @"identifier";
 
 /**
- Stores reference on maximum number of messages which can be received while application is in background and use VoIP
- to support it's operation.
+ Stores reference on identifier of notification which is issued by helper itself to somehow inform user in case if
+ application will be suspended by system and should be relaunched.
  */
-static NSUInteger const kBVMaximumNumberOfMessages = 14;
+static NSString * const kBVBackgroundHelperNotificationIdentifier = @"com.background.helper.notification";
 
 /**
- Stores reference on maximum number of messages which can be received in VoIP background support mode out of
- schedule before switching to GPS background supporting mode. Number of messages which has been received in a row.
+ Stores reference on minimum difference in time before local notification should be reissued.
  */
-static NSUInteger const kBVMaximumNumberOfMessagesOutOfSchedule = 3;
+static NSTimeInterval const kBVBackgroundMinimumTimeBeforeNotificationFire = 5.0f;
 
 /**
- Stores reference on how many seconds should be between received messages if application work in background.
- This constant also used for timer which is used to measure time while application is active after awakening.
+ Stores reference on interval after which local notification should be checked.
  */
-static NSTimeInterval const kBVMinimumTimeDifferenceBetweenMessages = 9.0f;
+static NSTimeInterval const kBVLocalNotificationCheckInterval = 3.0f;
 
 
 #pragma mark - Private interface declaration
 
-@interface BVBackgroundHelper () <CLLocationManagerDelegate>
+@interface BVBackgroundHelper () <AVAudioSessionDelegate>
 
 
 #pragma mark - Properties
-
-/**
- Stores reference on configured location manager which will allow application work while it in background.
- */
-@property (nonatomic, strong) CLLocationManager *locationManager;
-
 /**
  Stores reference on block which should be used by helper to complete application stack and PubNub client
  configuration.
@@ -62,45 +52,25 @@ static NSTimeInterval const kBVMinimumTimeDifferenceBetweenMessages = 9.0f;
 @property (nonatomic, copy) void(^reinitializationBlock)(void);
 
 /**
- Stores reference on timer which is used to observe on how long application is running in background using GPS radio.
+ Stores reference on audio player which is used during application execution in background context support. This instance
+ will play silent sound to keep app running in background.
  */
-@property (nonatomic, strong) NSTimer *gpsUsageTimer;
+@property (nonatomic, strong) AVAudioPlayer *player;
 
 /**
- Stores reference on timer which is used by helper to calculate how much time application spent in active state after
-  resuming from suspended state using VoIP functionality.
+ Stores whether player playback has been interrupted or not.
  */
-@property (nonatomic, strong) NSTimer *activityTimer;
+@property (nonatomic, assign, getter = isInterrupted) BOOL interrupted;
 
 /**
- Stores whether helper use VoIP backgrounding style at this moment or not.
+ Stores reference on next local notification fire date (will be used to check whether shoould update notification or not).
  */
-@property (nonatomic, assign, getter = isVoIPBackgroundMode) BOOL VoIPBackgroundMode;
+@property (nonatomic, strong) NSDate *nextLocalNotificationFireDate;
 
 /**
- Stores whether helper completed configuration or not.
+ Stores reference on timer which is used for local notification state check.
  */
-@property (nonatomic, assign, getter = isConfigurationCompleted) BOOL configurationCompleted;
-
-/**
- Stores reference on date when application has been sent to background.
-*/
-@property (nonatomic, strong) NSDate *applicationSuspensionDate;
-
-/**
- Stores reference on date of last message retrieval.
-*/
-@property (nonatomic, strong) NSDate *lastDataAcceptanceDate;
-
-/**
- Stores number of messages which has been received out of schedule in a row.
- */
-@property (nonatomic, assign) NSUInteger numberOfUnexpectedMessages;
-
-/**
- Stores total number of times when application has been awaken in VoIP mode.
- */
-@property (nonatomic, assign) NSUInteger numberOfAwakes;
+@property (nonatomic, strong) NSTimer *localNotificationCheckTimer;
 
 
 #pragma mark - Class methods
@@ -111,52 +81,60 @@ static NSTimeInterval const kBVMinimumTimeDifferenceBetweenMessages = 9.0f;
 #pragma mark - Instance methods
 
 /**
- Perform calculations and check whether client exceeded limit on how many messages should be received in specified
- time frame.
+ Prepare audio session and player for further usage to support application execution in background context.
  */
-- (void)processNewPubNubData;
+- (void)prepareAudioSession;
 
 /**
- Launch activity timer if required to calculate while app is active in background for VoIP.
+ Launch audio player which will force application to keep working in background (till interruption by call).
  */
-- (void)launchActivityTimer;
+- (void)startBackgroundSupportWithAudio;
 
 /**
- Terminating activity timer.
+ Can be used to pause audio till next moment when background support with audio maybe required.
  */
-- (void)stopActivityTimer;
+- (void)stopBackgroundSupportWithAudio;
 
 /**
- Allow to launch GPS location updates observation and timer which will forcefully change backgrounding style.
-
- @param shouldLaunchTimeoutTimer
- Whether or not timeout timer should be launched during GPS background mode usage.
+ Launch background support using VoIP functionality. System will give us ability to call re-initialization block after
+ some amount of time.
+ Basically this approach will be used by helper to make sure that sockets will survive connection termination because of 
+ interruption with a phone call.
  */
-- (void)switchToGPSSupportedBackgroundMode:(BOOL)shouldLaunchTimeoutTimer;
-
-/**
- Allow to launch VoIP supported background style which will periodically reinitialize application stack.
- */
-- (void)switchToVoIPSupportedBackgroundMode;
+- (void)startBackgroundSupportWithVoIP;
 
 /**
- Allow to disable VoIP and GPS algorithms for background supporting.
+ Ask system to stop reissue re-initialization block and stop counting how many messages has been received in background.
  */
-- (void)disableAllBackgroundSupportingModes;
+- (void)stopBackgroundSupportWithVoIP;
 
 /**
- Clean up all cached values related to received data packets.
+ Start background execution support (if required) using suitable approach for current situation.
  */
-- (void)resetDataPacketsStatistic;
+- (void)startBackgroundSupport;
+
+/**
+ Stop currently enabled background execution support (if possible).
+ */
+- (void)stopBackgroundSupport;
+
+/**
+ Schedule application launch notification.
+ */
+- (void)rescheduleReminderNotification;
+- (void)cancelReminderNotification;
+
+/**
+ Launch and stop local notification verification process (required to reschedule local notification if required).
+ */
+- (void)startLocalNotificationCheck;
+- (void)stopLocalNotificationCheck;
 
 
 #pragma mark - Handler methods
 
 - (void)handleApplicationDidEnterBackground:(NSNotification *)notification;
 - (void)handleApplicationDidBecomeActive:(NSNotification *)notification;
-- (void)handlePubNubClientWillConnect:(NSNotification *)notification;
-- (void)handleGPSSupportedBackgroundModeTimeout:(NSTimer *)timer;
-- (void)handleVoIPActivityTimeout:(NSTimer *)timer;
 
 #pragma mark -
 
@@ -187,10 +165,8 @@ static NSTimeInterval const kBVMinimumTimeDifferenceBetweenMessages = 9.0f;
 + (void)prepareWithInitializationCompleteHandler:(void(^)(void(^)(void)))completionHandler
                         andReinitializationBlock:(void(^)(void))reinitializationBlock {
 
-    __block __pn_desired_weak __typeof(self) weakSelf = self;
     [self sharedInstance].reinitializationBlock = ^{
 
-        [weakSelf sharedInstance].configurationCompleted = NO;
         if (reinitializationBlock) {
 
             reinitializationBlock();
@@ -201,11 +177,7 @@ static NSTimeInterval const kBVMinimumTimeDifferenceBetweenMessages = 9.0f;
 
 + (void)connectWithSuccessBlock:(void(^)(NSString *))success errorBlock:(void(^)(PNError *))failure {
     
-    if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
-        
-        [[self sharedInstance] switchToGPSSupportedBackgroundMode:NO];
-    }
-    
+    [[self sharedInstance] startBackgroundSupport];
     [PubNub connectWithSuccessBlock:success errorBlock:failure];
 }
 
@@ -215,6 +187,8 @@ static NSTimeInterval const kBVMinimumTimeDifferenceBetweenMessages = 9.0f;
     
     // Check whether initialization has been successful or not.
     if ((self = [super init])) {
+        
+        [self prepareAudioSession];
 
         __block __pn_desired_weak __typeof(self) weakSelf = self;
 
@@ -238,8 +212,7 @@ static NSTimeInterval const kBVMinimumTimeDifferenceBetweenMessages = 9.0f;
 
                         void(^completionHandler)(void) = ^{
 
-                            weakSelf.configurationCompleted = YES;
-                            [weakSelf switchToVoIPSupportedBackgroundMode];
+                            [weakSelf startBackgroundSupport];
                         };
                         if (weakSelf.completionHandler) {
 
@@ -256,8 +229,8 @@ static NSTimeInterval const kBVMinimumTimeDifferenceBetweenMessages = 9.0f;
 
                         PNLog(PNLogGeneralLevel, weakSelf, @"{ERROR} Looks like there is no ability to subscribe on "
                               "controlling channel because of error: %@", subscribeError.localizedFailureReason);
-
-                        [weakSelf switchToVoIPSupportedBackgroundMode];
+                        
+                        [weakSelf startBackgroundSupport];
                     }
                 }];
             }
@@ -273,9 +246,8 @@ static NSTimeInterval const kBVMinimumTimeDifferenceBetweenMessages = 9.0f;
                     case kPNClientConnectionFailedOnInternetFailureError:
                     case kPNClientConnectionClosedOnInternetFailureError:
                     case kPNClientConnectionClosedOnServerRequestError:
-
-                        // We will wait, but not very long (as specified in timeout value).
-                        [weakSelf switchToGPSSupportedBackgroundMode:YES];
+                        
+                        [weakSelf startBackgroundSupport];
                         break;
                     default:
                         break;
@@ -287,297 +259,289 @@ static NSTimeInterval const kBVMinimumTimeDifferenceBetweenMessages = 9.0f;
 
                 PNLog(PNLogGeneralLevel, weakSelf, @"{INFO} PubNub client wasn't able to check network connection "
                       "availability or disconnected by user request");
-
-                // We will wait, but not very long (as specified in timeout value).
-                [weakSelf switchToGPSSupportedBackgroundMode:YES];
+                
+                [weakSelf startBackgroundSupport];
             }
-        }];
-
-        // Adding observation over message receive events.
-        [[PNObservationCenter defaultCenter] addMessageReceiveObserver:self withBlock:^(PNMessage *message) {
-
-            [weakSelf processNewPubNubData];
         }];
 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleApplicationDidEnterBackground:)
                                                      name:UIApplicationDidEnterBackgroundNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleApplicationDidBecomeActive:)
                                                      name:UIApplicationDidBecomeActiveNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handlePubNubClientWillConnect:)
-                                                     name:kPNClientWillConnectToOriginNotification object:nil];
-
-        self.locationManager = [CLLocationManager new];
     }
     
     
     return self;
 }
 
-- (void)setLocationManager:(CLLocationManager *)locationManager {
+- (void)prepareAudioSession {
     
-    if (!locationManager) {
+    // Preparing local variables to store error from corresponding actions (if they will appear).
+    NSError *sessionCategoryConfigurationError;
+    NSError *playerInitializationError;
+    NSError *sessionActivationError;
+    
+    [[AVAudioSession sharedInstance] setDelegate:self];
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers
+                                           error:&sessionCategoryConfigurationError];
+    
+    if (!sessionCategoryConfigurationError) {
         
-        [_locationManager stopUpdatingLocation];
-        _locationManager.delegate = nil;
-    }
-    else {
+        [[AVAudioSession sharedInstance] setActive:YES error:&sessionActivationError];
         
-        locationManager.delegate = self;
-        locationManager.pausesLocationUpdatesAutomatically = NO;
-        locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation;
-        locationManager.distanceFilter = 5;
-        if ([CLLocationManager authorizationStatus] != kCLAuthorizationStatusAuthorized) {
+        if (!sessionActivationError) {
             
-            [locationManager startUpdatingLocation];
-            [locationManager stopUpdatingLocation];
-        }
-    }
-    _locationManager = locationManager;
-}
-
-- (void)processNewPubNubData {
-
-    BOOL isAwaken = NO;
-
-    // Checking whether data processing has been called while application was in background execution context for
-    // first time (activity time will be disabled)
-    if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground && ![self.activityTimer isValid]) {
-
-        if (self.isVoIPBackgroundMode) {
+            // Compose URL to the sound which will be used to keep application in background by playing same sound in the loop.
+            NSString *pathToTheFile = [[NSBundle mainBundle] pathForResource:@"background-sound" ofType:@"m4a"];
             
-            PNLog(PNLogGeneralLevel, self, @"{INFO} Application has been awaken. In plain VoIP background support mode "
-                  "there is roughly.");
-
-            isAwaken = YES;
-
-            [self launchActivityTimer];
-
-            PNLog(PNLogGeneralLevel, self, @"{INFO} There is roughly %f seconds to complete all operations before "
-                  "suspension.", kBVMinimumTimeDifferenceBetweenMessages);
-        }
-    }
-    else if ([UIApplication sharedApplication].applicationState != UIApplicationStateBackground) {
-
-        [self stopActivityTimer];
-    }
-
-    if (isAwaken) {
-
-        if (self.isVoIPBackgroundMode) {
-
-            self.numberOfAwakes++;
-            BOOL shouldSwitchToGPSSupportMode = NO;
-            NSDate *currentDate = [NSDate date];
-            NSTimeInterval timeInBackground = [currentDate timeIntervalSinceDate:self.applicationSuspensionDate];
-
-            // Checking whether we received to many messages in 300 seconds time window or not.
-            if ((self.numberOfAwakes > kBVMaximumNumberOfMessages) && timeInBackground < 300) {
-
-                PNLog(PNLogGeneralLevel, self, @"{WARN} Exceeded limit on count of data packets received in 300 "
-                      "seconds.");
-
-                shouldSwitchToGPSSupportMode = YES;
-            }
-            // Looks like application run in background for very long period of time.
-            else if (timeInBackground >= 300) {
-
-                [self resetDataPacketsStatistic];
-                self.applicationSuspensionDate = [NSDate date];
-            }
-
-            if (shouldSwitchToGPSSupportMode) {
-
-                PNLog(PNLogGeneralLevel, self, @"{INFO} Switching to GPS background support mode for %f seconds.",
-                      kBVMaximumGPSSupportedBackgroundActivity);
-
-                [self resetDataPacketsStatistic];
-                [self switchToGPSSupportedBackgroundMode:YES];
-            }
-            else {
-
-                self.lastDataAcceptanceDate = [NSDate date];
-            }
-        }
-        else {
-
-            [self resetDataPacketsStatistic];
-            [self stopActivityTimer];
-        }
-    }
-    // Looks like client already active in background execution context.
-    else if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground && [self.activityTimer isValid]) {
-
-        if (self.isVoIPBackgroundMode) {
-
-            if (self.lastDataAcceptanceDate) {
-
-                NSDate *currentDate = [NSDate date];
-                if ([currentDate timeIntervalSinceDate:self.lastDataAcceptanceDate] < kBVMinimumTimeDifferenceBetweenMessages) {
-
-                    self.numberOfUnexpectedMessages++;
+            if (pathToTheFile) {
+                
+                self.player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:pathToTheFile]
+                                                                     error:&playerInitializationError];
+                if (!playerInitializationError) {
+                    
+                    // Additionaly reducing volume in case if sound has some noise in it.
+                    self.player.volume = 0.1f;
+                    
+                    // Configure to play sound forever (looped).
+                    self.player.numberOfLoops = -1;
                 }
                 else {
-
-                    self.numberOfUnexpectedMessages = 0;
+                    
+                    self.player = nil;
+                    
+                    PNLog(PNLogGeneralLevel, self, @"{ERROR} Audio player initialization failed with error: %@",
+                          playerInitializationError);
                 }
-
-                self.lastDataAcceptanceDate = currentDate;
             }
             else {
-
-                self.lastDataAcceptanceDate = [NSDate date];
-            }
-
-            if (self.numberOfUnexpectedMessages >= kBVMaximumNumberOfMessagesOutOfSchedule) {
-
-                PNLog(PNLogGeneralLevel, self, @"{WARN} Too many messages out of expected time frames.");
-
-                PNLog(PNLogGeneralLevel, self, @"{INFO} Switching to GPS background support mode for %f seconds.",
-                      kBVMaximumGPSSupportedBackgroundActivity);
-
-                [self resetDataPacketsStatistic];
-                [self switchToGPSSupportedBackgroundMode:YES];
+                
+                PNLog(PNLogGeneralLevel, self, @"{ERROR} Audio player can't be used, because specified sound can't be "
+                      "found in application bundle.");
             }
         }
         else {
-
-            [self resetDataPacketsStatistic];
-            [self stopActivityTimer];
+            
+            PNLog(PNLogGeneralLevel, self, @"{ERROR} Audio session activation failed with error: %@",
+                  sessionActivationError);
         }
     }
     else {
-
-        [self resetDataPacketsStatistic];
-        [self stopActivityTimer];
-    }
-}
-
-- (void)launchActivityTimer {
-
-    if (self.activityTimer == nil || ![self.activityTimer isValid]) {
-
-        // Create and launch timeout timer.
-        self.activityTimer = [NSTimer scheduledTimerWithTimeInterval:kBVMinimumTimeDifferenceBetweenMessages target:self
-                                                            selector:@selector(handleVoIPActivityTimeout:)
-                                                            userInfo:nil repeats:NO];
-    }
-}
-
-- (void)stopActivityTimer {
-
-    if ([self.activityTimer isValid]) {
-
-        [self.activityTimer invalidate];
-    }
-    self.activityTimer = nil;
-}
-
-- (void)switchToGPSSupportedBackgroundMode:(BOOL)shouldLaunchTimeoutTimer {
-
-    [self resetDataPacketsStatistic];
-
-    // GPS background support mode can be used only when application is in background execution context.
-    if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
-
-        PNLog(PNLogGeneralLevel, self, @"{INFO} Launching GPS location monitoring to support further execution in "
-              "background.");
         
-        // Launch location manager which will allow our application to run in background till the moment when it will
-        // be stopped.
-        [self.locationManager startUpdatingLocation];
-
-        // Unregister from awakening on specified intervals to maintain connection to the origin.
-        [[UIApplication sharedApplication] clearKeepAliveTimeout];
-        self.VoIPBackgroundMode = NO;
-        self.applicationSuspensionDate = nil;
-        [self stopActivityTimer];
-
-        // Invalidate any timeout timer so it accidentally won't switch to VoIP backgrounding mode.
-        if ([self.gpsUsageTimer isValid]) {
-
-            [self.gpsUsageTimer invalidate];
-        }
-        self.gpsUsageTimer = nil;
-
-        if (shouldLaunchTimeoutTimer) {
-
-            PNLog(PNLogGeneralLevel, self, @"{INFO} GPS background support has been launched on limited amount of time.");
-
-            // Create and launch timeout timer.
-            self.gpsUsageTimer = [NSTimer scheduledTimerWithTimeInterval:kBVMaximumGPSSupportedBackgroundActivity target:self
-                                                                selector:@selector(handleGPSSupportedBackgroundModeTimeout:)
-                                                                userInfo:nil repeats:NO];
-        }
-    }
-    // Looks like application is active and we can switch back to VoIP style.
-    else {
-
-        [self switchToVoIPSupportedBackgroundMode];
+        PNLog(PNLogGeneralLevel, self, @"{ERROR} Audio session configuration failed with error: %@",
+              sessionCategoryConfigurationError);
     }
 }
 
-- (void)switchToVoIPSupportedBackgroundMode {
-
-    self.VoIPBackgroundMode = NO;
-    self.lastDataAcceptanceDate = nil;
+- (void)startBackgroundSupportWithAudio {
     
-    PNLog(PNLogGeneralLevel, self, @"{INFO} Use VoIP background execution support mode.");
+    if (self.player) {
+        
+        if (![self.player isPlaying]) {
+            
+            PNLog(PNLogGeneralLevel, self, @"{INFO} Use audio player to support background execution.");
+        
+            [self.player play];
+        }
+    }
+    else {
+        
+        PNLog(PNLogGeneralLevel, self, @"{ERROR} Audio can't be used to support application execution in background context.");
+    }
+}
 
+- (void)stopBackgroundSupportWithAudio {
+    
+    if (self.player) {
+        
+        if ([self.player isPlaying]) {
+            
+            PNLog(PNLogGeneralLevel, self, @"{INFO} Stop using audio player background execution support.");
+            
+            [self.player stop];
+        }
+    }
+    else {
+        
+        PNLog(PNLogGeneralLevel, self, @"{ERROR} There is no valid audio player which can stopped.");
+    }
+}
 
+- (void)startBackgroundSupportWithVoIP {
+    
+    // Checking whether re-initializarion block has been provided, so system will be able to use it for
+    // stack re-initialization.
     if (self.reinitializationBlock) {
-
-        self.VoIPBackgroundMode = YES;
-
+        
+        PNLog(PNLogGeneralLevel, self, @"{INFO} Use VoIP to support background execution.");
+        
         // In case if client was unable to connect or connect to controlling channel we will ask system to
         // pull our application back in 10 minutes and 10 seconds.
         [[UIApplication sharedApplication] setKeepAliveTimeout:610 handler:self.reinitializationBlock];
     }
     else {
-
+        
+        PNLog(PNLogGeneralLevel, self, @"{INFO} Stop using VoIP background execution support because there is no "
+              "re-initialization block has been provided.");
+        
         // User didn't specified any block which can be used for stack reinitialization so we cancel our
         // request to periodically awake application.
         [[UIApplication sharedApplication] clearKeepAliveTimeout];
     }
-
-    // Checking whether switched to VoIP background support mode while in background execution context or not.
-    if (self.VoIPBackgroundMode && [UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
-
-        PNLog(PNLogGeneralLevel, self, @"{INFO} Store date of entering background / suspension.");
-
-        // Storing date when app possibly has been suspended. This date will be used to calculate whether application
-        // exceeded on number of message which it can receive over VoIP sockets or not.
-        self.applicationSuspensionDate = [NSDate date];
-    }
-
-
-    // Invalidate any timeout timer so it accidentally won't switch to VoIP backgrounding mode.
-    if ([self.gpsUsageTimer isValid]) {
-
-        [self.gpsUsageTimer invalidate];
-    }
-    self.gpsUsageTimer = nil;
-
-    [self.locationManager stopUpdatingLocation];
 }
 
-- (void)disableAllBackgroundSupportingModes {
-
-    [self resetDataPacketsStatistic];
-    [self switchToVoIPSupportedBackgroundMode];
-
-    self.VoIPBackgroundMode = NO;
-    self.applicationSuspensionDate = nil;
-    [self stopActivityTimer];
+- (void)stopBackgroundSupportWithVoIP {
+    
+    PNLog(PNLogGeneralLevel, self, @"{INFO} Stop using VoIP background execution support.");
+    
+    // Unregister from awakening on specified intervals to maintain connection to the origin.
     [[UIApplication sharedApplication] clearKeepAliveTimeout];
 }
 
-- (void)resetDataPacketsStatistic {
+- (void)startBackgroundSupport {
+    
+    // Checking whether method has been called while application is executed in background execution context or not.
+    if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
+    
+        // Checking whether current audio session has been interruped or not.
+        if (self.isInterrupted) {
+            
+            // While audio session is inactive, only VoIP can be used (but not guaranteed that system will awake application
+            // when new messages will arrive, but at least will maintain sockets).
+            [self startBackgroundSupportWithVoIP];
+            
+            // Stop previously started background execution support which used audio player fot this purpose.
+            [self stopBackgroundSupportWithAudio];
+        }
+        else {
+            
+            // Audio session is available and we can use audio to keep app running in background.
+            [self startBackgroundSupportWithAudio];
+            
+            // Stop previously started background execution support which used VoIP fot this purpose.
+            [self stopBackgroundSupportWithVoIP];
+        }
+    }
+    // Looks like application operation in active state and we can discard any background support approaches.
+    else {
 
-    self.lastDataAcceptanceDate = nil;
+        [self stopBackgroundSupport];
+    }
+}
 
-    // Resetting all counters as for how many messages has been received and allowance rate.
-    self.numberOfUnexpectedMessages = 0;
-    self.numberOfAwakes = 0;
+- (void)stopBackgroundSupport {
+    
+    [self stopBackgroundSupportWithAudio];
+    [self stopBackgroundSupportWithVoIP];
+}
+
+- (void)rescheduleReminderNotification {
+    
+    // Calculate how much time is left before loocal notification will appear.
+    NSTimeInterval timeBeforeNotificationApper = [[NSDate date] timeIntervalSinceDate:self.nextLocalNotificationFireDate];
+    
+    // Checking whether helper should update local notification data or schedule new one.
+    if (!self.nextLocalNotificationFireDate ||
+        (self.nextLocalNotificationFireDate && timeBeforeNotificationApper < kBVBackgroundMinimumTimeBeforeNotificationFire)) {
+        
+        __block UILocalNotification *reminderNotification;
+        
+        // Make a copy, so it won't be mutabed while iterated.
+        NSArray *notifications = [[UIApplication sharedApplication].scheduledLocalNotifications copy];
+        [[notifications copy] enumerateObjectsUsingBlock:^(UILocalNotification *notification, NSUInteger notificationIdx,
+                                                           BOOL *notificationEnumeratorStop) {
+            
+            NSString *notificationIdentifier = [notification.userInfo valueForKeyPath:kBVNotificationIdentifierKey];
+            if ([notificationIdentifier isEqualToString:kBVBackgroundHelperNotificationIdentifier]) {
+                
+                
+                reminderNotification = notification;
+            }
+        }];
+        
+        BOOL shouldSchedule = NO;
+        if (!reminderNotification) {
+            
+            shouldSchedule = YES;
+            
+            reminderNotification = [UILocalNotification new];
+            reminderNotification.alertBody = @"Launch me please ;)";
+            reminderNotification.alertAction = @"Launch...";
+            
+            // Storing date for future computations
+            self.nextLocalNotificationFireDate = [NSDate dateWithTimeIntervalSinceNow:60.0f];
+            
+            // Actual reminder will be fired in 60 seconds (if it won't be canceled by next round of application activity).
+            reminderNotification.fireDate = self.nextLocalNotificationFireDate;
+            
+            // Next time if application not working, than in a hour user will be notified about that..
+            reminderNotification.repeatInterval = NSHourCalendarUnit;
+        }
+        else {
+                
+            shouldSchedule = YES;
+            
+            // Storing date for future computations
+            self.nextLocalNotificationFireDate = [NSDate dateWithTimeIntervalSinceNow:60.0f];
+            
+            // Update actual reminder will be fired in 60 seconds (if it won't be canceled by nex round of application activity).
+            reminderNotification.fireDate = self.nextLocalNotificationFireDate;
+            [[UIApplication sharedApplication] cancelLocalNotification:reminderNotification];
+        }
+        
+        if (shouldSchedule && [UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
+            
+            [[UIApplication sharedApplication] scheduleLocalNotification:reminderNotification];
+        }
+    }
+}
+
+- (void)cancelReminderNotification {
+    
+    // Checking whether local notification has been scheduled before or not.
+    if (self.nextLocalNotificationFireDate) {
+        
+        __block UILocalNotification *reminderNotification;
+        
+        // Make a copy, so it won't be mutabed while iterated.
+        NSArray *notifications = [[UIApplication sharedApplication].scheduledLocalNotifications copy];
+        [[notifications copy] enumerateObjectsUsingBlock:^(UILocalNotification *notification, NSUInteger notificationIdx,
+                                                           BOOL *notificationEnumeratorStop) {
+            
+            NSString *notificationIdentifier = [notification.userInfo valueForKeyPath:kBVNotificationIdentifierKey];
+            if ([notificationIdentifier isEqualToString:kBVBackgroundHelperNotificationIdentifier]) {
+                
+                
+                reminderNotification = notification;
+            }
+        }];
+        
+        if (reminderNotification) {
+            
+            [[UIApplication sharedApplication] cancelLocalNotification:reminderNotification];
+        }
+        
+        self.nextLocalNotificationFireDate = nil;
+    }
+}
+
+- (void)startLocalNotificationCheck {
+    
+    [self stopLocalNotificationCheck];
+    
+    self.localNotificationCheckTimer = [NSTimer timerWithTimeInterval:kBVLocalNotificationCheckInterval
+                                                               target:self selector:@selector(rescheduleReminderNotification)
+                                                             userInfo:nil repeats:YES];
+    [[NSRunLoop currentRunLoop] addTimer:self.localNotificationCheckTimer forMode:NSRunLoopCommonModes];
+}
+
+- (void)stopLocalNotificationCheck {
+    
+    if ([self.localNotificationCheckTimer isValid]) {
+        
+        [self.localNotificationCheckTimer invalidate];
+    }
+    self.localNotificationCheckTimer = nil;
 }
 
 
@@ -586,57 +550,32 @@ static NSTimeInterval const kBVMinimumTimeDifferenceBetweenMessages = 9.0f;
 - (void)handleApplicationDidEnterBackground:(NSNotification *)notification {
     
     NSLog(@"[BVBackgroundHelper::State] Application entered background execution context");
-
-    // In case if PubNub client didn't have enough time to connect helper will switch to GPS supported background
-    // execution mode.
-    if ([PubNub sharedInstance].isConnected && self.isConfigurationCompleted) {
-
-        [self switchToVoIPSupportedBackgroundMode];
-    }
-    else if (![PubNub sharedInstance].isConnected || !self.isConfigurationCompleted) {
-
-        [self switchToGPSSupportedBackgroundMode:NO];
-    }
+    
+    [self  startLocalNotificationCheck];
+    [self startBackgroundSupport];
 }
 
 - (void)handleApplicationDidBecomeActive:(NSNotification *)notification {
 
     NSLog(@"[BVBackgroundHelper::State] Application entered foreground execution context");
 
-    [self disableAllBackgroundSupportingModes];
+    [self stopLocalNotificationCheck];
+    [self cancelReminderNotification];
+    [self stopBackgroundSupport];
 }
 
-- (void)handlePubNubClientWillConnect:(NSNotification *)notification {
-
-    if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
-
-        [self switchToGPSSupportedBackgroundMode:NO];
-    }
+- (void)beginInterruption {
+    
+    NSLog(@"[BVBackgroundHelper::Audio] Audio interruption started.");
+    self.interrupted = YES;
+    [self startBackgroundSupport];
 }
 
-- (void)handleGPSSupportedBackgroundModeTimeout:(NSTimer *)timer {
-
-    if ([self.gpsUsageTimer isValid]) {
-
-        [self.gpsUsageTimer invalidate];
-    }
-    self.gpsUsageTimer = nil;
-    [self switchToVoIPSupportedBackgroundMode];
-}
-
-/**
- Basically when this method is called it means that application will be suspended in few seconds.
- */
-- (void)handleVoIPActivityTimeout:(NSTimer *)timer {
-
-    if ([self.activityTimer isValid]) {
-
-        [self.activityTimer invalidate];
-    }
-    self.activityTimer = nil;
-
-    // Update suspension date.
-    self.applicationSuspensionDate = [NSDate date];
+- (void)endInterruption {
+    
+    NSLog(@"[BVBackgroundHelper::Audio] Audio interruption completed.");
+    self.interrupted = NO;
+    [self startBackgroundSupport];
 }
 
 #pragma mark -

@@ -10,7 +10,6 @@
 		792618C218FFC719005DE3CA /* BVButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 792618C118FFC719005DE3CA /* BVButton.m */; };
 		792618C418FFCE0B005DE3CA /* cloud-pubnub-logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 792618C318FFCE0B005DE3CA /* cloud-pubnub-logo.png */; };
 		792618C718FFD0DD005DE3CA /* BVMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 792618C618FFD0DD005DE3CA /* BVMainViewController.m */; };
-		792618C918FFFBE6005DE3CA /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 792618C818FFFBE6005DE3CA /* CoreLocation.framework */; };
 		79B285D11900127300C6B281 /* BVAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 79B285D01900127300C6B281 /* BVAlertView.m */; };
 		79B285D519001C9200C6B281 /* BVRoundedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 79B285D419001C9200C6B281 /* BVRoundedView.m */; };
 		79B285D819001D2800C6B281 /* BVPopoverView.m in Sources */ = {isa = PBXBuildFile; fileRef = 79B285D719001D2800C6B281 /* BVPopoverView.m */; };
@@ -96,6 +95,9 @@
 		79CD88B518F7294C009208B2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 79CD886818F7294C009208B2 /* Main.storyboard */; };
 		79CD88B618F7295E009208B2 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 79CD88B818F7295E009208B2 /* InfoPlist.strings */; };
 		79CD88BB18F7D661009208B2 /* BVBackgroundHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 79CD88BA18F7D661009208B2 /* BVBackgroundHelper.m */; };
+		79DA45641918EBA7005641CC /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DA45631918EBA7005641CC /* AVFoundation.framework */; };
+		79DA45671918F780005641CC /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79DA45661918F780005641CC /* AudioToolbox.framework */; };
+		79DA456B1918FE1E005641CC /* background-sound.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 79DA45691918FE1E005641CC /* background-sound.m4a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -323,6 +325,10 @@
 		79CD88B718F7295E009208B2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		79CD88B918F7D661009208B2 /* BVBackgroundHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BVBackgroundHelper.h; sourceTree = "<group>"; };
 		79CD88BA18F7D661009208B2 /* BVBackgroundHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BVBackgroundHelper.m; sourceTree = "<group>"; };
+		79DA45631918EBA7005641CC /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		79DA45651918F780005641CC /* backgroundvoip.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = backgroundvoip.entitlements; sourceTree = "<group>"; };
+		79DA45661918F780005641CC /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		79DA45691918FE1E005641CC /* background-sound.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = "background-sound.m4a"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -330,12 +336,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				792618C918FFFBE6005DE3CA /* CoreLocation.framework in Frameworks */,
-				79CD878618F727C0009208B2 /* libz.dylib in Frameworks */,
 				79CD878418F727B8009208B2 /* SystemConfiguration.framework in Frameworks */,
+				79DA45641918EBA7005641CC /* AVFoundation.framework in Frameworks */,
 				79CD874E18F72693009208B2 /* CoreGraphics.framework in Frameworks */,
-				79CD875018F72693009208B2 /* UIKit.framework in Frameworks */,
 				79CD874C18F72693009208B2 /* Foundation.framework in Frameworks */,
+				79DA45671918F780005641CC /* AudioToolbox.framework in Frameworks */,
+				79CD875018F72693009208B2 /* UIKit.framework in Frameworks */,
+				79CD878618F727C0009208B2 /* libz.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -429,6 +436,8 @@
 		79CD874A18F72693009208B2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				79DA45661918F780005641CC /* AudioToolbox.framework */,
+				79DA45631918EBA7005641CC /* AVFoundation.framework */,
 				79CD878318F727B8009208B2 /* SystemConfiguration.framework */,
 				79CD874D18F72693009208B2 /* CoreGraphics.framework */,
 				792618C818FFFBE6005DE3CA /* CoreLocation.framework */,
@@ -443,6 +452,7 @@
 		79CD875118F72693009208B2 /* backgroundvoip */ = {
 			isa = PBXGroup;
 			children = (
+				79DA45651918F780005641CC /* backgroundvoip.entitlements */,
 				79CD878718F7294C009208B2 /* Classes */,
 				79CD879418F7294C009208B2 /* libs */,
 				79CD886118F7294C009208B2 /* Resources */,
@@ -805,6 +815,7 @@
 			children = (
 				79CD886218F7294C009208B2 /* General */,
 				79CD886518F7294C009208B2 /* Images */,
+				79DA45681918FE1E005641CC /* Audio */,
 				79CD886718F7294C009208B2 /* Storyboards */,
 			);
 			path = Resources;
@@ -834,6 +845,14 @@
 				79CD886818F7294C009208B2 /* Main.storyboard */,
 			);
 			path = Storyboards;
+			sourceTree = "<group>";
+		};
+		79DA45681918FE1E005641CC /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				79DA45691918FE1E005641CC /* background-sound.m4a */,
+			);
+			path = Audio;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -873,7 +892,7 @@
 								enabled = 1;
 							};
 							com.apple.InterAppAudio = {
-								enabled = 0;
+								enabled = 1;
 							};
 						};
 					};
@@ -902,6 +921,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				79DA456B1918FE1E005641CC /* background-sound.m4a in Resources */,
 				79CD88B418F7294C009208B2 /* Images.xcassets in Resources */,
 				79CD88B618F7295E009208B2 /* InfoPlist.strings in Resources */,
 				792618C418FFCE0B005DE3CA /* cloud-pubnub-logo.png in Resources */,
@@ -1095,6 +1115,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = backgroundvoip/backgroundvoip.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1112,6 +1133,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = backgroundvoip/backgroundvoip.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
