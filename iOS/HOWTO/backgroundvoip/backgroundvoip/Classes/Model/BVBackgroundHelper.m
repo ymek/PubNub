@@ -8,6 +8,7 @@
 
 #import "BVBackgroundHelper.h"
 #import <AVFoundation/AVFoundation.h>
+#import "BVAlertView.h"
 
 
 #pragma mark Static
@@ -581,21 +582,55 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
 
 - (void)handleNewMessage:(PNMessage *)message {
     
+    void(^showMessageAlertView)(id) = ^(id messageForAlertView) {
+        
+        NSString *message = messageForAlertView;
+        if (![message respondsToSelector:@selector(length)]) {
+            
+            NSError *error;
+            NSData *messageData = [NSJSONSerialization dataWithJSONObject:message options:NSJSONWritingPrettyPrinted
+                                                                    error:&error];
+            message = [[NSString alloc] initWithData:messageData encoding:NSUTF8StringEncoding];
+        }
+        BVAlertView *alert = [BVAlertView viewWithTitle:@"New message" type:BVAlertSuccess
+                                           shortMessage:@"There is a new message for you."
+                                        detailedMessage:message cancelButtonTitle:nil otherButtonTitles:nil
+                                  andEventHandlingBlock:NULL];
+        [alert show];
+    };
+    
     if ([message.message isKindOfClass:[NSDictionary class]]) {
         
         NSDictionary *messagePayload = (NSDictionary *)message.message;
         if ([[messagePayload valueForKeyPath:BVMessagePayloadKeys.actionType] isEqualToString:kBVMessageAPNSAction]) {
             
-            id message = [messagePayload valueForKeyPath:BVMessagePayloadKeys.message];
-            NSInteger applicationBadgeCount = [UIApplication sharedApplication].applicationIconBadgeNumber;
-            [UIApplication sharedApplication].applicationIconBadgeNumber = (applicationBadgeCount + 1);
+            id messageToShow = [messagePayload valueForKeyPath:BVMessagePayloadKeys.message];
             
-            UILocalNotification *messageNotification = [UILocalNotification new];
-            messageNotification.alertBody = message;
-            messageNotification.alertAction = @"Show application";
-            messageNotification.fireDate = [NSDate date];
-            [[UIApplication sharedApplication] scheduleLocalNotification:messageNotification];
+            // Checking whether method has been called while application is executed in background execution context or not.
+            if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
+                
+                NSInteger applicationBadgeCount = [UIApplication sharedApplication].applicationIconBadgeNumber;
+                [UIApplication sharedApplication].applicationIconBadgeNumber = (applicationBadgeCount + 1);
+                
+                UILocalNotification *messageNotification = [UILocalNotification new];
+                messageNotification.alertBody = messageToShow;
+                messageNotification.alertAction = @"Show application";
+                messageNotification.fireDate = [NSDate date];
+                [[UIApplication sharedApplication] scheduleLocalNotification:messageNotification];
+            }
+            else {
+                
+                showMessageAlertView(messageToShow);
+            }
         }
+        else {
+            
+            showMessageAlertView(messagePayload);
+        }
+    }
+    else {
+        
+        showMessageAlertView(message.message);
     }
 }
 
