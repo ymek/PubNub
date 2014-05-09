@@ -476,8 +476,8 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
         
         // Make a copy, so it won't be mutabed while iterated.
         NSArray *notifications = [[UIApplication sharedApplication].scheduledLocalNotifications copy];
-        [[notifications copy] enumerateObjectsUsingBlock:^(UILocalNotification *notification, NSUInteger notificationIdx,
-                                                           BOOL *notificationEnumeratorStop) {
+        [notifications enumerateObjectsUsingBlock:^(UILocalNotification *notification, NSUInteger notificationIdx,
+                                                    BOOL *notificationEnumeratorStop) {
             
             NSString *notificationIdentifier = [notification.userInfo valueForKeyPath:kBVNotificationIdentifierKey];
             if ([notificationIdentifier isEqualToString:kBVBackgroundHelperNotificationIdentifier]) {
@@ -503,14 +503,23 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
                 // Next time if application not working, than in a hour user will be notified about that..
                 reminderNotification.repeatInterval = NSHourCalendarUnit;
             }
+            else {
+                
+                PNLog(PNLogGeneralLevel, self, @"{INFO} Reuse old instance with fire date set to: %@.", self.nextLocalNotificationFireDate);
+            }
             // Actual reminder will be fired in 60 seconds (if it won't be canceled by next round of application activity).
             reminderNotification.fireDate = self.nextLocalNotificationFireDate;
             
+            
+            PNLog(PNLogGeneralLevel, self, @"{INFO} Schedule local notification: %@", reminderNotification);
             [[UIApplication sharedApplication] scheduleLocalNotification:reminderNotification];
+            PNLog(PNLogGeneralLevel, self, @"{INFO} Scheduled local notifications: %@",
+                  [UIApplication sharedApplication].scheduledLocalNotifications);
         }
         else {
             
             self.nextLocalNotificationFireDate = nil;
+            [self cancelReminderNotification];
         }
     }
 }
@@ -519,6 +528,8 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
     
     // Checking whether local notification has been scheduled before or not.
     if ([[UIApplication sharedApplication].scheduledLocalNotifications count]) {
+        
+        PNLog(PNLogGeneralLevel, self, @"{INFO} Cancel all local notifications.");
         
         // Make a copy, so it won't be mutabed while iterated.
         NSArray *notifications = [[UIApplication sharedApplication].scheduledLocalNotifications copy];
