@@ -499,6 +499,7 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
                 reminderNotification.alertBody = @"Launch me please ;)";
                 reminderNotification.alertAction = @"Launch...";
                 reminderNotification.userInfo = @{kBVNotificationIdentifierKey:kBVBackgroundHelperNotificationIdentifier};
+                reminderNotification.timeZone = [NSTimeZone defaultTimeZone];
                 
                 // Next time if application not working, than in a hour user will be notified about that..
                 reminderNotification.repeatInterval = NSHourCalendarUnit;
