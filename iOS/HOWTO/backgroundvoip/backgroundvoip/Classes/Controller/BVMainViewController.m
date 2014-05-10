@@ -44,6 +44,8 @@
 #pragma mark - Handler methods
 
 - (IBAction)handleButtonTap:(id)sender {
+    
+    [[UIApplication sharedApplication] cancelAllLocalNotifications];
 }
 
 
