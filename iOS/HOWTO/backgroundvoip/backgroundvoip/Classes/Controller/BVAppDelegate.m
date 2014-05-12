@@ -40,9 +40,11 @@
     [progressAlertView showInView:self.window.rootViewController.view];
 
     [PubNub setConfiguration:[PNConfiguration defaultConfiguration]];
+    [PubNub setClientIdentifier:@"iPhoneVOIP1"
+            ""];
     [BVBackgroundHelper prepareWithInitializationCompleteHandler:^(void (^completionBlock)(void)) {
 
-        [PubNub subscribeOnChannel:[PNChannel channelWithName:@"iosdev-background"]
+        [PubNub subscribeOnChannel:[PNChannel channelWithName:@"zzz"]
         withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *array, PNError *error) {
 
             [progressAlertView dismissWithAnimation:YES];
