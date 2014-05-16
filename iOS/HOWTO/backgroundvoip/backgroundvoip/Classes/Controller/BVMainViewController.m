@@ -9,6 +9,7 @@
 #import "BVMainViewController.h"
 #import "BVBackgroundHelper.h"
 #import "BVButton.h"
+#import "PNObservationCenter+Protected.h"
 
 
 #pragma mark Private interface declaration
@@ -18,15 +19,10 @@
 
 #pragma mark - Properties
 
-@property (nonatomic, pn_desired_weak) IBOutlet BVButton *gpsButton;
-@property (nonatomic, pn_desired_weak) IBOutlet BVButton *voipButton;
-
 
 #pragma mark - Instance methods
 
 #pragma mark - Handler methods
-
-- (IBAction)handleButtonTap:(id)sender;
 
 #pragma mark -
 
@@ -38,18 +34,57 @@
 
 @implementation BVMainViewController
 
+NSArray *recipes;
+
 
 #pragma mark - Instance methods
 
 #pragma mark - Handler methods
 
-- (IBAction)handleButtonTap:(id)sender {
-    
-    [[UIApplication sharedApplication] cancelAllLocalNotifications];
-}
-
-
 #pragma mark -
 
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Initialize table data
+    recipes = [NSArray arrayWithObjects:@"Egg Benedict", @"Mushroom Risotto", @"Full Breakfast", @"Hamburger", @"Ham and Egg Sandwich", @"Creme Brelee", @"White Chocolate Donut", @"Starbucks Coffee", @"Vegetable Curry", @"Instant Noodle with Egg", @"Noodle with BBQ Pork", @"Japanese Noodle with Pork", @"Green Tea", @"Thai Shrimp Cake", @"Angry Birds Cake", @"Ham and Cheese Panini", nil];
+
+    [[PNObservationCenter defaultCenter] addMessageReceiveObserver:self
+                                                         withBlock:^(PNMessage *message) {
+
+                                                             NSLog(@"!!!!!!!!!!!!!!!!!!!!!!!!!! MESSAGE!");
+
+//                                                             NSLog(@"Text Length: %i", textView.text.length);
+//
+//                                                             if (textView.text.length > 2000) {
+//                                                                 [textView setText:@""];
+//                                                             }
+//
+//                                                             [textView setText:[message.message stringByAppendingFormat:@"\n%@\n", textView.text]];
+
+                                                         }];
+
+    [[PNObservationCenter defaultCenter] addClientAsHistoryDownloadObserverWithBlock:^(NSArray *array, PNChannel *channel, PNDate *startDate, PNDate *endDate, PNError *error) {
+        NSLog(@"!!!!!!!!!!!!!!!!!!!!!!!!!! HISTORY!");
+
+    }];
+
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return [recipes count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    static NSString *simpleTableIdentifier = @"SimpleTableCell";
+
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:simpleTableIdentifier];
+
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:simpleTableIdentifier];
+    }
+
+    cell.textLabel.text = [recipes objectAtIndex:indexPath.row];
+    return cell;
+}
 
 @end

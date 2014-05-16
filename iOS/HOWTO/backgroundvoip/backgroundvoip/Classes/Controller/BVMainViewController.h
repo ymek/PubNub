@@ -11,8 +11,7 @@
 
 #pragma mark Public interface declaration
 
-@interface BVMainViewController : UIViewController
-
+@interface BVMainViewController : UIViewController <UITableViewDelegate, UITableViewDataSource>
 
 #pragma mark -
 
