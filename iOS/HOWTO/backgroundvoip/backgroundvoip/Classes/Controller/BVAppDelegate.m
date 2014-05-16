@@ -39,12 +39,23 @@
     BVAlertView *progressAlertView = [BVAlertView viewForProcessProgress];
     [progressAlertView showInView:self.window.rootViewController.view];
 
-    [PubNub setConfiguration:[PNConfiguration defaultConfiguration]];
-    [PubNub setClientIdentifier:@"iPhoneVOIP1"
-            ""];
+    // Setup with PAM keys, UUID, channel, and authToken
+    // In production, these values should be defined through a formal key/credentials exchange
+
+    PNConfiguration *myConfig = [PNConfiguration configurationWithPublishKey:@"pam" subscribeKey:@"pam" secretKey:nil];
+    myConfig.authorizationKey = @"iOS-authToken";
+
+    [PubNub setConfiguration:myConfig];
+    [PubNub setClientIdentifier:@"IOS-user9"];
+
+    PNChannel *privateChannel = [PNChannel channelWithName:@"iOS-1"];
+    PNChannel *publicChannel =  [PNChannel channelWithName:@"public"];
+
+    NSArray *allChannels = @[privateChannel ,publicChannel ];
+
     [BVBackgroundHelper prepareWithInitializationCompleteHandler:^(void (^completionBlock)(void)) {
 
-        [PubNub subscribeOnChannel:[PNChannel channelWithName:@"zzz"]
+        [PubNub subscribeOnChannels:allChannels
         withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *array, PNError *error) {
 
             [progressAlertView dismissWithAnimation:YES];
