@@ -35,7 +35,7 @@
 
 - (void)preparePubNubClient {
 
-    __block __pn_desired_weak __typeof(self) weakSelf = self;
+    __block __pn_desired_weak __typeof (self) weakSelf = self;
     BVAlertView *progressAlertView = [BVAlertView viewForProcessProgress];
     [progressAlertView showInView:self.window.rootViewController.view];
 
@@ -49,22 +49,33 @@
     [PubNub setClientIdentifier:@"IOS-user9"];
 
     PNChannel *privateChannel = [PNChannel channelWithName:@"iOS-1"];
-    PNChannel *publicChannel =  [PNChannel channelWithName:@"public"];
+    PNChannel *publicChannel = [PNChannel channelWithName:@"public"];
 
-    NSArray *allChannels = @[privateChannel ,publicChannel ];
+    NSArray *allChannels = @[privateChannel, publicChannel];
 
     [BVBackgroundHelper prepareWithInitializationCompleteHandler:^(void (^completionBlock)(void)) {
 
-        [PubNub subscribeOnChannels:allChannels
-        withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *array, PNError *error) {
+        // Pull last 10 messages
 
-            [progressAlertView dismissWithAnimation:YES];
+        [PubNub requestHistoryForChannel:publicChannel
+                                    from:nil
+                                      to:nil
+                                   limit:10
+                     withCompletionBlock:^(NSArray *array, PNChannel *channel, PNDate *startDate, PNDate *endDate, PNError *error) {
 
-            PNLog(PNLogGeneralLevel, weakSelf, @"{INFO} User's configuration code execution completed.");
+                         [PubNub subscribeOnChannels:allChannels
+                         withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *array, PNError *error) {
 
-            // Finalization block is required to change background support mode.
-            completionBlock();
-        }];
+                             [progressAlertView dismissWithAnimation:YES];
+
+                             PNLog(PNLogGeneralLevel, weakSelf, @"{INFO} User's configuration code execution completed.");
+
+                             // Finalization block is required to change background support mode.
+                             completionBlock();
+                         }];
+
+                     }];
+
     }
                                         andReinitializationBlock:^{
 
@@ -74,12 +85,14 @@
                                             [weakSelf preparePubNubClient];
                                         }];
     [BVBackgroundHelper connectWithSuccessBlock:^(NSString *origin) {
-        
+
         PNLog(PNLogGeneralLevel, self, @"{INFO} Connected to %@", origin);
-    } errorBlock:^(PNError *connectionError) {
-        
+
+
+    }                                errorBlock:^(PNError *connectionError) {
+
         if (connectionError) {
-            
+
             PNLog(PNLogGeneralLevel, self, @"{ERROR} Failed to connect because of error: %@", connectionError);
         }
     }];
@@ -89,7 +102,7 @@
 #pragma mark - UIApplication delegate methods
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    
+
     [self preparePubNubClient];
 
 
