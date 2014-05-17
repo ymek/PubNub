@@ -15,5 +15,7 @@
 
 #pragma mark -
 
+@property (strong, nonatomic) UIWindow *window;
+
 
 @end
