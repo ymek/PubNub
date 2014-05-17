@@ -50,6 +50,9 @@
                         <color key="backgroundColor" white="0.97999999999999998" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <navigationItem key="navigationItem" id="NcV-WH-hJC"/>
+                    <connections>
+                        <outlet property="myTableView" destination="kzP-ec-tNa" id="sui-XZ-EcA"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="DNb-hJ-CTd" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

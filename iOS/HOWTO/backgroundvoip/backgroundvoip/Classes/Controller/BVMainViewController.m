@@ -10,6 +10,7 @@
 #import "BVBackgroundHelper.h"
 #import "PNObservationCenter+Protected.h"
 #import "BVAlertView.h"
+#import "PNMessage+Protected.h"
 
 #pragma mark Private interface declaration
 
@@ -33,7 +34,7 @@
 
 @implementation BVMainViewController
 
-NSArray *recipes;
+NSMutableArray *pnMessages;
 
 
 #pragma mark - Instance methods
@@ -45,27 +46,37 @@ NSArray *recipes;
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Initialize table data
-    recipes = [NSArray arrayWithObjects:@"Egg Benedict", @"Mushroom Risotto", @"Full Breakfast", @"Hamburger", @"Ham and Egg Sandwich", @"Creme Brelee", @"White Chocolate Donut", @"Starbucks Coffee", @"Vegetable Curry", @"Instant Noodle with Egg", @"Noodle with BBQ Pork", @"Japanese Noodle with Pork", @"Green Tea", @"Thai Shrimp Cake", @"Angry Birds Cake", @"Ham and Cheese Panini", nil];
-
+    pnMessages = [NSMutableArray arrayWithObjects:@"",nil];
     [self preparePubNubClient];
 }
 
+
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [recipes count];
+    return [pnMessages count];
 }
+
+
+
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *simpleTableIdentifier = @"SimpleTableCell";
 
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:simpleTableIdentifier];
 
+
     if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:simpleTableIdentifier];
     }
 
-    cell.textLabel.text = [recipes objectAtIndex:indexPath.row];
+    cell.textLabel.text = [pnMessages objectAtIndex:indexPath.row];
+    cell.textLabel.font = [ UIFont fontWithName: @"Arial" size: 8.0 ];
+
     return cell;
 }
+
+
+
 
 
 - (void)preparePubNubClient {
@@ -97,12 +108,21 @@ NSArray *recipes;
                                     from:nil
                                       to:nil
                                    limit:10
-                     withCompletionBlock:^(NSArray *array, PNChannel *channel, PNDate *startDate, PNDate *endDate, PNError *error) {
+                     withCompletionBlock:^(NSArray *messagesArray, PNChannel *channel, PNDate *startDate, PNDate *endDate, PNError *error) {
+
+                         for (PNMessage *message in messagesArray) {
+
+                             [pnMessages addObject:[NSString stringWithFormat:@"%@: %@", [message.message objectForKey:@"timestamp"], [message.message objectForKey:@"data"]]];
+                         }
+
+
+                         [_myTableView reloadData];
 
                          [PubNub subscribeOnChannels:allChannels
                          withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *array, PNError *error) {
 
                              [progressAlertView dismissWithAnimation:YES];
+
 
                              PNLog(PNLogGeneralLevel, weakSelf, @"{INFO} User's configuration code execution completed.");
 
