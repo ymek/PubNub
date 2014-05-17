@@ -46,7 +46,19 @@ NSMutableArray *pnMessages;
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Initialize table data
-    pnMessages = [NSMutableArray arrayWithObjects:@"",nil];
+    pnMessages = [NSMutableArray arrayWithObjects:nil];
+
+
+    [[PNObservationCenter defaultCenter] addMessageReceiveObserver:self
+                                                         withBlock:^(PNMessage *message) {
+
+                 [pnMessages addObject:[NSString stringWithFormat:@"%@: %@", [message.message objectForKey:@"timestamp"], [message.message objectForKey:@"data"]]];
+
+                                                             [self reloadAndReverse];
+
+
+                                                         }];
+
     [self preparePubNubClient];
 }
 
@@ -107,7 +119,7 @@ NSMutableArray *pnMessages;
         [PubNub requestHistoryForChannel:publicChannel
                                     from:nil
                                       to:nil
-                                   limit:10
+                                   limit:3
                      withCompletionBlock:^(NSArray *messagesArray, PNChannel *channel, PNDate *startDate, PNDate *endDate, PNError *error) {
 
                          for (PNMessage *message in messagesArray) {
@@ -116,7 +128,7 @@ NSMutableArray *pnMessages;
                          }
 
 
-                         [_myTableView reloadData];
+                         [self reloadAndReverse];
 
                          [PubNub subscribeOnChannels:allChannels
                          withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *array, PNError *error) {
@@ -152,6 +164,11 @@ NSMutableArray *pnMessages;
             PNLog(PNLogGeneralLevel, self, @"{ERROR} Failed to connect because of error: %@", connectionError);
         }
     }];
+}
+
+- (void)reloadAndReverse {
+    pnMessages = [[pnMessages reverseObjectEnumerator] allObjects];
+    [_myTableView reloadData];
 }
 
 @end
