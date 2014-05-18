@@ -7,22 +7,34 @@
 //
 
 #import "BVMainViewController.h"
-#import "BVBackgroundHelper.h"
-#import "PNObservationCenter+Protected.h"
-#import "BVAlertView.h"
-#import "PNMessage+Protected.h"
+#import "BVMessageCellTableViewCell.h"
+#import "BVDataManager.h"
+
 
 #pragma mark Private interface declaration
 
-@interface BVMainViewController ()
+@interface BVMainViewController () <UITableViewDelegate, UITableViewDelegate>
 
 
 #pragma mark - Properties
 
+@property (nonatomic, pn_desired_weak) IBOutlet UITableView *messagesList;
+@property (nonatomic, strong) NSDictionary *messageCellHeightCacheMap;
+
 
 #pragma mark - Instance methods
 
+/**
+ Prepare view controller after it has been loaded from XIB file.
+ */
+- (void)prepare;
+
+- (void)prepareData;
+
+
 #pragma mark - Handler methods
+
+- (void)handleMessageListChangeNotification:(NSNotification *)notification;
 
 #pragma mark -
 
@@ -34,141 +46,88 @@
 
 @implementation BVMainViewController
 
-NSMutableArray *pnMessages;
-
 
 #pragma mark - Instance methods
 
+- (void)awakeFromNib {
+    
+    // Forward method call to the super class.
+    [super awakeFromNib];
+    
+    [self prepare];
+}
+
+- (void)prepare {
+    
+    [self prepareData];
+}
+
+- (void)prepareData {
+    
+    self.messageCellHeightCacheMap = [NSMutableDictionary dictionary];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleMessageListChangeNotification:)
+                                                 name:kBVMessageListChangeNotification object:nil];
+}
+
+- (void)dealloc {
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kBVMessageListChangeNotification object:nil];
+}
+
+
 #pragma mark - Handler methods
 
-#pragma mark -
-
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    // Initialize table data
-    pnMessages = [NSMutableArray arrayWithObjects:nil];
-
-
-    [[PNObservationCenter defaultCenter] addMessageReceiveObserver:self
-                                                         withBlock:^(PNMessage *message) {
-
-                 [pnMessages addObject:[NSString stringWithFormat:@"%@: %@", [message.message objectForKey:@"timestamp"], [message.message objectForKey:@"data"]]];
-
-                                                             [self reloadAndReverse];
-
-
-                                                         }];
-
-    [self preparePubNubClient];
+- (void)handleMessageListChangeNotification:(NSNotification *)notification {
+    
+    NSUInteger messagesCount = [(NSArray *)notification.userInfo count];
+    
+    if (messagesCount) {
+        
+        NSMutableArray *indexPaths = [NSMutableArray arrayWithCapacity:messagesCount];
+        for (int row = 0; row < messagesCount; row++) {
+            
+            [indexPaths addObject:[NSIndexPath indexPathForRow:row inSection:0]];
+        }
+    
+        [self.messagesList insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+    }
 }
 
 
+#pragma mark - UITableVide delegate / data source methods
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [pnMessages count];
+    
+    return [[BVDataManager sharedInstance] messagesCount];
 }
 
-
-
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    NSString *message = [[BVDataManager sharedInstance] messageAtIndex:indexPath.row];
+    if (![self.messageCellHeightCacheMap valueForKey:message]) {
+        
+        [self.messageCellHeightCacheMap setValue:@([BVMessageCellTableViewCell heightForMessage:message]) forKey:message];
+    }
+    
+    
+    return [[self.messageCellHeightCacheMap valueForKey:message] floatValue];
+}
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    static NSString *simpleTableIdentifier = @"SimpleTableCell";
-
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:simpleTableIdentifier];
-
-
+    
+    static NSString *cellIdentifier = @"messageCellIdentifier";
+    BVMessageCellTableViewCell *cell = (BVMessageCellTableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+    
     if (cell == nil) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:simpleTableIdentifier];
+        
+        cell = [[BVMessageCellTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
     }
-
-    cell.textLabel.text = [pnMessages objectAtIndex:indexPath.row];
-    cell.textLabel.font = [ UIFont fontWithName: @"Arial" size: 8.0 ];
-
+    [cell updateForMessage:[[BVDataManager sharedInstance] messageAtIndex:indexPath.row]];
+    
     return cell;
 }
 
+#pragma mark -
 
-
-
-
-- (void)preparePubNubClient {
-
-    __block __pn_desired_weak __typeof (self) weakSelf = self;
-    BVAlertView *progressAlertView = [BVAlertView viewForProcessProgress];
-
-    [progressAlertView showInView:self.window.rootViewController.view];
-
-    // Setup with PAM keys, UUID, channel, and authToken
-    // In production, these values should be defined through a formal key/credentials exchange
-
-    PNConfiguration *myConfig = [PNConfiguration configurationWithPublishKey:@"pam" subscribeKey:@"pam" secretKey:nil];
-    myConfig.authorizationKey = @"iOS-authToken";
-
-    [PubNub setConfiguration:myConfig];
-    [PubNub setClientIdentifier:@"IOS-user9"];
-
-    PNChannel *privateChannel = [PNChannel channelWithName:@"iOS-1"];
-    PNChannel *publicChannel = [PNChannel channelWithName:@"public"];
-
-    NSArray *allChannels = @[privateChannel, publicChannel];
-
-    [BVBackgroundHelper prepareWithInitializationCompleteHandler:^(void (^completionBlock)(void)) {
-
-        // Pull last 10 messages
-
-        [PubNub requestHistoryForChannel:publicChannel
-                                    from:nil
-                                      to:nil
-                                   limit:3
-                     withCompletionBlock:^(NSArray *messagesArray, PNChannel *channel, PNDate *startDate, PNDate *endDate, PNError *error) {
-
-                         for (PNMessage *message in messagesArray) {
-
-                             [pnMessages addObject:[NSString stringWithFormat:@"%@: %@", [message.message objectForKey:@"timestamp"], [message.message objectForKey:@"data"]]];
-                         }
-
-
-                         [self reloadAndReverse];
-
-                         [PubNub subscribeOnChannels:allChannels
-                         withCompletionHandlingBlock:^(PNSubscriptionProcessState state, NSArray *array, PNError *error) {
-
-                             [progressAlertView dismissWithAnimation:YES];
-
-
-                             PNLog(PNLogGeneralLevel, weakSelf, @"{INFO} User's configuration code execution completed.");
-
-                             // Finalization block is required to change background support mode.
-                             completionBlock();
-                         }];
-
-                     }];
-
-    }
-                                        andReinitializationBlock:^{
-
-                                            PNLog(PNLogGeneralLevel, weakSelf, @"{INFO} Reinitialize block called.");
-
-                                            [PubNub disconnect];
-                                            [weakSelf preparePubNubClient];
-                                        }];
-    [BVBackgroundHelper connectWithSuccessBlock:^(NSString *origin) {
-
-        PNLog(PNLogGeneralLevel, self, @"{INFO} Connected to %@", origin);
-
-
-    }                                errorBlock:^(PNError *connectionError) {
-
-        if (connectionError) {
-
-            PNLog(PNLogGeneralLevel, self, @"{ERROR} Failed to connect because of error: %@", connectionError);
-        }
-    }];
-}
-
-- (void)reloadAndReverse {
-    pnMessages = [[pnMessages reverseObjectEnumerator] allObjects];
-    [_myTableView reloadData];
-}
 
 @end

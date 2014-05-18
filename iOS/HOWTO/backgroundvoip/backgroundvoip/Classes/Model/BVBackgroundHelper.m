@@ -195,8 +195,8 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
     return _sharedInstance;
 }
 
-+ (void)prepareWithInitializationCompleteHandler:(void(^)(void(^)(void)))completionHandler
-                        andReinitializationBlock:(void(^)(void))reinitializationBlock {
++ (void)prepareWithCompleteHandler:(void(^)(void(^)(void)))completionHandler
+          andReinitializationBlock:(void(^)(void))reinitializationBlock {
 
     [self sharedInstance].reinitializationBlock = ^{
 
@@ -573,7 +573,7 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
 
 - (void)handleApplicationDidEnterBackground:(NSNotification *)notification {
     
-    NSLog(@"[BVBackgroundHelper::State] Application entered background execution context");
+    PNLog(PNLogGeneralLevel, self, @"{INFO} Application entered background execution context");
     
     [self  startLocalNotificationCheck];
     [self startBackgroundSupport];
@@ -581,7 +581,7 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
 
 - (void)handleApplicationDidBecomeActive:(NSNotification *)notification {
 
-    NSLog(@"[BVBackgroundHelper::State] Application entered foreground execution context");
+    PNLog(PNLogGeneralLevel, self, @"{INFO} Application entered foreground execution context");
 
     [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
     [self stopLocalNotificationCheck];
@@ -594,23 +594,6 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
 #pragma mark - Misc methods
 
 - (void)handleNewMessage:(PNMessage *)message {
-    
-    void(^showMessageAlertView)(id) = ^(id messageForAlertView) {
-        
-        NSString *message = messageForAlertView;
-        if (![message respondsToSelector:@selector(length)]) {
-            
-            NSError *error;
-            NSData *messageData = [NSJSONSerialization dataWithJSONObject:message options:NSJSONWritingPrettyPrinted
-                                                                    error:&error];
-            message = [[NSString alloc] initWithData:messageData encoding:NSUTF8StringEncoding];
-        }
-        BVAlertView *alert = [BVAlertView viewWithTitle:@"New message" type:BVAlertSuccess
-                                           shortMessage:@"There is a new message for you."
-                                        detailedMessage:message cancelButtonTitle:nil otherButtonTitles:nil
-                                  andEventHandlingBlock:NULL];
-        [alert show];
-    };
     
     if ([message.message isKindOfClass:[NSDictionary class]]) {
         
@@ -631,19 +614,7 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
                 messageNotification.fireDate = [NSDate date];
                 [[UIApplication sharedApplication] scheduleLocalNotification:messageNotification];
             }
-            else {
-                
-                showMessageAlertView(messageToShow);
-            }
         }
-        else {
-            
-            showMessageAlertView(messagePayload);
-        }
-    }
-    else {
-        
-        showMessageAlertView(message.message);
     }
 }
 
@@ -652,14 +623,14 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
 
 - (void)beginInterruption {
     
-    NSLog(@"[BVBackgroundHelper::Audio] Audio interruption started.");
+    PNLog(PNLogGeneralLevel, self, @"{INFO} Audio interruption started.");
     self.interrupted = YES;
     [self startBackgroundSupport];
 }
 
 - (void)endInterruption {
     
-    NSLog(@"[BVBackgroundHelper::Audio] Audio interruption completed.");
+    PNLog(PNLogGeneralLevel, self, @"{INFO} Audio interruption completed.");
     self.interrupted = NO;
     [self startBackgroundSupport];
 }

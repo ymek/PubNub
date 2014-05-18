@@ -26,8 +26,8 @@
  @param reinitializationBlock
  Block which will be called from background helper in case if application stack reinitialization will be required.
  */
-+ (void)prepareWithInitializationCompleteHandler:(void(^)(void(^)(void)))completionHandler
-                        andReinitializationBlock:(void(^)(void))reinitializationBlock;
++ (void)prepareWithCompleteHandler:(void(^)(void(^)(void)))completionHandler
+          andReinitializationBlock:(void(^)(void))reinitializationBlock;
 
 /**
  Forward connection request to the \b PubNub client for further processing.

@@ -7,22 +7,8 @@
 //
 
 #import "BVAppDelegate.h"
-
-
-
-#pragma mark Private interface declaration
-
-@interface BVAppDelegate () <PNDelegate>
-
-
-#pragma mark - Instance methods
-
-- (void)preparePubNubClient;
-
-#pragma mark -
-
-
-@end
+#import "BVDataManager.h"
+#import "BVAlertView.h"
 
 
 #pragma mark Public interface implementation
@@ -30,14 +16,18 @@
 @implementation BVAppDelegate
 
 
-#pragma mark - Instance methods
-
-
-
-
 #pragma mark - UIApplication delegate methods
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+    BVAlertView *progressAlertView = [BVAlertView viewForProcessProgress];
+    [progressAlertView showInView:self.window.rootViewController.view];
+    
+    [BVDataManager prepareWithCompletionHandler:^{
+        
+        [progressAlertView dismissWithAnimation:YES];
+    }];
+    
 
     return YES;
 }

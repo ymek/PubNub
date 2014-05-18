@@ -11,14 +11,10 @@
 
 #pragma mark Public interface declaration
 
-@interface BVMainViewController : UIViewController <UITableViewDelegate, UITableViewDataSource>
-{
-    IBOutlet UITableView *myTableView;
-}
+@interface BVMainViewController : UIViewController
+
 
 #pragma mark -
 
-@property (strong, nonatomic) UIWindow *window;
-@property IBOutlet UITableView *myTableView;
 
 @end
