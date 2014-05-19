@@ -1,14 +1,13 @@
 //
-//  BVBackgroundHelper.m
-//  backgroundvoip
+//  PNBackgroundHelper.m
 //
 //  Created by Sergey Mamontov on 4/11/14.
 //  Copyright (c) 2014 Sergey Mamontov. All rights reserved.
 //
 
-#import "BVBackgroundHelper.h"
+#import "PNBackgroundHelper.h"
 #import <AVFoundation/AVFoundation.h>
-#import "BVAlertView.h"
+#import "BGAlertView.h"
 
 
 #pragma mark Static
@@ -16,33 +15,33 @@
 /**
  Stores reference on action which should be treated as APNS notification simulation.
  */
-static NSString * const kBVMessageAPNSAction = @"apns";
+static NSString * const kPNMessageAPNSAction = @"apns";
 
 /**
  Stores reference on key under which concrete notification identifier is stored.
  */
-static NSString * const kBVNotificationIdentifierKey = @"identifier";
+static NSString * const kPNNotificationIdentifierKey = @"identifier";
 
 /**
  Stores reference on identifier of notification which is issued by helper itself to somehow inform user in case if
  application will be suspended by system and should be relaunched.
  */
-static NSString * const kBVBackgroundHelperNotificationIdentifier = @"com.background.helper.notification";
+static NSString * const kPNBackgroundHelperNotificationIdentifier = @"com.background.helper.notification";
 
 /**
  Stores reference on minimum difference in time before local notification should be reissued.
  */
-static NSTimeInterval const kBVBackgroundMinimumTimeBeforeNotificationFire = 15.0f;
+static NSTimeInterval const kPNBackgroundMinimumTimeBeforeNotificationFire = 15.0f;
 
 /**
  Stores reference on interval after which local notification should be checked.
  */
-static NSTimeInterval const kBVLocalNotificationCheckInterval = 4.0f;
+static NSTimeInterval const kPNLocalNotificationCheckInterval = 4.0f;
 
 
 #pragma mark - Structures
 
-struct BVMessagePayloadKeysStruct {
+struct PNMessagePayloadKeysStruct {
     
     /**
      Under this key expected action is stored.
@@ -55,7 +54,7 @@ struct BVMessagePayloadKeysStruct {
     __unsafe_unretained NSString *message;
 };
 
-struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
+struct PNMessagePayloadKeysStruct PNMessagePayloadKeys = {
     
     .actionType = @"action",
     .message = @"message"
@@ -64,7 +63,7 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
 
 #pragma mark - Private interface declaration
 
-@interface BVBackgroundHelper () <AVAudioSessionDelegate>
+@interface PNBackgroundHelper () <AVAudioSessionDelegate>
 
 
 #pragma mark - Properties
@@ -103,7 +102,7 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
 
 #pragma mark - Class methods
 
-+ (BVBackgroundHelper *)sharedInstance;
++ (PNBackgroundHelper *)sharedInstance;
 
 
 #pragma mark - Instance methods
@@ -177,14 +176,14 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
 
 #pragma mark Public interface implementation
 
-@implementation BVBackgroundHelper
+@implementation PNBackgroundHelper
 
 
 #pragma mark - Class methods
 
-+ (BVBackgroundHelper *)sharedInstance {
++ (PNBackgroundHelper *)sharedInstance {
     
-    static BVBackgroundHelper *_sharedInstance;
+    static PNBackgroundHelper *_sharedInstance;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         
@@ -461,13 +460,13 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
     
     // Checking whether helper should update local notification data or schedule new one.
     if (!self.nextLocalNotificationFireDate ||
-        (self.nextLocalNotificationFireDate && timeBeforeNotificationApper < kBVBackgroundMinimumTimeBeforeNotificationFire)) {
+        (self.nextLocalNotificationFireDate && timeBeforeNotificationApper < kPNBackgroundMinimumTimeBeforeNotificationFire)) {
         
         if (!self.nextLocalNotificationFireDate) {
             
             PNLog(PNLogGeneralLevel, self, @"{INFO} There is no previously scheduled local notifications.");
         }
-        else if (self.nextLocalNotificationFireDate && timeBeforeNotificationApper < kBVBackgroundMinimumTimeBeforeNotificationFire) {
+        else if (self.nextLocalNotificationFireDate && timeBeforeNotificationApper < kPNBackgroundMinimumTimeBeforeNotificationFire) {
             
             PNLog(PNLogGeneralLevel, self, @"{INFO} Looks like time has come to postpone reminder local notification.");
         }
@@ -479,8 +478,8 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
         [notifications enumerateObjectsUsingBlock:^(UILocalNotification *notification, NSUInteger notificationIdx,
                                                     BOOL *notificationEnumeratorStop) {
             
-            NSString *notificationIdentifier = [notification.userInfo valueForKeyPath:kBVNotificationIdentifierKey];
-            if ([notificationIdentifier isEqualToString:kBVBackgroundHelperNotificationIdentifier]) {
+            NSString *notificationIdentifier = [notification.userInfo valueForKeyPath:kPNNotificationIdentifierKey];
+            if ([notificationIdentifier isEqualToString:kPNBackgroundHelperNotificationIdentifier]) {
                 
                 reminderNotification = notification;
                 [[UIApplication sharedApplication] cancelLocalNotification:notification];
@@ -498,7 +497,7 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
                 reminderNotification = [UILocalNotification new];
                 reminderNotification.alertBody = @"Launch me please ;)";
                 reminderNotification.alertAction = @"Launch...";
-                reminderNotification.userInfo = @{kBVNotificationIdentifierKey:kBVBackgroundHelperNotificationIdentifier};
+                reminderNotification.userInfo = @{kPNNotificationIdentifierKey : kPNBackgroundHelperNotificationIdentifier};
                 reminderNotification.timeZone = [NSTimeZone defaultTimeZone];
                 
                 // Next time if application not working, than in a hour user will be notified about that..
@@ -537,8 +536,8 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
         [notifications enumerateObjectsUsingBlock:^(UILocalNotification *notification, NSUInteger notificationIdx,
                                                            BOOL *notificationEnumeratorStop) {
             
-            NSString *notificationIdentifier = [notification.userInfo valueForKeyPath:kBVNotificationIdentifierKey];
-            if ([notificationIdentifier isEqualToString:kBVBackgroundHelperNotificationIdentifier]) {
+            NSString *notificationIdentifier = [notification.userInfo valueForKeyPath:kPNNotificationIdentifierKey];
+            if ([notificationIdentifier isEqualToString:kPNBackgroundHelperNotificationIdentifier]) {
                 
                 [[UIApplication sharedApplication] cancelLocalNotification:notification];
             }
@@ -552,7 +551,7 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
     
     [self stopLocalNotificationCheck];
     
-    self.localNotificationCheckTimer = [NSTimer timerWithTimeInterval:kBVLocalNotificationCheckInterval
+    self.localNotificationCheckTimer = [NSTimer timerWithTimeInterval:kPNLocalNotificationCheckInterval
                                                                target:self selector:@selector(rescheduleReminderNotification)
                                                              userInfo:nil repeats:YES];
     [[NSRunLoop currentRunLoop] addTimer:self.localNotificationCheckTimer forMode:NSRunLoopCommonModes];
@@ -598,9 +597,9 @@ struct BVMessagePayloadKeysStruct BVMessagePayloadKeys = {
     if ([message.message isKindOfClass:[NSDictionary class]]) {
         
         NSDictionary *messagePayload = (NSDictionary *)message.message;
-        if ([[messagePayload valueForKeyPath:BVMessagePayloadKeys.actionType] isEqualToString:kBVMessageAPNSAction]) {
+        if ([[messagePayload valueForKeyPath:PNMessagePayloadKeys.actionType] isEqualToString:kPNMessageAPNSAction]) {
             
-            id messageToShow = [messagePayload valueForKeyPath:BVMessagePayloadKeys.message];
+            id messageToShow = [messagePayload valueForKeyPath:PNMessagePayloadKeys.message];
             
             // Checking whether method has been called while application is executed in background execution context or not.
             if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {

@@ -1,30 +1,30 @@
 //
-//  BVAppDelegate.m
-//  backgroundvoip
+//  BGAppDelegate.m
+//  Background Enabled Sample Application
 //
 //  Created by Sergey Mamontov on 4/10/14.
 //  Copyright (c) 2014 Sergey Mamontov. All rights reserved.
 //
 
-#import "BVAppDelegate.h"
-#import "BVDataManager.h"
-#import "BVAlertView.h"
+#import "BGAppDelegate.h"
+#import "BGDataManager.h"
+#import "BGAlertView.h"
 
 
 #pragma mark Public interface implementation
 
-@implementation BVAppDelegate
+@implementation BGAppDelegate
 
 
 #pragma mark - UIApplication delegate methods
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
-    BVAlertView *progressAlertView = [BVAlertView viewForProcessProgress];
+    BGAlertView *progressAlertView = [BGAlertView viewForProcessProgress];
     [progressAlertView showInView:self.window.rootViewController.view];
     
-    [BVDataManager prepareWithCompletionHandler:^{
-        
+    [BGDataManager prepareWithCompletionHandler:^{
+
         [progressAlertView dismissWithAnimation:YES];
     }];
     

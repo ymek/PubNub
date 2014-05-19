@@ -1,6 +1,6 @@
 //
-//  UIScreen+BVAddition.h
-//  backgroundvoip
+//  UIScreen+BGAddition.h
+//  Background Enabled Sample Application
 //
 //  Created by Sergey Mamontov on 4/17/14.
 //  Copyright (c) 2014 Sergey Mamontov. All rights reserved.
@@ -11,7 +11,7 @@
 
 #pragma mark Public interface declaration
 
-@interface UIScreen (BVAddition)
+@interface UIScreen (BGAddition)
 
 
 #pragma mark - Instance methods

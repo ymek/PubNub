@@ -1,17 +1,17 @@
 //
-//  BVRoundedView.m
-//  backgroundvoip
+//  BGRoundedView.m
+//  Background Enabled Sample Application
 //
 //  Created by Sergey Mamontov on 4/17/14.
 //  Copyright (c) 2014 Sergey Mamontov. All rights reserved.
 //
 
-#import "BVRoundedView.h"
+#import "BGRoundedView.h"
 
 
 #pragma mark - Public interface implementation
 
-@implementation BVRoundedView
+@implementation BGRoundedView
 
 
 #pragma mark - Instance methods

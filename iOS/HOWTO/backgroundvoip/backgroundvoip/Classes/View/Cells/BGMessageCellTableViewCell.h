@@ -1,6 +1,6 @@
 //
-//  BVMessageCellTableViewCell.h
-//  backgroundvoip
+//  BGMessageCellTableViewCell.h
+//  Background Enabled Sample Application
 //
 //  Created by Sergey Mamontov on 5/18/14.
 //  Copyright (c) 2014 Sergey Mamontov. All rights reserved.
@@ -11,7 +11,7 @@
 
 #pragma mark Public interface declaration
 
-@interface BVMessageCellTableViewCell : UITableViewCell
+@interface BGMessageCellTableViewCell : UITableViewCell
 
 
 #pragma mark - Class methods

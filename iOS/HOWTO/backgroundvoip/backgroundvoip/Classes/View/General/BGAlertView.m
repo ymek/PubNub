@@ -1,15 +1,15 @@
 //
-//  BVAlertView.m
-//  backgroundvoip
+//  BGAlertView.m
+//  Background Enabled Sample Application
 //
 //  Created by Sergey Mamontov on 4/17/14.
 //  Copyright (c) 2014 Sergey Mamontov. All rights reserved.
 //
 
-#import "BVAlertView.h"
-#import "UIScreen+BVAddition.h"
-#import "BVRoundedView.h"
-#import "BVButton.h"
+#import "BGAlertView.h"
+#import "UIScreen+BGAddition.h"
+#import "BGRoundedView.h"
+#import "BGButton.h"
 
 
 #pragma mark Static
@@ -31,7 +31,7 @@ static CGFloat const kPNAlertViewDisappearAnimationDuration = 0.3f;
 
 #pragma mark - Private interface declaration
 
-@interface BVAlertView ()
+@interface BGAlertView ()
 
 #pragma mark - Properties
 
@@ -58,12 +58,12 @@ static CGFloat const kPNAlertViewDisappearAnimationDuration = 0.3f;
 /**
  Stores reference on view layout type.
  */
-@property (nonatomic, assign) BVAlertType type;
+@property (nonatomic, assign) BGAlertType type;
 
 /**
- Stores reference on block which will be called as soon as uset will tap on one of the buttons.
+ Stores reference on block which will be called as soon as user will tap on one of the buttons.
  */
-@property (nonatomic, copy) void(^handlerBlock)(BVAlertView *view, NSUInteger buttonIndex);
+@property (nonatomic, copy) void(^handlerBlock)(BGAlertView *view, NSUInteger buttonIndex);
 
 
 #pragma mark - Instance methods
@@ -93,9 +93,9 @@ static CGFloat const kPNAlertViewDisappearAnimationDuration = 0.3f;
  
  @return Initialized alert view which is ready to use.
  */
-- (id)initWithTitle:(NSString *)title type:(BVAlertType)type shortMessage:(NSString *)shortMessage
+- (id)initWithTitle:(NSString *)title type:(BGAlertType)type shortMessage:(NSString *)shortMessage
     detailedMessage:(NSString *)detailedMessage cancelButtonTitle:(NSString *)cancelButtonTitle
-  otherButtonTitles:(NSArray *)otherButtonTitles andEventHandlingBlock:(void(^)(BVAlertView *view, NSUInteger buttonIndex))handlingBlock;
+  otherButtonTitles:(NSArray *)otherButtonTitles andEventHandlingBlock:(void(^)(BGAlertView *view, NSUInteger buttonIndex))handlingBlock;
 
 /**
  Construct label which will fit into specified width.
@@ -151,7 +151,7 @@ static CGFloat const kPNAlertViewDisappearAnimationDuration = 0.3f;
 
 #pragma mark - Handler methods
 
-- (void)handleActionButtonTapped:(BVButton *)button;
+- (void)handleActionButtonTapped:(BGButton *)button;
 
 #pragma mark -
 
@@ -161,31 +161,31 @@ static CGFloat const kPNAlertViewDisappearAnimationDuration = 0.3f;
 
 #pragma mark - Public interface implementation
 
-@implementation BVAlertView
+@implementation BGAlertView
 
 
 #pragma mark - Class methods
 
-+ (BVAlertView *)viewWithTitle:(NSString *)title type:(BVAlertType)type shortMessage:(NSString *)shortMessage
++ (BGAlertView *)viewWithTitle:(NSString *)title type:(BGAlertType)type shortMessage:(NSString *)shortMessage
                detailedMessage:(NSString *)detailedMessage cancelButtonTitle:(NSString *)cancelButtonTitle
-             otherButtonTitles:(NSArray *)otherButtonTitles andEventHandlingBlock:(void(^)(BVAlertView *view, NSUInteger buttonIndex))handlingBlock {
+             otherButtonTitles:(NSArray *)otherButtonTitles andEventHandlingBlock:(void(^)(BGAlertView *view, NSUInteger buttonIndex))handlingBlock {
     
     return [[self alloc] initWithTitle:title type:type shortMessage:shortMessage detailedMessage:detailedMessage
                      cancelButtonTitle:cancelButtonTitle otherButtonTitles:otherButtonTitles andEventHandlingBlock:handlingBlock];
 }
 
-+ (BVAlertView *)viewForProcessProgress {
++ (BGAlertView *)viewForProcessProgress {
     
-    return [[self alloc] initWithTitle:nil type:BVAlertProgress shortMessage:nil detailedMessage:nil
+    return [[self alloc] initWithTitle:nil type:BGAlertProgress shortMessage:nil detailedMessage:nil
                      cancelButtonTitle:nil otherButtonTitles:nil andEventHandlingBlock:NULL];
 }
 
 
 #pragma mark - Instance methods
 
-- (id)initWithTitle:(NSString *)title type:(BVAlertType)type shortMessage:(NSString *)shortMessage
+- (id)initWithTitle:(NSString *)title type:(BGAlertType)type shortMessage:(NSString *)shortMessage
     detailedMessage:(NSString *)detailedMessage cancelButtonTitle:(NSString *)cancelButtonTitle
-  otherButtonTitles:(NSArray *)otherButtonTitles andEventHandlingBlock:(void(^)(BVAlertView *view, NSUInteger buttonIndex))handlingBlock {
+  otherButtonTitles:(NSArray *)otherButtonTitles andEventHandlingBlock:(void(^)(BGAlertView *view, NSUInteger buttonIndex))handlingBlock {
     
     // Check whether intialization has been successful or not
     if ((self = [super init])) {
@@ -200,7 +200,7 @@ static CGFloat const kPNAlertViewDisappearAnimationDuration = 0.3f;
         
         if (!cancelButtonTitle) {
             
-            cancelButtonTitle = (type == BVAlertSuccess ? @"OK" : @"Cancel");
+            cancelButtonTitle = (type == BGAlertSuccess ? @"OK" : @"Cancel");
             self.cancelButtonIndex = 0;
         }
         self.buttonTitles = [NSMutableArray arrayWithObject:cancelButtonTitle];
@@ -253,7 +253,7 @@ static CGFloat const kPNAlertViewDisappearAnimationDuration = 0.3f;
     }
     headerLabel.frame = headerLabelFrame;
     
-    BVRoundedView *headerView = [[BVRoundedView alloc] initWithFrame:(CGRect){
+    BGRoundedView *headerView = [[BGRoundedView alloc] initWithFrame:(CGRect){
         .size = (CGSize){.width = kPNAlertViewWidth,
             .height = ceilf(headerLabelFrame.size.height + kPNAlertViewHeaderLabelVerticalMargin * 2.0f)}}];
     headerView.topLeftCornerRadius = @(5);
@@ -268,7 +268,7 @@ static CGFloat const kPNAlertViewDisappearAnimationDuration = 0.3f;
 - (UIView *)shortDescriptionView {
     
     UIColor *backgroundColor = [UIColor colorWithRed:(198.0f/255.0f) green:(34.0f/255.0f) blue:(41.0f/255.0f) alpha:1.0f];
-    if (self.type == BVAlertSuccess) {
+    if (self.type == BGAlertSuccess) {
         
         backgroundColor = [UIColor colorWithRed:(87.0f/255.0f) green:(214.0f/255.0f) blue:(104.0f/255.0f) alpha:1.0f];
     }
@@ -286,7 +286,7 @@ static CGFloat const kPNAlertViewDisappearAnimationDuration = 0.3f;
             .height = MAX(kPNAlertViewShortDescriptionMinimumHeight, descriptionLabel.frame.size.height)}};
     descriptionLabel.frame = descriptionLabelFrame;
     
-    BVRoundedView *holderView = [[BVRoundedView alloc] initWithFrame:(CGRect){
+    BGRoundedView *holderView = [[BGRoundedView alloc] initWithFrame:(CGRect){
         .size = (CGSize){.width = kPNAlertViewWidth,
             .height = ceilf(descriptionLabelFrame.size.height + kPNAlertViewMessageVerticalMargin * 2.0f)}}];
     if (![self.title length]) {
@@ -340,7 +340,7 @@ static CGFloat const kPNAlertViewDisappearAnimationDuration = 0.3f;
     __block CGFloat currentVerticalPosition = verticalOffset + kPNAlertViewButtonVerticalInterval;
     [self.buttonTitles enumerateObjectsUsingBlock:^(NSString *buttonTitle, NSUInteger buttonTitleIdx, BOOL *buttonTitleEnumerator) {
         
-        BVButton *button = [BVButton buttonWithType:UIButtonTypeCustom];
+        BGButton *button = [BGButton buttonWithType:UIButtonTypeCustom];
         button.frame = (CGRect){.size = (CGSize){.width = buttonWidth, .height = kPNAlertViewButtonHeight},
             .origin = (CGPoint){.x = currentHorizontalPosition, .y = currentVerticalPosition}};
         button.titleLabel.lineBreakMode = NSLineBreakByTruncatingMiddle;
@@ -400,7 +400,7 @@ static CGFloat const kPNAlertViewDisappearAnimationDuration = 0.3f;
     self.cornerRadius = @(5);
     
     CGRect targetViewFrame;
-    if (self.type != BVAlertProgress) {
+    if (self.type != BGAlertProgress) {
         
         targetViewFrame = (CGRect){.size = CGSizeMake(kPNAlertViewWidth, 0.0f)};
         
@@ -498,7 +498,7 @@ static CGFloat const kPNAlertViewDisappearAnimationDuration = 0.3f;
 
 #pragma mark - Handler methods
 
-- (void)handleActionButtonTapped:(BVButton *)button {
+- (void)handleActionButtonTapped:(BGButton *)button {
     
     [self dismissWithClickedButtonIndex:[self.buttonTitles indexOfObject:button.titleLabel.text] animated:YES];
 }

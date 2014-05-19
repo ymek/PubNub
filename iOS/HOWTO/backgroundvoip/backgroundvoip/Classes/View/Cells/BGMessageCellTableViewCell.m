@@ -1,25 +1,25 @@
 //
-//  BVMessageCellTableViewCell.m
-//  backgroundvoip
+//  BGMessageCellTableViewCell.m
+//  Background Enabled Sample Application
 //
 //  Created by Sergey Mamontov on 5/18/14.
 //  Copyright (c) 2014 Sergey Mamontov. All rights reserved.
 //
 
-#import "BVMessageCellTableViewCell.h"
+#import "BGMessageCellTableViewCell.h"
 
 
 #pragma mark Static
 
-static NSUInteger kBVMaximumNumberOfLines = 10;
-static CGFloat kBVMaximumLabelFontSize = 14.0f;
-static CGFloat kBVContentVerticalMargin = 5.0f;
-static CGFloat kBVMaximumWidth = 260.0f;
+static NSUInteger kBGMaximumNumberOfLines = 10;
+static CGFloat kBGMaximumLabelFontSize = 14.0f;
+static CGFloat kBGContentVerticalMargin = 5.0f;
+static CGFloat kBGMaximumWidth = 260.0f;
 
 
 #pragma mark - Public interface implementation
 
-@implementation BVMessageCellTableViewCell
+@implementation BGMessageCellTableViewCell
 
 
 #pragma mark - Class methods
@@ -30,12 +30,12 @@ static CGFloat kBVMaximumWidth = 260.0f;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         
-        targetCellFont = [UIFont fontWithName:@"HelveticaNeue" size:kBVMaximumLabelFontSize];
+        targetCellFont = [UIFont fontWithName:@"HelveticaNeue" size:kBGMaximumLabelFontSize];
     });
     
-    return [message sizeWithFont:targetCellFont constrainedToSize:(CGSize){.width = kBVMaximumWidth,
+    return [message sizeWithFont:targetCellFont constrainedToSize:(CGSize){.width = kBGMaximumWidth,
                                                                            .height = MAXFLOAT}
-                   lineBreakMode:NSLineBreakByWordWrapping].height + 2.0 * kBVContentVerticalMargin;
+                   lineBreakMode:NSLineBreakByWordWrapping].height + 2.0 * kBGContentVerticalMargin;
 }
 
 
@@ -47,10 +47,10 @@ static CGFloat kBVMaximumWidth = 260.0f;
     if ((self = [super initWithStyle:style reuseIdentifier:reuseIdentifier])) {
         
         self.backgroundColor = [UIColor colorWithWhite:0.96 alpha:1.0f];
-        self.textLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:kBVMaximumLabelFontSize];
+        self.textLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:kBGMaximumLabelFontSize];
         self.textLabel.highlightedTextColor = self.textLabel.textColor;
         self.textLabel.lineBreakMode = NSLineBreakByWordWrapping;
-        self.textLabel.numberOfLines = kBVMaximumNumberOfLines;
+        self.textLabel.numberOfLines = kBGMaximumNumberOfLines;
         
         self.selectedBackgroundView = [UIView new];
         self.selectedBackgroundView.backgroundColor = [UIColor colorWithWhite:0.93 alpha:1.0f];

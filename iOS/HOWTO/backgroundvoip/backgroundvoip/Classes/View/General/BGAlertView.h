@@ -1,28 +1,28 @@
 //
-//  BVAlertView.h
-//  backgroundvoip
+//  BGAlertView.h
+//  Background Enabled Sample Application
 //
 //  Created by Sergey Mamontov on 4/17/14.
 //  Copyright (c) 2014 Sergey Mamontov. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
-#import "BVAlertViewDelegate.h"
-#import "BVPopoverView.h"
+#import "BGAlertViewDelegate.h"
+#import "BGPopoverView.h"
 
 #pragma mark Types
 
-typedef NS_OPTIONS(NSInteger, BVAlertType) {
-    
-    BVAlertSuccess,
-    BVAlertWarning,
-    BVAlertProgress
+typedef NS_OPTIONS(NSInteger, BGAlertType) {
+
+    BGAlertSuccess,
+    BGAlertWarning,
+    BGAlertProgress
 };
 
 
 #pragma mark Public interface declaration
 
-@interface BVAlertView : BVPopoverView
+@interface BGAlertView : BGPopoverView
 
 
 #pragma mark - Properties
@@ -30,7 +30,7 @@ typedef NS_OPTIONS(NSInteger, BVAlertType) {
 /**
  Stores reference on delegate which will be informed about events.
  */
-@property (nonatomic, pn_desired_weak) id<BVAlertViewDelegate> delegate;
+@property (nonatomic, pn_desired_weak) id<BGAlertViewDelegate> delegate;
 
 /**
  Stored and allow to redefine index of cancel button which will be shown as 'red' action button.
@@ -45,7 +45,7 @@ typedef NS_OPTIONS(NSInteger, BVAlertType) {
  
  @return Reference on constructed view which can be presented in future to the user.
  */
-+ (BVAlertView *)viewForProcessProgress;
++ (BGAlertView *)viewForProcessProgress;
 
 /**
  Construct alert view with predefined parameters and type. If \c delegate provided, it will be notified on user actions.
@@ -76,9 +76,9 @@ typedef NS_OPTIONS(NSInteger, BVAlertType) {
  
  @return Reference on constructed view which can be presented in future to the user.
  */
-+ (BVAlertView *)viewWithTitle:(NSString *)title type:(BVAlertType)type shortMessage:(NSString *)shortMessage
++ (BGAlertView *)viewWithTitle:(NSString *)title type:(BGAlertType)type shortMessage:(NSString *)shortMessage
                detailedMessage:(NSString *)detailedMessage cancelButtonTitle:(NSString *)cancelButtonTitle
-             otherButtonTitles:(NSArray *)otherButtonTitles andEventHandlingBlock:(void(^)(BVAlertView *view, NSUInteger buttonIndex))handlingBlock;
+             otherButtonTitles:(NSArray *)otherButtonTitles andEventHandlingBlock:(void(^)(BGAlertView *view, NSUInteger buttonIndex))handlingBlock;
 
 
 #pragma mark - Instance methods

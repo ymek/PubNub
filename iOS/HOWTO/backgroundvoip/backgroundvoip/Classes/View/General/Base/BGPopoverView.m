@@ -1,18 +1,18 @@
 //
-//  BVBVPopoverView.m
-//  backgroundvoip
+//  BGPopoverView.m
+//  Background Enabled Sample Application
 //
 //  Created by Sergey Mamontov on 4/17/14.
 //  Copyright (c) 2014 Sergey Mamontov. All rights reserved.
 //
 
-#import "BVPopoverView.h"
-#import "UIScreen+BVAddition.h"
+#import "BGPopoverView.h"
+#import "UIScreen+BGAddition.h"
 
 
 #pragma mark Private interface declaration
 
-@interface BVPopoverView ()
+@interface BGPopoverView ()
 
 
 #pragma mark - Properties
@@ -46,7 +46,7 @@
 
 #pragma mark - Public interface implementation
 
-@implementation BVPopoverView
+@implementation BGPopoverView
 
 
 #pragma mark - Instance methods

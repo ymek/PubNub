@@ -1,6 +1,6 @@
 //
-//  BVAlertViewDelegate.h
-//  backgroundvoip
+//  BGAlertViewDelegate.h
+//  Background Enabled Sample Application
 //
 //  Created by Sergey Mamontov on 4/17/14.
 //  Copyright (c) 2014 Sergey Mamontov. All rights reserved.
@@ -11,12 +11,12 @@
 
 #pragma mark Class forward
 
-@class BVAlertView;
+@class BGAlertView;
 
 
 #pragma mark - Delegate interface declaration
 
-@protocol BVAlertViewDelegate <NSObject>
+@protocol BGAlertViewDelegate <NSObject>
 
 
 @required
@@ -30,7 +30,7 @@
  @param buttonIndex
  Index of the button with which user closed alert.
  */
-- (void)alertView:(BVAlertView *)view didDismissWithButtonIndex:(NSUInteger)buttonIndex;
+- (void)alertView:(BGAlertView *)view didDismissWithButtonIndex:(NSUInteger)buttonIndex;
 
 #pragma mark -
 

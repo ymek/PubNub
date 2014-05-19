@@ -1,6 +1,6 @@
 //
-//  BVShadowEnableView.h
-//  backgroundvoip
+//  BGShadowEnableView.h
+//  Background Enabled Sample Application
 //
 //  Created by Sergey Mamontov on 4/17/14.
 //  Copyright (c) 2014 Sergey Mamontov. All rights reserved.
@@ -9,9 +9,9 @@
 #import <UIKit/UIKit.h>
 
 
-#pragma mark Publis interface declaration
+#pragma mark Public interface declaration
 
-@interface BVShadowEnableView : UIView
+@interface BGShadowEnableView : UIView
 
 
 #pragma mark - Properties

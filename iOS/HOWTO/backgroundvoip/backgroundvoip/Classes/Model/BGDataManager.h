@@ -1,6 +1,6 @@
 //
-//  BVDataManager.h
-//  backgroundvoip
+//  BGDataManager.h
+//  Background Enabled Sample Application
 //
 //  Created by Sergey Mamontov on 5/18/14.
 //  Copyright (c) 2014 Sergey Mamontov. All rights reserved.
@@ -17,12 +17,12 @@
  
  \b userInfo instead of \b NSDictionary will contain \b NSArray with messages in required order.
  */
-extern NSString * const kBVMessageListChangeNotification;
+extern NSString * const kBGMessageListChangeNotification;
 
 
 #pragma mark - Public interface declaration
 
-@interface BVDataManager : NSObject
+@interface BGDataManager : NSObject
 
 
 #pragma mark - Class methods

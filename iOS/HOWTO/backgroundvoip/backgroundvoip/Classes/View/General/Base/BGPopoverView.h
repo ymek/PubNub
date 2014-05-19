@@ -1,18 +1,18 @@
 //
-//  BVBVPopoverView.h
-//  backgroundvoip
+//  BGPopoverView.h
+//  Background Enabled Sample Application
 //
 //  Created by Sergey Mamontov on 4/17/14.
 //  Copyright (c) 2014 Sergey Mamontov. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
-#import "BVShadowEnableView.h"
+#import "BGShadowEnableView.h"
 
 
 #pragma mark Public interface declaration
 
-@interface BVPopoverView : BVShadowEnableView
+@interface BGPopoverView : BGShadowEnableView
 
 
 #pragma mark - Properties

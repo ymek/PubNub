@@ -1,18 +1,18 @@
 //
-//  BVShadowEnableView.m
-//  backgroundvoip
+//  BGShadowEnableView.m
+//  Background Enabled Sample Application
 //
 //  Created by Sergey Mamontov on 4/17/14.
 //  Copyright (c) 2014 Sergey Mamontov. All rights reserved.
 //
 
-#import "BVShadowEnableView.h"
+#import "BGShadowEnableView.h"
 #import <QuartzCore/QuartzCore.h>
 
 
 #pragma mark Private interface
 
-@interface BVShadowEnableView ()
+@interface BGShadowEnableView ()
 
 
 #pragma mark - Properties
@@ -40,7 +40,7 @@
 
 #pragma mark - Public interface methods
 
-@implementation BVShadowEnableView
+@implementation BGShadowEnableView
 
 
 #pragma mark - Instance methods

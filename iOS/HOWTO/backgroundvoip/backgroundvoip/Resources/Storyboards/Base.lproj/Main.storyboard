@@ -24,7 +24,7 @@
         <!--Main View Controller-->
         <scene sceneID="fWV-38-mvt">
             <objects>
-                <viewController id="uES-33-kJf" customClass="BVMainViewController" sceneMemberID="viewController">
+                <viewController id="uES-33-kJf" customClass="BGMainViewController" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="900-EE-vf6">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>

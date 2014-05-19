@@ -1,19 +1,19 @@
 //
-//  BVMainViewController.m
-//  backgroundvoip
+//  BGMainViewController.m
+//  Background Enabled Sample Application
 //
 //  Created by Sergey Mamontov on 4/17/14.
 //  Copyright (c) 2014 Sergey Mamontov. All rights reserved.
 //
 
-#import "BVMainViewController.h"
-#import "BVMessageCellTableViewCell.h"
-#import "BVDataManager.h"
+#import "BGMainViewController.h"
+#import "BGMessageCellTableViewCell.h"
+#import "BGDataManager.h"
 
 
 #pragma mark Private interface declaration
 
-@interface BVMainViewController () <UITableViewDelegate, UITableViewDelegate>
+@interface BGMainViewController () <UITableViewDelegate, UITableViewDelegate>
 
 
 #pragma mark - Properties
@@ -44,7 +44,7 @@
 
 #pragma mark Public interface implementation
 
-@implementation BVMainViewController
+@implementation BGMainViewController
 
 
 #pragma mark - Instance methods
@@ -66,12 +66,12 @@
     
     self.messageCellHeightCacheMap = [NSMutableDictionary dictionary];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleMessageListChangeNotification:)
-                                                 name:kBVMessageListChangeNotification object:nil];
+                                                 name:kBGMessageListChangeNotification object:nil];
 }
 
 - (void)dealloc {
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:kBVMessageListChangeNotification object:nil];
+
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kBGMessageListChangeNotification object:nil];
 }
 
 
@@ -98,15 +98,15 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
-    return [[BVDataManager sharedInstance] messagesCount];
+    return [[BGDataManager sharedInstance] messagesCount];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    NSString *message = [[BVDataManager sharedInstance] messageAtIndex:indexPath.row];
+    NSString *message = [[BGDataManager sharedInstance] messageAtIndex:indexPath.row];
     if (![self.messageCellHeightCacheMap valueForKey:message]) {
         
-        [self.messageCellHeightCacheMap setValue:@([BVMessageCellTableViewCell heightForMessage:message]) forKey:message];
+        [self.messageCellHeightCacheMap setValue:@([BGMessageCellTableViewCell heightForMessage:message]) forKey:message];
     }
     
     
@@ -116,13 +116,13 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     static NSString *cellIdentifier = @"messageCellIdentifier";
-    BVMessageCellTableViewCell *cell = (BVMessageCellTableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+    BGMessageCellTableViewCell *cell = (BGMessageCellTableViewCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
     
     if (cell == nil) {
         
-        cell = [[BVMessageCellTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
+        cell = [[BGMessageCellTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
     }
-    [cell updateForMessage:[[BVDataManager sharedInstance] messageAtIndex:indexPath.row]];
+    [cell updateForMessage:[[BGDataManager sharedInstance] messageAtIndex:indexPath.row]];
     
     return cell;
 }

@@ -1,6 +1,6 @@
 //
-//  BVButton.h
-//  backgroundvoip
+//  BGButton.h
+//  Background Enabled Sample Application
 //
 //  Created by Sergey Mamontov on 4/17/14.
 //  Copyright (c) 2014 Sergey Mamontov. All rights reserved.
@@ -11,7 +11,7 @@
 
 #pragma mark Public interface declaration
 
-@interface BVButton : UIButton
+@interface BGButton : UIButton
 
 
 #pragma mark - Properties
