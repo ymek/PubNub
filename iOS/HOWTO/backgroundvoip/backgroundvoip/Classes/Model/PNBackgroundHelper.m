@@ -495,7 +495,7 @@ struct PNMessagePayloadKeysStruct PNMessagePayloadKeys = {
                 PNLog(PNLogGeneralLevel, self, @"{INFO} Create new instance with fire date set to: %@.", self.nextLocalNotificationFireDate);
                 
                 reminderNotification = [UILocalNotification new];
-                reminderNotification.alertBody = @"Launch me please ;)";
+                reminderNotification.alertBody = @"The messenger terminated unexpectedly. Click to restart.";
                 reminderNotification.alertAction = @"Launch...";
                 reminderNotification.userInfo = @{kPNNotificationIdentifierKey : kPNBackgroundHelperNotificationIdentifier};
                 reminderNotification.timeZone = [NSTimeZone defaultTimeZone];
