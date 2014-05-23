@@ -165,8 +165,10 @@ NSString * const kVSStateManagerConnectionDidFailNotification = @"VSStateManager
                                   [dateFormatter stringFromDate:message.receiveDate.date],
                                   message.message];
                                                                  
-                                                                 
-             [UIApplication sharedApplication].applicationIconBadgeNumber = ([UIApplication sharedApplication].applicationIconBadgeNumber + 1);
+             if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
+                 
+                 [UIApplication sharedApplication].applicationIconBadgeNumber = ([UIApplication sharedApplication].applicationIconBadgeNumber + 1);
+             }
         }];
         
         
