@@ -146,8 +146,6 @@
     }
     
     [self initializePubNubClient];
-    [PubNub setConfiguration:[PNConfiguration configurationForOrigin:@"pubsub-beta.pubnub.com"
-                                                          publishKey:@"demo" subscribeKey:@"demo" secretKey:@"demo"]];
     
     UIRemoteNotificationType type = (UIRemoteNotificationTypeAlert|UIRemoteNotificationTypeBadge|UIRemoteNotificationTypeSound);
     [[UIApplication sharedApplication] registerForRemoteNotificationTypes:type];

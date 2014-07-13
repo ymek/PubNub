@@ -609,6 +609,20 @@
         [self.delegate performSelector:errorSelector withObject:self withObject:error];
         #pragma clang diagnostic pop
     }
+    // Check whether request was sent for remote object fetch
+    else if ([request isKindOfClass:[PNObjectFetchRequest class]]) {
+
+        PNObjectFetchInformation *information = ((PNObjectFetchRequest *)request).information;
+
+        [PNLogger logCommunicationChannelErrorMessageFrom:self message:^NSString * {
+
+            return [NSString stringWithFormat:@"[CHANNEL::%@] REMOTE OBJECT FETCH DID FAIL WITH ERROR: %@",
+                    self, information];
+        }];
+
+        error.associatedObject = information;
+        [self.serviceDelegate serviceChannel:self objectFetchDidFailWithError:error];
+    }
     // Check whether this is 'Post message' request or not
     else if ([request isKindOfClass:[PNMessagePostRequest class]]) {
 
@@ -895,6 +909,17 @@
         #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         [self.delegate performSelector:errorSelector withObject:self withObject:error];
         #pragma clang diagnostic pop
+    }
+    // Check whether request was sent for remote object fetch
+    else if ([request isKindOfClass:[PNObjectFetchRequest class]]) {
+
+        PNObjectFetchInformation *information = ((PNObjectFetchRequest *)request).information;
+
+        errorMessage = @"Object fetch request failed by timeout";
+        PNError *error = [PNError errorWithMessage:errorMessage code:errorCode];
+        error.associatedObject = information;
+
+        [self.serviceDelegate serviceChannel:self objectFetchDidFailWithError:error];
     }
     // Check whether this is 'Post message' request or not
     else if ([request isKindOfClass:[PNMessagePostRequest class]]) {
