@@ -3,7 +3,7 @@
 
 #pragma mark Class forward
 
-@class PNChannel;
+@class PNObjectSynchronizationEvent, PNChannel;
 
 
 /**
@@ -115,6 +115,32 @@
  Method allow to purge all state which is stored in cache.
  */
 - (void)purgeAllState;
+
+
+#pragma mark - Data Synchronization observers
+
+/**
+ Store synchronization event for event in sequence of change events.
+
+ @param event
+ Reference on concrete event which has been triggered on concrete remote object from the cloud.
+ */
+- (void)storeSynchronizationEvent:(PNObjectSynchronizationEvent *)event;
+
+/**
+ Commit all changes which arrived to the client from \b PubNub cloud and produce compiled object.
+
+ @param objectIdentifier
+ Stores reference on remote object identifier.
+
+ @return \b PNObject instance with applied patches.
+ */
+- (PNObject *)commitSynchronizationEventForObject:(NSString *)objectIdentifier;
+
+/**
+ Method allow to purge all local copy of objects from \b PubNub cloud and clean up all stacked events.
+ */
+- (void)purgeAllObjects;
 
 #pragma mark -
 

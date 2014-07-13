@@ -23,6 +23,7 @@
 #import "PNServiceChannel.h"
 #import "PNAccessRightsCollection+Protected.h"
 #import "PNMessageHistoryRequest+Protected.h"
+#import "PNObjectFetchRequest+Protected.h"
 #import "PNConnectionChannel+Protected.h"
 #import "PNOperationStatus+Protected.h"
 #import "NSInvocation+PNAdditions.h"
@@ -39,6 +40,9 @@
 #import "PNRequestsQueue.h"
 #import "PNClient.h"
 #import "PNDate.h"
+#import "PNObjectSynchronizationEvent.h"
+#import "PNObjectSynchronizationEvent+Protected.h"
+#import "PNObjectFetchInformation+Protected.h"
 
 
 // ARC check
@@ -84,6 +88,7 @@
     return ([response.callbackMethod hasPrefix:PNServiceResponseCallbacks.latencyMeasureMessageCallback] ||
             [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.stateRetrieveCallback] ||
             [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.stateUpdateCallback] ||
+            [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.objectFetchCallback] ||
             [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.timeTokenCallback] ||
             [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.channelPushNotificationsEnableCallback] ||
             [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.channelPushNotificationsDisableCallback] ||
@@ -133,6 +138,10 @@
             NSString *identifier = [request valueForKey:@"clientIdentifier"];
             PNChannel *channel = [request valueForKey:@"channel"];
             response.additionalData = [PNClient clientForIdentifier:identifier channel:channel andData:nil];
+        }
+        else if ([request isKindOfClass:[PNObjectFetchRequest class]]) {
+
+            response.additionalData = ((PNObjectFetchRequest *)request).information;
         }
 
         PNResponseParser *parser = [PNResponseParser parserForResponse:response];
@@ -213,7 +222,52 @@
                 [self.serviceDelegate serviceChannel:self clientStateUpdateDidFailWithError:parsedData];
             }
         }
+        // Check whether request was sent for remote object fetch
+        else if ([request isKindOfClass:[PNObjectFetchRequest class]]) {
+            
+            // Check whether there is no error while loading participants list
+            if (![parsedData isKindOfClass:[PNError class]]) {
 
+                [PNLogger logCommunicationChannelInfoMessageFrom:self message:^NSString * {
+
+                    NSString *message = [NSString stringWithFormat:@"[CHANNEL::%@] REMOTE OBJECT RETRIEVED: %@",
+                                                self, parsedData];
+                    if (response.nextPageToken != nil) {
+
+                        message = [NSString stringWithFormat:@"[CHANNEL::%@] PART OF REMOTE OBJECT RETRIEVED: %@",
+                                                                        self, parsedData];
+                    }
+                    return message;
+                }];
+
+                NSString *snapshotDate = ((PNObjectFetchInformation *)response.additionalData).snapshotDate;
+                NSString *objectIdentifier = ((PNObjectFetchInformation *)response.additionalData).objectIdentifier;
+                NSString *changeLocation = ((PNObjectFetchInformation *)response.additionalData).partialObjectDataPath;
+                PNObjectSynchronizationEvent *event = [PNObjectSynchronizationEvent synchronizationEvent:PNObjectInitEvent
+                                                       forObject:objectIdentifier atLocation:changeLocation changeDate:snapshotDate
+                                                         andData:response.response];
+                if (response.nextPageToken == nil) {
+
+                    [self.serviceDelegate serviceChannel:self didFetchObject:response.additionalData data:event];
+                }
+                else {
+
+                    [self.serviceDelegate serviceChannel:self didFetchPartOfTheObject:response.additionalData
+                                             partialData:event nextPortionToken:response.nextPageToken];
+                }
+            }
+            else {
+                
+                [PNLogger logCommunicationChannelErrorMessageFrom:self message:^NSString * {
+                    
+                    return [NSString stringWithFormat:@"[CHANNEL::%@] REMOTE OBJECT FETCH DID FAIL WITH ERROR: %@",
+                            self, parsedData];
+                }];
+                
+                ((PNError *)parsedData).associatedObject = response.additionalData;
+                [self.serviceDelegate serviceChannel:self objectFetchDidFailWithError:parsedData];
+            }
+        }
         // Check whether request was sent for message posting
         else if ([request isKindOfClass:[PNMessagePostRequest class]]) {
 

@@ -120,8 +120,7 @@ static NSMutableDictionary *_channelsCache = nil;
     return channel;
 }
 
-+ (id)            channelWithName:(NSString *)channelName
-            shouldObservePresence:(BOOL)observePresence
++ (id)            channelWithName:(NSString *)channelName shouldObservePresence:(BOOL)observePresence
 shouldUpdatePresenceObservingFlag:(BOOL)shouldUpdatePresenceObservingFlag {
 
     PNChannel *channel = [[[self class] channelsCache] valueForKey:channelName];

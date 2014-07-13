@@ -69,10 +69,18 @@
 /**
  Add/remove observer which would like to know when \b PubNub client update state.
 
- @warning Methods will be completely removed before feature release.
  */
 - (void)addClientStateUpdateObserver:(id)observer withBlock:(PNClientStateUpdateHandlingBlock)handleBlock;
 - (void)removeClientStateUpdateObserver:(id)observer;
+
+
+#pragma mark - Data Synchronization observers
+
+/**
+ Add/remove observer which would like to know when \b PubNub client completes cloud object fetch request.
+ */
+- (void)addObjectFetchObserver:(id)observer withBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
+- (void)removeObjectFetchObserver:(id)observer;
 
 
 #pragma mark - Client channels action/event observation

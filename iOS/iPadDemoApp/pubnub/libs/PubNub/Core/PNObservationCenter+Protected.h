@@ -36,6 +36,13 @@
  */
 - (BOOL)isSubscribedOnClientStateChange:(id)observer;
 
+/**
+ Check whether observer is subscribed on Data Synchronization start/stop events or not.
+ */
+- (BOOL)isSubscribedOnSynchronizationStart:(id)observer;
+- (BOOL)isSubscribedOnSynchronizationStop:(id)observer;
+
+
 
 #pragma mark - Client connection state observation
 
@@ -67,6 +74,16 @@
  */
 - (void)addClientAsStateUpdateObserverWithBlock:(PNClientStateUpdateHandlingBlock)handleBlock;
 - (void)removeClientAsStateUpdateObserver;
+
+
+#pragma mark - Data Synchronization observers
+
+/**
+ Observing for object retrieval process (this action will be performed only once per request).
+ After event will be fired this observation request will be removed from queue.
+ */
+- (void)addClientAsObjectFetchObserverWithBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
+- (void)removeClientAsObjectFetchObserver;
 
 
 #pragma mark - Channels subscribe/leave observers

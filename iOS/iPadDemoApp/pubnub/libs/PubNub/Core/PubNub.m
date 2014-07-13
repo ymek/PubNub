@@ -13,6 +13,7 @@
 #import "UIApplication+PNAdditions.h"
 #endif
 #import "PNAccessRightOptions+Protected.h"
+#import "PNObjectFetchRequest+Protected.h"
 #import "PNServiceChannelDelegate.h"
 #import "NSDictionary+PNAdditions.h"
 #import "PNConnection+Protected.h"
@@ -26,6 +27,7 @@
 #import "PNConstants.h"
 #import "PNHelper.h"
 #import "PNCache.h"
+#import "PNObjectFetchInformation+Protected.h"
 
 
 // ARC check
@@ -138,6 +140,22 @@ static NSMutableArray *pendingInvocations = nil;
 
 + (void)postponeUpdateClientState:(NSString *)clientIdentifier state:(NSDictionary *)clientState forChannel:(PNChannel *)channel
       withCompletionHandlingBlock:(id)handlerBlock;
+
+#pragma mark - Data Synchronization
+
++ (void)fetchObject:(NSString *)objectIdentifier
+           dataPath:(NSString *)partialObjectDataPath
+       snapshotDate:(NSString *)snapshotDate
+      nextPageToken:(NSString *)objectDataNextPageToken
+              byUserRequest:(BOOL)byUserRequest
+withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
+
++ (void)postponeFetchObject:(NSString *)objectIdentifier
+                   dataPath:(NSString *)partialObjectDataPath
+               snapshotDate:(NSString *)snapshotDate
+              nextPageToken:(NSString *)objectDataNextPageToken
+              byUserRequest:(BOOL)byUserRequest
+withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
 
 
 #pragma mark - Channels subscription management
@@ -368,6 +386,11 @@ shouldObserveProcessing:(BOOL)shouldObserveProcessing;
  This method should notify delegate that \b PubNub client failed to update state for client.
  */
 - (void)notifyDelegateAboutStateUpdateDidFailWithError:(PNError *)error;
+
+/**
+ This method should notify delegate that \b PubNub client failed to fecth remote object from cloud.
+ */
+- (void)notifyDelegateAboutObjectFetchDidFailWithError:(PNError *)error;
 
 /**
  * This method will notify delegate that client is about to restore subscription to specified set of channels
@@ -1636,6 +1659,174 @@ withCompletionHandlingBlock:nil];
                                               [PNHelper nilifyIfNotSet:channel],
                                               [PNHelper nilifyIfNotSet:handlerBlock]]
                                  outOfOrder:[handlerBlock isKindOfClass:[NSString class]]];
+}
+
+
+#pragma mark - Data Synchronization
+
++ (void)startObjectSynchronization:(NSString *)objectIdentifier {
+
+    [self startObjectSynchronization:objectIdentifier withCompletionHandlingBlock:nil];
+}
+
++ (void)startObjectSynchronization:(NSString *)objectIdentifier
+       withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock {
+
+}
+
++ (void)stopObjectSynchronization:(NSString *)objectIdentifier {
+
+    [self stopObjectSynchronization:objectIdentifier withCompletionHandlingBlock:nil];
+}
+
++ (void)stopObjectSynchronization:(NSString *)objectIdentifier
+       withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock {
+
+}
+
++ (void)fetchObject:(NSString *)objectIdentifier {
+
+    [self fetchObject:objectIdentifier withCompletionHandlingBlock:nil];
+}
+
++ (void)fetchObject:(NSString *)objectIdentifier withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock {
+
+    [self fetchObject:objectIdentifier dataPath:nil withCompletionHandlingBlock:handlerBlock];
+}
+
++ (void)fetchObject:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath {
+
+    [self fetchObject:objectIdentifier dataPath:partialObjectDataPath withCompletionHandlingBlock:nil];
+}
+
++ (void)fetchObject:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath
+withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock {
+
+    [self fetchObject:objectIdentifier dataPath:partialObjectDataPath snapshotDate:nil nextPageToken:nil byUserRequest:YES
+withCompletionHandlingBlock:handlerBlock];
+}
+
++ (void)fetchObject:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath snapshotDate:(NSString *)snapshotDate
+              nextPageToken:(NSString *)objectDataNextPageToken byUserRequest:(BOOL)byUserRequest
+withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock {
+
+    [PNLogger logGeneralMessageFrom:[self sharedInstance] message:^NSString * {
+
+        NSString *message = [NSString stringWithFormat:@"TRYING TO FETCH OBJECT WITH IDENTIFIER: %@ (BY USER REQUEST? %@"
+                                                       ")(STATE: %@)",
+                                                       objectIdentifier, (byUserRequest ? @"YES" : @"NO"),
+                                                       [self humanReadableStateFrom:[self sharedInstance].state]];
+        if(objectDataNextPageToken) {
+
+            message = [NSString stringWithFormat:@"TRYING TO FETCH NEXT PORTION OF OBJECT WITH IDENTIFIER: %@ (BY USER "
+                                                  "REQUEST? %@)(STATE: %@)", objectIdentifier,
+                                                  (byUserRequest ? @"YES" : @"NO"),
+                                                  [self humanReadableStateFrom:[self sharedInstance].state]];
+        }
+        return message;
+    }];
+
+    [self performAsyncLockingBlock:^{
+
+        if (!handlerBlock || (handlerBlock && ![handlerBlock isKindOfClass:[NSString class]])) {
+
+            [[PNObservationCenter defaultCenter] removeClientAsObjectFetchObserver];
+        }
+
+        // Check whether client is able to send request or not
+        NSInteger statusCode = [[self sharedInstance] requestExecutionPossibilityStatusCode];
+        if (statusCode == 0) {
+
+            [PNLogger logGeneralMessageFrom:[self sharedInstance] message:^NSString * {
+
+                NSString *message = [NSString stringWithFormat:@"FETCH OBJECT WITH IDENTIFIER: %@ (STATE: %@)",
+                                                objectIdentifier, [self humanReadableStateFrom:[self sharedInstance].state]];
+                if(objectDataNextPageToken) {
+
+                    message = [NSString stringWithFormat:@"FETCH NEXT PORTION OF OBJECT WITH IDENTIFIER: %@ (STATE: %@)",
+                                                    objectIdentifier, [self humanReadableStateFrom:[self sharedInstance].state]];
+                }
+
+                return message;
+            }];
+
+            if (handlerBlock && ![handlerBlock isKindOfClass:[NSString class]]) {
+
+                [[PNObservationCenter defaultCenter] addClientAsObjectFetchObserverWithBlock:[handlerBlock copy]];
+            }
+
+            NSString *targetSnapshotDate = snapshotDate;
+            if (!snapshotDate) {
+
+                NSArray *channels = [[self sharedInstance].messagingChannel fullSubscribedChannelsList];
+                targetSnapshotDate = [PNChannel largestTimetokenFromChannels:channels];
+            }
+            PNObjectFetchRequest *request = [PNObjectFetchRequest objectFetchRequestForIdentifier:objectIdentifier
+                                             path:partialObjectDataPath andSnapshotDate:targetSnapshotDate];
+            request.dataNextPageToken = objectDataNextPageToken;
+            [[self sharedInstance] sendRequest:request shouldObserveProcessing:YES];
+        }
+        // Looks like client can't send request because of some reasons
+        else {
+
+            [PNLogger logGeneralMessageFrom:[self sharedInstance] message:^NSString * {
+
+                NSString *message = [NSString stringWithFormat:@"CAN'T FETCH OBJECT WITH IDENTIFIER: %@ (STATE: %@)",
+                                                objectIdentifier, [self humanReadableStateFrom:[self sharedInstance].state]];
+                if(objectDataNextPageToken) {
+
+                    message = [NSString stringWithFormat:@"CAN'T FETCH NEXT PORTION OF OBJECT WITH IDENTIFIER: %@ (STATE: %@)",
+                                          objectIdentifier, [self humanReadableStateFrom:[self sharedInstance].state]];
+                }
+
+                return message;
+            }];
+
+
+            PNError *requestError = [PNError errorWithCode:statusCode];
+            requestError.associatedObject = [PNObjectFetchInformation objectFetchInformation:objectIdentifier
+                                             path:partialObjectDataPath snapshotDate:nil andDataNextPageToken:nil];
+
+            [[self sharedInstance] notifyDelegateAboutObjectFetchDidFailWithError:requestError];
+
+
+            if (handlerBlock && ![handlerBlock isKindOfClass:[NSString class]]) {
+
+                handlerBlock(nil, requestError);
+            }
+        }
+    }
+               postponedExecutionBlock:^{
+
+                   [PNLogger logGeneralMessageFrom:[self sharedInstance] message:^NSString * {
+
+                       NSString *message = [NSString stringWithFormat:@"POSTPONE OBJECT FETCHING (STATE: %@)",
+                                                      [self humanReadableStateFrom:[self sharedInstance].state]];
+                       if(objectDataNextPageToken) {
+
+                           message = [NSString stringWithFormat:@"POSTPONE FETCHING OBJECT NEXT PORTION (STATE: %@)",
+                                                          [self humanReadableStateFrom:[self sharedInstance].state]];
+                       }
+
+                       return message;
+                   }];
+
+               [self postponeFetchObject:objectIdentifier dataPath:partialObjectDataPath snapshotDate:snapshotDate
+                           nextPageToken:objectDataNextPageToken byUserRequest:byUserRequest
+             withCompletionHandlingBlock:(handlerBlock ? [handlerBlock copy] : nil)];
+               }];
+}
+
++ (void)postponeFetchObject:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath snapshotDate:(NSString *)snapshotDate
+              nextPageToken:(NSString *)objectDataNextPageToken byUserRequest:(BOOL)byUserRequest
+withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock {
+
+    [[self sharedInstance] postponeSelector:@selector(fetchObject:dataPath:snapshotDate:nextPageToken:byUserRequest:withCompletionHandlingBlock:)
+                                  forObject:self
+                             withParameters:@[[PNHelper nilifyIfNotSet:objectIdentifier], [PNHelper nilifyIfNotSet:partialObjectDataPath],
+                                              [PNHelper nilifyIfNotSet:snapshotDate], [PNHelper nilifyIfNotSet:objectDataNextPageToken],
+                                              @(byUserRequest), [PNHelper nilifyIfNotSet:handlerBlock]]
+                                 outOfOrder:(objectDataNextPageToken != nil)];
 }
 
 
@@ -4351,6 +4542,7 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
         [request isKindOfClass:[PNTimeTokenRequest class]] ||
         [request isKindOfClass:[PNClientStateRequest class]] ||
         [request isKindOfClass:[PNClientStateUpdateRequest class]] ||
+        [request isKindOfClass:[PNObjectFetchRequest class]] ||
         [request isKindOfClass:[PNMessageHistoryRequest class]] ||
         [request isKindOfClass:[PNHereNowRequest class]] ||
         [request isKindOfClass:[PNWhereNowRequest class]] ||
@@ -5575,6 +5767,36 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
         }];
 
         [self sendNotification:kPNClientStateUpdateDidFailWithErrorNotification withObject:error];
+    }
+                                shouldStartNext:YES];
+}
+
+- (void)notifyDelegateAboutObjectFetchDidFailWithError:(PNError *)error {
+
+    [self handleLockingOperationBlockCompletion:^{
+
+        [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+            return [NSString stringWithFormat:@"OBJECT FETCH FAILED (STATE: %@)",
+                    [self humanReadableStateFrom:self.state]];
+        }];
+
+        // Check whether delegate able to state update error even or not.
+        if ([self.delegate respondsToSelector:@selector(pubnubClient:objectFetchDidFailWithError:)]) {
+
+            [self.delegate performSelector:@selector(pubnubClient:objectFetchDidFailWithError:)
+                                withObject:self withObject:error];
+        }
+
+
+        PNObjectFetchInformation *information = (PNObjectFetchInformation *)error.associatedObject;
+        [PNLogger logDelegateMessageFrom:self message:^NSString * {
+
+            return [NSString stringWithFormat:@"PubNub client did fail to fetch '%@' (path: %@) object because of error: %@",
+                            information.objectIdentifier, information.partialObjectDataPath, error];
+        }];
+
+        [self sendNotification:kPNClientObjectFetchDidFailNotification withObject:error];
     }
                                 shouldStartNext:YES];
 }
@@ -6873,6 +7095,78 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
     }
 }
 
+- (void)serviceChannel:(PNServiceChannel *)channel didFetchObject:(PNObjectFetchInformation *)information
+                  data:(PNObjectSynchronizationEvent *)event {
+
+    [self handleLockingOperationBlockCompletion:^{
+
+        [self.cache storeSynchronizationEvent:event];
+        PNObject *object = [self.cache commitSynchronizationEventForObject:information.objectIdentifier];
+
+        [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+            return [NSString stringWithFormat:@"OBJECT RETRIEVED (STATE: %@)", [self humanReadableStateFrom:self.state]];
+        }];
+
+        if ([self shouldChannelNotifyAboutEvent:channel]) {
+
+            // Check whether delegate is able to handle state update event or not
+            SEL selector = @selector(pubnubClient:didFetchObject:);
+            if ([self.delegate respondsToSelector:selector]) {
+
+                #pragma clang diagnostic push
+                #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+                [self.delegate performSelector:selector withObject:self withObject:object];
+                #pragma clang diagnostic pop
+            }
+
+            [PNLogger logDelegateMessageFrom:self message:^NSString * {
+
+                return [NSString stringWithFormat:@"PubNub client successfully retrieved object: %@", object];
+            }];
+
+
+            [self sendNotification:kPNClientDidFetchObjectNotification withObject:object];
+        }
+    }
+                                shouldStartNext:YES];
+}
+
+- (void) serviceChannel:(PNServiceChannel *)channel didFetchPartOfTheObject:(PNObjectFetchInformation *)information
+            partialData:(PNObjectSynchronizationEvent *)event nextPortionToken:(NSString *)nextObjectDataPortionToken {
+
+    [self handleLockingOperationBlockCompletion:^{
+
+        [self.cache storeSynchronizationEvent:event];
+
+        [[self class] fetchObject:information.objectIdentifier dataPath:information.partialObjectDataPath
+                     snapshotDate:information.snapshotDate nextPageToken:information.dataNextPageToken
+                    byUserRequest:NO withCompletionHandlingBlock:(id)@""];
+    }
+                                shouldStartNext:NO];
+}
+
+- (void)serviceChannel:(PNServiceChannel *)channel objectFetchDidFailWithError:(PNError *)error {
+
+    if (error.code != kPNRequestCantBeProcessedWithOutRescheduleError) {
+
+        [self notifyDelegateAboutObjectFetchDidFailWithError:error];
+    }
+    else {
+
+        [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+            return [NSString stringWithFormat:@"RESCHEDULE OBJECT FETCH REQUEST (STATE: %@)", [self humanReadableStateFrom:self.state]];
+        }];
+
+        PNObjectFetchInformation *information = (PNObjectFetchInformation *)error.associatedObject;
+        [[self class] fetchObject:information.objectIdentifier dataPath:information.partialObjectDataPath
+                     snapshotDate:information.snapshotDate nextPageToken:information.dataNextPageToken
+                    byUserRequest:[[PNObservationCenter defaultCenter] isSubscribedOnSynchronizationStart:self]
+      withCompletionHandlingBlock:(id)@""];
+    }
+}
+
 - (void)serviceChannel:(PNServiceChannel *)channel didChangeAccessRights:(PNAccessRightsCollection *)accessRightsCollection {
 
     [self handleLockingOperationBlockCompletion:^{
@@ -7513,6 +7807,7 @@ didReceiveNetworkLatency:(double)latency
 - (void)dealloc {
 
     [self.cache purgeAllState];
+    [self.cache purgeAllObjects];
     self.cache = nil;
 
     [PNLogger logGeneralMessageFrom:self message:^NSString * { return @"Destroyed"; }];

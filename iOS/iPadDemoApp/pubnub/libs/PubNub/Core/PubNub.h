@@ -803,6 +803,348 @@ withCompletionHandlingBlock:(PNClientStateRetrieveHandlingBlock)handlerBlock;
  withCompletionHandlingBlock:(PNClientStateUpdateHandlingBlock)handlerBlock;
 
 
+#pragma mark - Data Synchronization
+
+/**
+ Start synchronization of object state from \b PubNub cloud to this client using object's identifier. As soon as
+ synchronization has been launched, all changes which has been done from other clients will be populated via change
+ events.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub startObjectSynchronization:@"chessboard"];
+ @endcode
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+ */
++ (void)startObjectSynchronization:(NSString *)objectIdentifier;
+
+/**
+ Start synchronization of object state from \b PubNub cloud to this client using object's identifier. As soon as
+ synchronization has been launched, all changes which has been done from other clients will be populated via change
+ events.
+
+ @code
+ @endcode
+ This method extends \a +startObjectSynchronization: and allow to specify object retrieve process handling block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub startObjectSynchronization:@"chessboard" withCompletionHandlingBlock:^(PNObject *object, PNError *error){
+
+     if (!error) {
+
+         // Handle object synchronization successful completion.
+     }
+     else {
+
+         // Handle object synchronization failure. Make sure to check error.code to find out what exactly went wrong.
+     }
+ }];
+ @endcode
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param handlerBlock
+ The block which will be called by \b PubNub client as soon as object data synchronization will be completed. The
+ block takes two arguments:
+ \c object - reference on \b PNObject which is used to represent object from \b PubNub cloud; \c error -
+ describes what exactly went wrong (check error code and compare it with \b PNErrorCodes ).
+ */
++ (void)startObjectSynchronization:(NSString *)objectIdentifier
+       withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
+
+
+/**
+ Stop synchronization of object state from \b PubNub cloud to this client using object's identifier. Object will be
+ removed from local cache and stop receiving object real-time updates processing.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub stopObjectSynchronization:@"chessboard"];
+ @endcode
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+ */
++ (void)stopObjectSynchronization:(NSString *)objectIdentifier;
+
+/**
+ Stop synchronization of object state from \b PubNub cloud to this client using object's identifier. Object will be
+ removed from local cache and stop receiving object real-time updates processing.
+
+ @code
+ @endcode
+ This method extends \a +stopObjectSynchronization: and allow to specify object retrieve process handling block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub stopObjectSynchronization:@"chessboard" withCompletionHandlingBlock:^(PNObject *object, PNError *error){
+
+     if (!error) {
+
+         // Handle object synchronization successful completion.
+     }
+     else {
+
+         // Handle object synchronization failure. Make sure to check error.code to find out what exactly went wrong.
+     }
+ }];
+ @endcode
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param handlerBlock
+ The block which will be called by \b PubNub client as soon as object data synchronization will be completed. The
+ block takes two arguments:
+ \c object - reference on \b PNObject which is used to represent object from \b PubNub cloud; \c error -
+ describes what exactly went wrong (check error code and compare it with \b PNErrorCodes ).
+ */
++ (void)stopObjectSynchronization:(NSString *)objectIdentifier
+       withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
+
+/**
+ Create local copy of one of the objects from \b PubNub cloud.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub fetchObject:@"chessboard"];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didFetchObject:(PNObject *)object {
+
+     // PubNub client retrieved remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectFetchDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to retrieve remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on object identifier for which PubNub client was unable to create local copy.
+ }
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidFetchObjectNotification and
+ kPNClientObjectFetchDidFailNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+ */
++ (void)fetchObject:(NSString *)objectIdentifier;
+
+/**
+ Create local copy of one of the objects from \b PubNub cloud.
+
+ @code
+ @endcode
+ This method extends \a +fetchObject: and allow to specify object retrieve process handling block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub fetchObject:@"chessboard" withCompletionHandlingBlock:^(PNObject *object, PNError *error){
+
+      if (!error) {
+
+          // PubNub client retrieved remote object.
+      }
+      else {
+
+          // PubNub client did fail to retrieve remote object.
+          //
+          // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+          // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+          // 'error.associatedObject' reference on object identifier for which PubNub client was unable to create local copy.
+      }
+  }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didFetchObject:(PNObject *)object {
+
+     // PubNub client retrieved remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectFetchDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to retrieve remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on object identifier for which PubNub client was unable to create local copy.
+ }
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidFetchObjectNotification and
+ kPNClientObjectFetchDidFailNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param handlerBlock
+ The block which will be called by \b PubNub client during remote object fetch request processing. The
+ block takes two arguments:
+ \c object - reference on \b PNObject which is used to represent object from \b PubNub cloud (it will be \c nil in
+ case of error); \c error - describes what exactly went wrong (check error code and compare it with \b PNErrorCodes).
+ */
++ (void)fetchObject:(NSString *)objectIdentifier withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
+
+/**
+ Create local copy of one of the objects from \b PubNub cloud.
+
+ @code
+ @endcode
+ This method extends \a +fetchObject: and allow to specify specific part of the object which should be retrieved.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub fetchObject:@"chessboard" dataPath:@"players.white.firstName"];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didFetchObject:(PNObject *)object {
+
+     // PubNub client retrieved remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectFetchDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to retrieve remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on object identifier for which PubNub client was unable to create local copy.
+ }
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidFetchObjectNotification and
+ kPNClientObjectFetchDidFailNotification.
+
+ @note If \c partialObjectDataPath is specified, then only part of data which is stored under specified key-path will
+ be retrieved from \b PubNub cloud and merged with local object (if it was fetched before).
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param partialObjectDataPath
+ Is key-path to concrete portion of object stored in \b PubNub cloud.
+ */
++ (void)fetchObject:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath;
+
+/**
+ Create local copy of one of the objects from \b PubNub cloud.
+
+ @code
+ @endcode
+ This method extends \a +fetchObject: and allow to specify specific part of the object which should be retrieved.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub fetchObject:@"chessboard" dataPath:@"players.white.firstName"
+ withCompletionHandlingBlock:^(PNObject *object, PNError *error){
+
+       if (!error) {
+
+           // PubNub client retrieved remote object.
+       }
+       else {
+
+           // PubNub client did fail to retrieve remote object.
+           //
+           // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+           // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+           // 'error.associatedObject' reference on object identifier for which PubNub client was unable to create local copy.
+       }
+   }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didFetchObject:(PNObject *)object {
+
+     // PubNub client retrieved remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectFetchDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to retrieve remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on object identifier for which PubNub client was unable to create local copy.
+ }
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidFetchObjectNotification and
+ kPNClientObjectFetchDidFailNotification.
+
+ @note If \c partialObjectDataPath is specified, then only part of data which is stored under specified key-path will
+ be retrieved from \b PubNub cloud and merged with local object (if it was fetched before).
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param partialObjectDataPath
+ Is key-path to concrete portion of object stored in \b PubNub cloud.
+
+ @param handlerBlock
+ The block which will be called by \b PubNub client during remote object fetch request processing. The
+ block takes two arguments:
+ \c object - reference on \b PNObject which is used to represent object from \b PubNub cloud (it will be \c nil in
+ case of error); \c error - describes what exactly went wrong (check error code and compare it with \b PNErrorCodes).
+ */
++ (void)fetchObject:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath
+        withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
+
+
 #pragma mark - Channels subscription management
 
 /**

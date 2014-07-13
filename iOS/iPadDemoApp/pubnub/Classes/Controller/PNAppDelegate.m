@@ -146,6 +146,8 @@
     }
     
     [self initializePubNubClient];
+    [PubNub setConfiguration:[PNConfiguration configurationForOrigin:@"pubsub-beta.pubnub.com"
+                                                          publishKey:@"demo" subscribeKey:@"demo" secretKey:@"demo"]];
     
     UIRemoteNotificationType type = (UIRemoteNotificationTypeAlert|UIRemoteNotificationTypeBadge|UIRemoteNotificationTypeSound);
     [[UIApplication sharedApplication] registerForRemoteNotificationTypes:type];
@@ -390,6 +392,24 @@
 
         return [NSString stringWithFormat:@"PubNub client did fail to update state for client %@ at channel %@ because of error: %@",
                 ((PNClient *)error.associatedObject).identifier, ((PNClient *)error.associatedObject).channel, error];
+    }];
+}
+
+- (void)pubnubClient:(PubNub *)client didFetchObject:(PNObject *)object {
+
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+        return [NSString stringWithFormat:@"PubNub client successfully retrieved object: %@", object];
+    }];
+}
+
+- (void)pubnubClient:(PubNub *)client objectFetchDidFailWithError:(PNError *)error {
+
+    PNObjectFetchInformation *information = (PNObjectFetchInformation *)error.associatedObject;
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+        return [NSString stringWithFormat:@"PubNub client did fail to fetch '%@' (path: %@) object because of error: %@",
+                        information.objectIdentifier, information.partialObjectDataPath, error];
     }];
 }
 

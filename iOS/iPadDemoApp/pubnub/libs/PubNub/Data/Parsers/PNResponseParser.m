@@ -15,6 +15,7 @@
 #import "PNOperationStatusResponseParser.h"
 #import "PNErrorResponseParser+Protected.h"
 #import "PNChannelEventsResponseParser.h"
+#import "PNObjectFetchResponseParser.h"
 #import "PNClientStateResponseParser.h"
 #import "PNServiceResponseCallbacks.h"
 #import "PNTimeTokenResponseParser.h"
@@ -150,6 +151,11 @@
     else if ([response.callbackMethod isEqualToString:PNServiceResponseCallbacks.stateUpdateCallback]) {
 
         parserClass = [PNClientStateUpdateResponseParser class];
+    }
+    // Check whether result is result of "Object fetch" request or not.
+    else if ([response.callbackMethod isEqualToString:PNServiceResponseCallbacks.objectFetchCallback]) {
+
+        parserClass = [PNObjectFetchResponseParser class];
     }
     // Check whether result is result for "Here now" request execution or not.
     else if ([response.callbackMethod isEqualToString:PNServiceResponseCallbacks.channelParticipantsCallback]) {

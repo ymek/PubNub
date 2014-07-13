@@ -31,6 +31,7 @@ struct PNServiceResponseServiceDataKeysStruct PNServiceResponseServiceDataKeys =
     .errorState = @"error",
     .warningState = @"warning",
     .message = @"message",
+    .nextPageToken = @"next_page",
     .response = @"payload",
     .privateData = @"^_(.*?)_(?=[^\\s])"
 };
@@ -40,6 +41,7 @@ struct PNServiceResponseCallbacksStruct PNServiceResponseCallbacks = {
     .latencyMeasureMessageCallback = @"lm",
     .stateRetrieveCallback = @"mr",
     .stateUpdateCallback = @"mu",
+    .objectFetchCallback = @"of",
     .subscriptionCallback = @"s",
     .leaveChannelCallback = @"lv",
     .channelPushNotificationsEnableCallback = @"cpe",
@@ -254,6 +256,17 @@ struct PNServiceResponseCallbacksStruct PNServiceResponseCallbacks = {
         }
 
         // Check whether response contains service populated message or not.
+        if ([processedData objectForKey:PNServiceResponseServiceDataKeys.nextPageToken]) {
+
+            self.nextPageToken = [processedData objectForKey:PNServiceResponseServiceDataKeys.nextPageToken];
+            if ([self.nextPageToken isEqual:[NSNull null]]) {
+
+                self.nextPageToken = nil;
+            }
+            [processedData removeObjectForKey:PNServiceResponseServiceDataKeys.nextPageToken];
+        }
+
+        // Check whether response contains service populated message or not.
         if ([processedData objectForKey:PNServiceResponseServiceDataKeys.message]) {
 
             self.message = [processedData objectForKey:PNServiceResponseServiceDataKeys.message];
@@ -366,12 +379,13 @@ struct PNServiceResponseCallbacksStruct PNServiceResponseCallbacks = {
     
     return [NSString stringWithFormat:@"\nHTTP STATUS CODE: %ld\nSTATUS MESSAGE: %@\nIS ERROR RESPONSE? %@"
                                        "\nCONNECTION WILL BE CLOSE? %@\nRESPONSE SIZE: %ld\nRESPONSE CONTENT SIZE: %ld"
-                                       "\nIS JSONP: %@\nCALLBACK METHOD: %@\nSERVICE NAME: %@\nREQUEST IDENTIFIER: %@"
-                                       "\nRESPONSE: %@\nADDITIONAL DATA: %@\n",
+                                       "\nIS JSONP: %@\nCALLBACK METHOD: %@\nNEXT PAGE TOKEN: %@\nSERVICE NAME: %@\n"
+                                       "REQUEST IDENTIFIER: %@\nRESPONSE: %@\nADDITIONAL DATA: %@\n",
                                       (long)self.statusCode, self.message, self.isErrorResponse ? @"YES" : @"NO",
                                       self.isLastResponseOnConnection ? @"YES" : @"NO", (unsigned long)[self.content length],
                                       (unsigned long)self.size, self.callbackMethod ? @"YES" : @"NO", self.callbackMethod,
-                                      self.serviceName, self.requestIdentifier, self.response, self.additionalData];
+                                      self.nextPageToken, self.serviceName, self.requestIdentifier, self.response,
+                                      self.additionalData];
 }
 
 #pragma mark -

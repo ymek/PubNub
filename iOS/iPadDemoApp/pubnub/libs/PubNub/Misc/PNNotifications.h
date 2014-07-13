@@ -97,6 +97,24 @@ static NSString * const kPNClientDidUpdateClientStateNotification = @"PNClientDi
 static NSString * const kPNClientStateUpdateDidFailWithErrorNotification = @"PNClientStateUpdateDidFailWithErrorNotification";
 
 /**
+ Sent when \b PubNub client successfully retrieved and created local copy of the object from \b PubNub cloud.
+
+ \b userInfo contains reference on \b PNObject instead of \q NSDictionary which represent cloud object,
+ */
+static NSString * const kPNClientDidFetchObjectNotification = @"PNClientDidFetchObjectNotification";
+
+/**
+ Sent when \b PubNub client did fail to fetch remote object.
+
+ \b userInfo contains \b PNError instead of \a NSDictionary. Reference on object instance for which \b PubNub client
+ was unable to fetch object will be stored inside of \b PNError's \a 'error.associatedObject'.
+
+ @note Always check \a error.code to find out what caused error (check PNErrorCodes header file and use \a -localizedDescription /
+ \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
+static NSString * const kPNClientObjectFetchDidFailNotification = @"PNClientObjectFetchDidFailNotification";
+
+/**
  Sent when \b PubNub client was able to complete subscription on specified set of channels.
 
  \b userInfo contains reference on \a NSArray of \b PNChannel instances on which \b PubNub client was able to subscribe.

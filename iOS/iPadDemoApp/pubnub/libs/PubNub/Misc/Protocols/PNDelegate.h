@@ -15,7 +15,7 @@
 #pragma mark Class forward
 
 @class PNPresenceEvent, PNMessage, PubNub, PNError, PNDate, PNAccessRightsCollection;
-@class PNClient;
+@class PNClient, PNObject;
 
 
 @protocol PNDelegate <NSObject>
@@ -123,6 +123,30 @@
  \b PNError instance which describe what exactly went wrong.
  */
 - (void)pubnubClient:(PubNub *)client clientStateUpdateDidFailWithError:(PNError *)error;
+
+/**
+ Called on delegate when \b PubNub client successfully retrieved and created local copy of object stored in \b PubNub
+ cloud.
+
+ @param client
+ \b PubNub instance which triggered event.
+
+ @param object
+ Reference on local instance of object retrieved from \b PubNub cloud.
+ */
+- (void)pubnubClient:(PubNub *)client didFetchObject:(PNObject *)object;
+
+/**
+ Called on delegate when \b PubNub client did fail to retrieved and created local copy of object stored in \b PubNub
+ cloud.
+
+ @param client
+ \b PubNub instance which triggered event.
+
+ @param error
+ \b PNError instance which describe what exactly went wrong.
+ */
+- (void)pubnubClient:(PubNub *)client objectFetchDidFailWithError:(PNError *)error;
 
 /**
  * Called on delegate when client successfully subscribed to specified

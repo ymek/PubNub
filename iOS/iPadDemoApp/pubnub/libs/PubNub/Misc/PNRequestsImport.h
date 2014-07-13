@@ -30,6 +30,7 @@
 #import "PNMessageHistoryRequest.h"
 #import "PNBaseRequest+Protected.h"
 #import "PNLatencyMeasureRequest.h"
+#import "PNObjectFetchRequest.h"
 #import "PNHeartbeatRequest.h"
 #import "PNTimeTokenRequest.h"
 #import "PNWhereNowRequest.h"
