@@ -189,6 +189,31 @@
 - (void)pubnubClient:(PubNub *)client unsubscriptionDidFailWithError:(PNError *)error;
 
 /**
+ Called on delegate when \b PubNub client completed remote object synchronization.
+ */
+- (void)pubnubClient:(PubNub *)client didStartObjectSynchronization:(PNObject *)object;
+
+/**
+ Called on delegate when some kind of error occurred during synchronization process start.
+ */
+- (void)pubnubClient:(PubNub *)client didFailToStartObjectSynchronizationWithError:(PNError *)error;
+
+/**
+ Called on delegate when \b PubNub client stopped remote object synchronization.
+ */
+- (void)pubnubClient:(PubNub *)client didStopObjectSynchronization:(PNObject *)object;
+
+/**
+ Called on delegate when some kind of error occurred during remote object synchronization stopping.
+ */
+- (void)pubnubClient:(PubNub *)client didFailToStopObjectSynchronizationWithError:(PNError *)error;
+
+/**
+ * Called on delegate when client received remote object change event
+ */
+- (void)pubnubClient:(PubNub *)client didReceiveObjectChangeEvent:(PNObject *)object;
+
+/**
  * Called on delegate when client successfully enabled presence observation on
  * set of channels
  */

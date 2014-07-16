@@ -12,6 +12,7 @@
 #if __IPHONE_OS_VERSION_MIN_REQUIRED
 #import "UIApplication+PNAdditions.h"
 #endif
+#import "PNSynchronizationChannel+Protected.h"
 #import "PNAccessRightOptions+Protected.h"
 #import "PNObjectFetchRequest+Protected.h"
 #import "PNServiceChannelDelegate.h"
@@ -28,6 +29,7 @@
 #import "PNHelper.h"
 #import "PNCache.h"
 #import "PNObjectFetchInformation+Protected.h"
+#import "PNObjectSynchronizationEvent+Protected.h"
 
 
 // ARC check
@@ -141,20 +143,20 @@ static NSMutableArray *pendingInvocations = nil;
 + (void)postponeUpdateClientState:(NSString *)clientIdentifier state:(NSDictionary *)clientState forChannel:(PNChannel *)channel
       withCompletionHandlingBlock:(id)handlerBlock;
 
+
 #pragma mark - Data Synchronization
 
-+ (void)fetchObject:(NSString *)objectIdentifier
-           dataPath:(NSString *)partialObjectDataPath
-       snapshotDate:(NSString *)snapshotDate
-      nextPageToken:(NSString *)objectDataNextPageToken
-              byUserRequest:(BOOL)byUserRequest
++ (void)postponeStartObjectSynchronization:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath
+               withCompletionHandlingBlock:(PNClientObjectSynchronizationStartProcessingBlock)handlerBlock;
++ (void)postponeStopObjectSynchronization:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath
+               withCompletionHandlingBlock:(PNClientObjectSynchronizationStopProcessingBlock)handlerBlock;
+
++ (void)fetchObject:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath snapshotDate:(NSString *)snapshotDate
+      nextPageToken:(NSString *)objectDataNextPageToken byUserRequest:(BOOL)byUserRequest
 withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
 
-+ (void)postponeFetchObject:(NSString *)objectIdentifier
-                   dataPath:(NSString *)partialObjectDataPath
-               snapshotDate:(NSString *)snapshotDate
-              nextPageToken:(NSString *)objectDataNextPageToken
-              byUserRequest:(BOOL)byUserRequest
++ (void)postponeFetchObject:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath snapshotDate:(NSString *)snapshotDate
+              nextPageToken:(NSString *)objectDataNextPageToken byUserRequest:(BOOL)byUserRequest
 withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
 
 
@@ -388,9 +390,19 @@ shouldObserveProcessing:(BOOL)shouldObserveProcessing;
 - (void)notifyDelegateAboutStateUpdateDidFailWithError:(PNError *)error;
 
 /**
- This method should notify delegate that \b PubNub client failed to fecth remote object from cloud.
+ This method should notify delegate that \b PubNub client failed to fetch remote object from cloud.
  */
 - (void)notifyDelegateAboutObjectFetchDidFailWithError:(PNError *)error;
+
+/**
+ This method should notify delegate that \b PubNub client failed to start local object synchronization with cloud.
+ */
+- (void)notifyDelegateAboutObjectSynchronizationStartDidFailWithError:(PNError *)error;
+
+/**
+ This method should notify delegate that \b PubNub client failed to stop local object synchronization with cloud.
+ */
+- (void)notifyDelegateAboutObjectSynchronizationStopDidFailWithError:(PNError *)error;
 
 /**
  * This method will notify delegate that client is about to restore subscription to specified set of channels
@@ -1670,8 +1682,102 @@ withCompletionHandlingBlock:nil];
 }
 
 + (void)startObjectSynchronization:(NSString *)objectIdentifier
-       withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock {
+       withCompletionHandlingBlock:(PNClientObjectSynchronizationStartProcessingBlock)handlerBlock {
 
+    [self startObjectSynchronization:objectIdentifier dataPath:nil withCompletionHandlingBlock:handlerBlock];
+}
+
++ (void)startObjectSynchronization:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath {
+
+    [self startObjectSynchronization:objectIdentifier dataPath:partialObjectDataPath withCompletionHandlingBlock:nil];
+}
+
++ (void)startObjectSynchronization:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath
+       withCompletionHandlingBlock:(PNClientObjectSynchronizationStartProcessingBlock)handlerBlock {
+
+    [PNLogger logGeneralMessageFrom:[self sharedInstance] message:^NSString * {
+
+        return [NSString stringWithFormat:@"TRYING TO START OBJECT SYNCHRONIZATION: %@ (STATE: %@)",
+                        objectIdentifier, [self humanReadableStateFrom:[self sharedInstance].state]];
+    }];
+
+    [self performAsyncLockingBlock:^{
+
+        void(^errorHandlingBlock)(PNError *) = ^(PNError *error) {
+
+            [PNLogger logGeneralMessageFrom:[self sharedInstance] message:^NSString * {
+
+                return [NSString stringWithFormat:@"CAN'T START OBJECT SYNCHRONIZATION: %@ (STATE: %@)",
+                                objectIdentifier, [self humanReadableStateFrom:[self sharedInstance].state]];;
+            }];
+
+            [[self sharedInstance] notifyDelegateAboutObjectSynchronizationStartDidFailWithError:error];
+
+
+            if (handlerBlock && ![handlerBlock isKindOfClass:[NSString class]]) {
+
+                handlerBlock(nil, error);
+            }
+        };
+
+        if (!handlerBlock || (handlerBlock && ![handlerBlock isKindOfClass:[NSString class]])) {
+
+            [[PNObservationCenter defaultCenter] removeClientAsObjectSynchronizationStartObserver];
+        }
+
+
+        // Check whether client is able to send request or not
+        NSInteger statusCode = [[self sharedInstance] requestExecutionPossibilityStatusCode];
+        if (statusCode == 0) {
+
+            [PNLogger logGeneralMessageFrom:[self sharedInstance] message:^NSString * {
+
+                return [NSString stringWithFormat:@"START OBJECT SYNCHRONIZATION: %@ (STATE: %@)",
+                                objectIdentifier, [self humanReadableStateFrom:[self sharedInstance].state]];
+            }];
+
+            if (handlerBlock && ![handlerBlock isKindOfClass:[NSString class]]) {
+
+                [[PNObservationCenter defaultCenter] addClientAsObjectSynchronizationStartObserverWithBlock:[handlerBlock copy]];
+            }
+
+            // Initially to enable synchronization client should subscribe on specific set of channels which is used
+            // to deliver change events and commit event (via transaction channel).
+            [[self sharedInstance].messagingChannel subscribeOnChannels:[PNSynchronizationChannel channelsForObject:objectIdentifier
+                                                                                                           dataPath:partialObjectDataPath]
+                                                            withCatchUp:YES andClientState:nil];
+        }
+        // Looks like client can't send request because of some reasons
+        else {
+
+            PNError *requestError = [PNError errorWithCode:statusCode];
+            requestError.associatedObject = [PNObjectFetchInformation objectFetchInformation:objectIdentifier
+                                             path:partialObjectDataPath snapshotDate:nil andDataNextPageToken:nil];
+
+            errorHandlingBlock(requestError);
+        }
+    }
+                   postponedExecutionBlock:^{
+
+                    [PNLogger logGeneralMessageFrom:[self sharedInstance] message:^NSString * {
+
+                        return [NSString stringWithFormat:@"POSTPONE OBJECT SYNCHRONIZATION START (STATE: %@)",
+                                                                   [self humanReadableStateFrom:[self sharedInstance].state]];;
+                    }];
+
+                    [self postponeStartObjectSynchronization:objectIdentifier dataPath:partialObjectDataPath
+                                 withCompletionHandlingBlock:(handlerBlock ? [handlerBlock copy] : nil)];
+    }];
+}
+
++ (void)postponeStartObjectSynchronization:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath
+               withCompletionHandlingBlock:(PNClientObjectSynchronizationStartProcessingBlock)handlerBlock {
+
+    [[self sharedInstance] postponeSelector:@selector(startObjectSynchronization:dataPath:withCompletionHandlingBlock:)
+                                  forObject:self
+                             withParameters:@[[PNHelper nilifyIfNotSet:objectIdentifier], [PNHelper nilifyIfNotSet:partialObjectDataPath],
+                                              [PNHelper nilifyIfNotSet:handlerBlock]]
+                                 outOfOrder:NO];
 }
 
 + (void)stopObjectSynchronization:(NSString *)objectIdentifier {
@@ -1680,8 +1786,101 @@ withCompletionHandlingBlock:nil];
 }
 
 + (void)stopObjectSynchronization:(NSString *)objectIdentifier
-       withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock {
+       withCompletionHandlingBlock:(PNClientObjectSynchronizationStopProcessingBlock)handlerBlock {
 
+    [self stopObjectSynchronization:objectIdentifier dataPath:nil withCompletionHandlingBlock:handlerBlock];
+}
+
++ (void)stopObjectSynchronization:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath {
+
+    [self stopObjectSynchronization:objectIdentifier dataPath:partialObjectDataPath withCompletionHandlingBlock:nil];
+}
+
++ (void)stopObjectSynchronization:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath
+       withCompletionHandlingBlock:(PNClientObjectSynchronizationStopProcessingBlock)handlerBlock {
+
+    [PNLogger logGeneralMessageFrom:[self sharedInstance] message:^NSString * {
+
+        return [NSString stringWithFormat:@"TRYING TO STOP OBJECT SYNCHRONIZATION: %@ (STATE: %@)",
+                        objectIdentifier, [self humanReadableStateFrom:[self sharedInstance].state]];
+    }];
+
+    [self performAsyncLockingBlock:^{
+
+        void(^errorHandlingBlock)(PNError *) = ^(PNError *error) {
+
+            [PNLogger logGeneralMessageFrom:[self sharedInstance] message:^NSString * {
+
+                return [NSString stringWithFormat:@"CAN'T STOP OBJECT SYNCHRONIZATION: %@ (STATE: %@)",
+                                objectIdentifier, [self humanReadableStateFrom:[self sharedInstance].state]];;
+            }];
+
+            [[self sharedInstance] notifyDelegateAboutObjectSynchronizationStopDidFailWithError:error];
+
+
+            if (handlerBlock && ![handlerBlock isKindOfClass:[NSString class]]) {
+
+                handlerBlock(nil, error);
+            }
+        };
+
+        if (!handlerBlock || (handlerBlock && ![handlerBlock isKindOfClass:[NSString class]])) {
+
+            [[PNObservationCenter defaultCenter] removeClientAsObjectSynchronizationStopObserver];
+        }
+
+
+        // Check whether client is able to send request or not
+        NSInteger statusCode = [[self sharedInstance] requestExecutionPossibilityStatusCode];
+        if (statusCode == 0) {
+
+            [PNLogger logGeneralMessageFrom:[self sharedInstance] message:^NSString * {
+
+                return [NSString stringWithFormat:@"STOP OBJECT SYNCHRONIZATION: %@ (STATE: %@)",
+                                objectIdentifier, [self humanReadableStateFrom:[self sharedInstance].state]];
+            }];
+
+            if (handlerBlock && ![handlerBlock isKindOfClass:[NSString class]]) {
+
+                [[PNObservationCenter defaultCenter] addClientAsObjectSynchronizationStopObserverWithBlock:[handlerBlock copy]];
+            }
+
+            // Initially to enable synchronization client should subscribe on specific set of channels which is used
+            // to deliver change events and commit event (via transaction channel).
+            [[self sharedInstance].messagingChannel unsubscribeFromChannels:[PNSynchronizationChannel channelsForObject:objectIdentifier
+                                                                                                               dataPath:partialObjectDataPath]];
+        }
+        // Looks like client can't send request because of some reasons
+        else {
+
+            PNError *requestError = [PNError errorWithCode:statusCode];
+            requestError.associatedObject = [PNObjectFetchInformation objectFetchInformation:objectIdentifier
+                                             path:partialObjectDataPath snapshotDate:nil andDataNextPageToken:nil];
+
+            errorHandlingBlock(requestError);
+        }
+    }
+                   postponedExecutionBlock:^{
+
+                    [PNLogger logGeneralMessageFrom:[self sharedInstance] message:^NSString * {
+
+                        return [NSString stringWithFormat:@"POSTPONE OBJECT SYNCHRONIZATION STOP (STATE: %@)",
+                                                                   [self humanReadableStateFrom:[self sharedInstance].state]];;
+                    }];
+
+                    [self postponeStopObjectSynchronization:objectIdentifier dataPath:partialObjectDataPath
+                                withCompletionHandlingBlock:(handlerBlock ? [handlerBlock copy] : nil)];
+    }];
+}
+
++ (void)postponeStopObjectSynchronization:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath
+               withCompletionHandlingBlock:(PNClientObjectSynchronizationStopProcessingBlock)handlerBlock {
+
+    [[self sharedInstance] postponeSelector:@selector(stopObjectSynchronization:dataPath:withCompletionHandlingBlock:)
+                                  forObject:self
+                             withParameters:@[[PNHelper nilifyIfNotSet:objectIdentifier], [PNHelper nilifyIfNotSet:partialObjectDataPath],
+                                              [PNHelper nilifyIfNotSet:handlerBlock]]
+                                 outOfOrder:NO];
 }
 
 + (void)fetchObject:(NSString *)objectIdentifier {
@@ -5801,6 +6000,72 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
                                 shouldStartNext:YES];
 }
 
+- (void)notifyDelegateAboutObjectSynchronizationStartDidFailWithError:(PNError *)error {
+
+    [self handleLockingOperationBlockCompletion:^{
+
+        [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+            return [NSString stringWithFormat:@"FAILED TO START OBJECT SYNCHRONIZATION (STATE: %@)",
+                    [self humanReadableStateFrom:self.state]];
+        }];
+
+        // Check whether delegate is able to handle push synchronization start failure event
+        SEL selector = @selector(pubnubClient:didFailToStartObjectSynchronizationWithError:);
+        if ([self.delegate respondsToSelector:selector]) {
+
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+            [self.delegate performSelector:selector withObject:self withObject:error];
+            #pragma clang diagnostic pop
+        }
+
+        PNObjectFetchInformation *information = (PNObjectFetchInformation *)error.associatedObject;
+        [PNLogger logDelegateMessageFrom:self message:^NSString * {
+
+            return [NSString stringWithFormat:@"PubNub client failed to start remote object %@ syncronize because of error: %@",
+                            information.objectIdentifier, error];
+        }];
+
+
+        [self sendNotification:kPNClientObjectSynchronizationStartDidFailWithErrorNotification withObject:error];
+    }
+                                shouldStartNext:YES];
+}
+
+- (void)notifyDelegateAboutObjectSynchronizationStopDidFailWithError:(PNError *)error {
+
+    [self handleLockingOperationBlockCompletion:^{
+
+        [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+            return [NSString stringWithFormat:@"FAILED TO STOP OBJECT SYNCHRONIZATION (STATE: %@)",
+                    [self humanReadableStateFrom:self.state]];
+        }];
+
+        // Check whether delegate is able to handle push synchronization stop failure event
+        SEL selector = @selector(pubnubClient:didFailToStopObjectSynchronizationWithError:);
+        if ([self.delegate respondsToSelector:selector]) {
+
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+            [self.delegate performSelector:selector withObject:self withObject:error];
+            #pragma clang diagnostic pop
+        }
+
+        PNObjectFetchInformation *information = (PNObjectFetchInformation *)error.associatedObject;
+        [PNLogger logDelegateMessageFrom:self message:^NSString * {
+
+            return [NSString stringWithFormat:@"PubNub client failed to stop remote object %@ syncronize because of error: %@",
+                            information.objectIdentifier, error];
+        }];
+
+
+        [self sendNotification:kPNClientObjectSynchronizationStopDidFailWithErrorNotification withObject:error];
+    }
+                                shouldStartNext:YES];
+}
+
 - (void)notifyDelegateAboutResubscribeWillStartOnChannels:(NSArray *)channels {
 
     if ([channels count] > 0) {
@@ -6766,13 +7031,139 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
     [self launchHeartbeatTimer];
 }
 
-- (void)messagingChannel:(PNMessagingChannel *)channel didFailUnsubscribeOnChannels:(NSArray *)channels
+- (void)messagingChannel:(PNMessagingChannel *)messagingChannel didFailUnsubscribeOnChannels:(NSArray *)channels
                withError:(PNError *)error sequenced:(BOOL)isSequenced {
     
     error.associatedObject = channels;
     [self notifyDelegateAboutUnsubscriptionFailWithError:error completeLockingOperation:!isSequenced];
 
     [self launchHeartbeatTimer];
+}
+
+- (void)messagingChannel:(PNMessagingChannel *)messagingChannel didStartObjectSynchronizationAtChannel:(PNSynchronizationChannel *)channel {
+
+    self.asyncLockingOperationInProgress = NO;
+    __block __pn_desired_weak __typeof(self) weakSelf = self;
+    [PubNub fetchObject:channel.objectIdentifier dataPath:channel.partialObjectDataPath
+withCompletionHandlingBlock:^(PNObject *object, PNError *error) {
+
+        if (!error) {
+
+            [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+                return [NSString stringWithFormat:@"DID START OBJECT SYNCHRONIZATION (STATE: %@)",
+                                [self humanReadableStateFrom:self.state]];
+            }];
+
+            if ([self shouldChannelNotifyAboutEvent:messagingChannel]) {
+
+                // Check whether delegate can handle new message arrival or not
+                if ([self.delegate respondsToSelector:@selector(pubnubClient:didStartObjectSynchronization:)]) {
+
+                    [self.delegate performSelector:@selector(pubnubClient:didStartObjectSynchronization:)
+                                        withObject:self withObject:object];
+                }
+
+                [PNLogger logDelegateMessageFrom:self message:^NSString * {
+
+                    return [NSString stringWithFormat:@"PubNub client started object syncronization: %@", object];
+                }];
+
+
+                [self sendNotification:kPNClientDidStartObjectSynchronizationNotification withObject:object];
+            }
+        }
+        else {
+
+            [weakSelf messagingChannel:messagingChannel didFailToStartObjectSynchronizationAtChannel:channel
+                             withError:error];
+        }
+    }];
+}
+
+- (void)                    messagingChannel:(PNMessagingChannel *)messagingChannel
+didFailToStartObjectSynchronizationAtChannel:(PNSynchronizationChannel *)channel
+                                   withError:(PNError *)error {
+
+    [error replaceAssociatedObjectWith:[PNObjectFetchInformation objectFetchInformation:channel.objectIdentifier
+                                         path:channel.partialObjectDataPath snapshotDate:nil andDataNextPageToken:nil]];
+
+    [self notifyDelegateAboutObjectSynchronizationStartDidFailWithError:error];
+
+}
+
+- (void)             messagingChannel:(PNMessagingChannel *)messagingChannel
+didStopObjectSynchronozationAtChannel:(PNSynchronizationChannel *)channel {
+
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+        return [NSString stringWithFormat:@"DID STOP OBJECT SYNCHRONIZATION (STATE: %@)",
+                        [self humanReadableStateFrom:self.state]];
+    }];
+
+    if ([self shouldChannelNotifyAboutEvent:messagingChannel]) {
+
+        // Check whether delegate can handle new message arrival or not
+        if ([self.delegate respondsToSelector:@selector(pubnubClient:didStopObjectSynchronization:)]) {
+
+            [self.delegate performSelector:@selector(pubnubClient:didStopObjectSynchronization:)
+                                withObject:self withObject:[self.cache objectWithIdentifier:channel.objectIdentifier]];
+        }
+
+        [PNLogger logDelegateMessageFrom:self message:^NSString * {
+
+            return [NSString stringWithFormat:@"PubNub client stopped object syncronization: %@",
+                            [self.cache objectWithIdentifier:channel.objectIdentifier]];
+        }];
+
+
+        [self sendNotification:kPNClientDidStopObjectSynchronizationNotification withObject:[self.cache objectWithIdentifier:channel.objectIdentifier]];
+    }
+}
+
+- (void)messagingChannel:(PNMessagingChannel *)messagingChannel didFailToStopObjectSynchronozationAtChannel:(PNSynchronizationChannel *)channel
+               withError:(PNError *)error sequenced:(BOOL)isSequenced {
+
+    [error replaceAssociatedObjectWith:[PNObjectFetchInformation objectFetchInformation:channel.objectIdentifier
+                                         path:channel.partialObjectDataPath snapshotDate:nil andDataNextPageToken:nil]];
+
+    [self notifyDelegateAboutObjectSynchronizationStopDidFailWithError:error];
+}
+
+- (void)messagingChannel:(PNMessagingChannel *)messagingChannel didReceiveSynchronizationEvent:(PNObjectSynchronizationEvent *)event {
+
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+        return [NSString stringWithFormat:@"RECEIVED SYNCHRONIZATION EVENT (STATE: %@)",
+                        [self humanReadableStateFrom:self.state]];
+    }];
+
+    if (event.type != PNObjectCompleteEvent) {
+
+        [self.cache storeSynchronizationEvent:event];
+    }
+
+
+    if ([self shouldChannelNotifyAboutEvent:messagingChannel] && event.type == PNObjectCompleteEvent) {
+
+        PNObject *object = [self.cache commitSynchronizationEvent:event];
+
+        // Check whether delegate can handle new object synchronization event
+        if ([self.delegate respondsToSelector:@selector(pubnubClient:didReceiveObjectChangeEvent:)]) {
+
+            [self.delegate performSelector:@selector(pubnubClient:didReceiveObjectChangeEvent:)
+                                withObject:self
+                                withObject:object];
+        }
+
+        [PNLogger logDelegateMessageFrom:self message:^NSString * {
+
+            return [NSString stringWithFormat:@"PubNub client received update on object: %@", object];
+        }];
+
+
+        [self sendNotification:kPNClientDidReceiveObjectChangesNotification withObject:object];
+    }
 }
 
 - (void)messagingChannel:(PNMessagingChannel *)messagingChannel willEnablePresenceObservationOnChannels:(NSArray *)channels
@@ -7101,7 +7492,7 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
     [self handleLockingOperationBlockCompletion:^{
 
         [self.cache storeSynchronizationEvent:event];
-        PNObject *object = [self.cache commitSynchronizationEventForObject:information.objectIdentifier];
+        PNObject *object = [self.cache commitSynchronizationEvent:event];
 
         [PNLogger logGeneralMessageFrom:self message:^NSString * {
 

@@ -257,7 +257,7 @@
 
     [PNLogger logGeneralMessageFrom:self message:^NSString * {
 
-        return [NSString stringWithFormat:@"PubNub client received push notificatino enabled channels: %@",
+        return [NSString stringWithFormat:@"PubNub client received push notification enabled channels: %@",
                 channels];
     }];
 }
@@ -390,6 +390,50 @@
 
         return [NSString stringWithFormat:@"PubNub client did fail to update state for client %@ at channel %@ because of error: %@",
                 ((PNClient *)error.associatedObject).identifier, ((PNClient *)error.associatedObject).channel, error];
+    }];
+}
+
+- (void)pubnubClient:(PubNub *)client didStartObjectSynchronization:(PNObject *)object {
+
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+        return [NSString stringWithFormat:@"PubNub client started object syncronization: %@", object];
+    }];
+}
+
+- (void)pubnubClient:(PubNub *)client didFailToStartObjectSynchronizationWithError:(PNError *)error {
+
+    PNObjectFetchInformation *information = (PNObjectFetchInformation *)error.associatedObject;
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+        return [NSString stringWithFormat:@"PubNub client failed to start remote object %@ syncronize because of error: %@",
+                        information.objectIdentifier, error];
+    }];
+}
+
+- (void)pubnubClient:(PubNub *)client didStopObjectSynchronization:(PNObject *)object {
+
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+        return [NSString stringWithFormat:@"PubNub client stopped object syncronization: %@", object];
+    }];
+}
+
+- (void)pubnubClient:(PubNub *)client didFailToStopObjectSynchronizationWithError:(PNError *)error {
+
+    PNObjectFetchInformation *information = (PNObjectFetchInformation *)error.associatedObject;
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+        return [NSString stringWithFormat:@"PubNub client failed to stop remote object %@ syncronize because of error: %@",
+                        information.objectIdentifier, error];
+    }];
+}
+
+- (void)pubnubClient:(PubNub *)client didReceiveObjectChangeEvent:(PNObject *)object {
+
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+        return [NSString stringWithFormat:@"PubNub client received update on object: %@", object];
     }];
 }
 

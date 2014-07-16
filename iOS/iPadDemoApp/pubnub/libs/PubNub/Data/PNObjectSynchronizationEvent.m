@@ -9,7 +9,19 @@
 #import "PNObjectSynchronizationEvent+Protected.h"
 
 
-#pragma mark Public interface implementation
+#pragma mark Structures
+
+struct PNObjectSynchronizationEventDataKeysStruct PNObjectSynchronizationEventDataKeys = {
+    .action = @"action",
+    .status = @"status",
+    .transactionIdentifier = @"trans_id",
+    .timeToken = @"timetoken",
+    .location = @"location",
+    .value = @"value"
+};
+
+
+#pragma mark - Public interface implementation
 
 @implementation PNObjectSynchronizationEvent
 
@@ -17,26 +29,80 @@
 #pragma mark - Class methods
 
 + (PNObjectSynchronizationEvent *)synchronizationEvent:(PNObjectSynchronizationEventType)type forObject:(NSString *)objectIdentifier
-                                            atLocation:(NSString *)changeLocation changeDate:(NSString *)changeDate
-                                               andData:(id)changedData {
+                                 transactionIdentifier:(NSString *)transactionIdentifier atLocation:(NSString *)changeLocation
+                                            changeDate:(NSString *)changeDate andData:(id)changedData {
 
-    return [[self alloc] initWithEvent:type forObject:objectIdentifier atLocation:changeLocation changeDate:changeDate
-                               andData:changedData];
+    return [[self alloc] initWithEvent:type forObject:objectIdentifier transactionIdentifier:transactionIdentifier
+                            atLocation:changeLocation changeDate:changeDate andData:changedData];
+}
+
++ (PNObjectSynchronizationEvent *)synchronizationEventForObject:(NSString *)objectIdentifier atPath:(NSString *)changeLocation
+                                                 dromDictionary:(NSDictionary *)event {
+
+    PNObjectSynchronizationEventType type = PNObjectUpdateEvent;
+    if ([event objectForKey:PNObjectSynchronizationEventDataKeys.action] != nil) {
+
+        if ([[event valueForKey:PNObjectSynchronizationEventDataKeys.action] isEqualToString:@"delete"]) {
+
+            type = PNObjectDeleteEvent;
+        }
+    }
+    else if ([event objectForKey:PNObjectSynchronizationEventDataKeys.status]) {
+
+        if ([[event valueForKey:PNObjectSynchronizationEventDataKeys.status] isEqualToString:@"complete"]) {
+
+            type = PNObjectCompleteEvent;
+        }
+    }
+
+    if (!changeLocation && [event objectForKey:PNObjectSynchronizationEventDataKeys.location] != nil) {
+
+        changeLocation = [event objectForKey:PNObjectSynchronizationEventDataKeys.location];
+    }
+
+
+    return [[self alloc] initWithEvent:type forObject:objectIdentifier
+                 transactionIdentifier:[event objectForKey:PNObjectSynchronizationEventDataKeys.transactionIdentifier]
+                            atLocation:changeLocation
+                            changeDate:[event objectForKey:PNObjectSynchronizationEventDataKeys.timeToken]
+                               andData:[event objectForKey:PNObjectSynchronizationEventDataKeys.value]];
+}
+
++ (BOOL)isSynchronizationEvent:(NSDictionary *)eventPayload {
+
+    BOOL isSynchronizationEvent = ([eventPayload objectForKey:PNObjectSynchronizationEventDataKeys.action] != nil &&
+                [eventPayload objectForKey:PNObjectSynchronizationEventDataKeys.transactionIdentifier] != nil &&
+                [eventPayload objectForKey:PNObjectSynchronizationEventDataKeys.timeToken] != nil &&
+                [eventPayload objectForKey:PNObjectSynchronizationEventDataKeys.location] != nil);
+
+    BOOL isTransactionNotificationEvent = ([eventPayload objectForKey:PNObjectSynchronizationEventDataKeys.status] != nil &&
+                    [eventPayload objectForKey:PNObjectSynchronizationEventDataKeys.timeToken] != nil &&
+                    [eventPayload objectForKey:PNObjectSynchronizationEventDataKeys.transactionIdentifier] != nil);
+
+
+    return (isSynchronizationEvent || isTransactionNotificationEvent);
 }
 
 
 #pragma mark - Instance methods
 
 - (id)initWithEvent:(PNObjectSynchronizationEventType)type forObject:(NSString *)objectIdentifier
-         atLocation:(NSString *)changeLocation changeDate:(NSString *)changeDate andData:(id)changedData {
+transactionIdentifier:(NSString *)transactionIdentifier atLocation:(NSString *)changeLocation
+           changeDate:(NSString *)changeDate andData:(id)changedData {
 
     // Check whether initialization has been successful or not.
     if ((self = [super init])) {
 
         self.type = type;
         self.objectIdentifier = objectIdentifier;
-        self.changeLocation = [changeLocation stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"%@.", self.objectIdentifier]
-                                                                        withString:@""];
+        self.eventTransactionIdentifier = (type == PNObjectInitEvent ? @"init" : transactionIdentifier);
+        NSArray *pathComponents = [changeLocation componentsSeparatedByString:@"."];
+        if ([pathComponents count] > 1) {
+
+            pathComponents = [pathComponents subarrayWithRange:(NSRange){.location = 1, .length = ([pathComponents count] - 1)}];
+            changeLocation = [pathComponents componentsJoinedByString:@"."];
+        }
+        self.changeLocation = changeLocation;
         self.changeDate = (changeDate ? changeDate :
                                         PNStringFromUnsignedLongLongNumber([[PNDate dateWithDate:[NSDate date]] timeToken]));
         self.changedData = changedData;

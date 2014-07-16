@@ -209,6 +209,11 @@ shouldUpdatePresenceObservingFlag:(BOOL)shouldUpdatePresenceObservingFlag {
     return presence;
 }
 
+- (PNSynchronizationChannel *)transactionChannel {
+
+    return nil;
+}
+
 - (PNChannel *)observedChannel {
 
     return self;
@@ -325,6 +330,11 @@ shouldUpdatePresenceObservingFlag:(BOOL)shouldUpdatePresenceObservingFlag {
 }
 
 - (BOOL)isPresenceObserver {
+
+    return NO;
+}
+
+- (BOOL)isObjectSynchronizationChannel {
 
     return NO;
 }

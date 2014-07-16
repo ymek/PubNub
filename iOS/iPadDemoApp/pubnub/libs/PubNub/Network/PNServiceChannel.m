@@ -244,7 +244,8 @@
                 NSString *objectIdentifier = ((PNObjectFetchInformation *)response.additionalData).objectIdentifier;
                 NSString *changeLocation = ((PNObjectFetchInformation *)response.additionalData).partialObjectDataPath;
                 PNObjectSynchronizationEvent *event = [PNObjectSynchronizationEvent synchronizationEvent:PNObjectInitEvent
-                                                       forObject:objectIdentifier atLocation:changeLocation changeDate:snapshotDate
+                                                       forObject:objectIdentifier transactionIdentifier:nil
+                                                      atLocation:changeLocation changeDate:snapshotDate
                                                          andData:response.response];
                 if (response.nextPageToken == nil) {
 

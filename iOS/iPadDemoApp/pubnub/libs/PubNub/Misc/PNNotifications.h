@@ -97,6 +97,49 @@ static NSString * const kPNClientDidUpdateClientStateNotification = @"PNClientDi
 static NSString * const kPNClientStateUpdateDidFailWithErrorNotification = @"PNClientStateUpdateDidFailWithErrorNotification";
 
 /**
+ Sent when \b PubNub client successfully started object synchronization of remote object from \b PubNub cloud.
+
+ \b userInfo contains reference on \b PNObject instead of \q NSDictionary which represent cloud object.
+ */
+static NSString * const kPNClientDidStartObjectSynchronizationNotification = @"PNClientDidStartObjectSynchronizationNotification";
+
+/**
+ Sent when \b PubNub client did fail to start object synchronization for remote object from \b PubNub cloud.
+
+ \b userInfo contains \b PNError instead of \a NSDictionary. Reference on object instance for which \b PubNub client
+ was unable to start synchronization object will be stored inside of \b PNError's \a 'error.associatedObject'.
+
+ @note Always check \a error.code to find out what caused error (check PNErrorCodes header file and use \a -localizedDescription /
+ \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
+static NSString * const kPNClientObjectSynchronizationStartDidFailWithErrorNotification = @"PNClientObjectSynchronizationStartDidFailWithErrorNotification";
+
+/**
+ Sent when \b PubNub client successfully stopped object synchronization of remote object from \b PubNub cloud.
+
+ \b userInfo contains reference on \b PNObject instead of \q NSDictionary which represent cloud object.
+ */
+static NSString * const kPNClientDidStopObjectSynchronizationNotification = @"PNClientDidStopObjectSynchronizationNotification";
+
+/**
+ Sent when \b PubNub client did fail to stop object synchronization for remote object from \b PubNub cloud.
+
+ \b userInfo contains \b PNError instead of \a NSDictionary. Reference on object instance for which \b PubNub client
+ was unable to stop synchronization object will be stored inside of \b PNError's \a 'error.associatedObject'.
+
+ @note Always check \a error.code to find out what caused error (check PNErrorCodes header file and use \a -localizedDescription /
+ \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
+static NSString * const kPNClientObjectSynchronizationStopDidFailWithErrorNotification = @"PNClientObjectSynchronizationStopDidFailWithErrorNotification";
+
+/**
+ Sent when \b PubNub client did receive synchronization event for object from cloud.
+
+ \b userInfo contains \b PNObject instead of \a NSDictionary.
+ */
+static NSString * const kPNClientDidReceiveObjectChangesNotification = @"PNClientDidReceiveObjectChangesNotification";
+
+/**
  Sent when \b PubNub client successfully retrieved and created local copy of the object from \b PubNub cloud.
 
  \b userInfo contains reference on \b PNObject instead of \q NSDictionary which represent cloud object,

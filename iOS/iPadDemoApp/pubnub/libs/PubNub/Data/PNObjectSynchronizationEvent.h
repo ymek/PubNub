@@ -32,7 +32,12 @@ typedef NS_OPTIONS(NSUInteger, PNObjectSynchronizationEventType) {
     /**
      Represent event because of which piece of object has been deleted.
      */
-    PNObjectDeleteEvent
+    PNObjectDeleteEvent,
+
+    /**
+     Represent event which mark that full set of information has been retrieved.
+     */
+    PNObjectCompleteEvent
 };
 
 
@@ -48,6 +53,11 @@ typedef NS_OPTIONS(NSUInteger, PNObjectSynchronizationEventType) {
  actual action which should be performed on local copy of object from \b PubNub cloud.
  */
 @property (nonatomic, readonly, assign) PNObjectSynchronizationEventType type;
+
+/**
+ Stores reference on change transaction identifier (it will allow to filter target set of events).
+ */
+@property (nonatomic, readonly, copy) NSString *eventTransactionIdentifier;
 
 /**
  Stores reference on remote object identifier for which this change has been generated.

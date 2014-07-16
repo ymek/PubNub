@@ -9,7 +9,47 @@
 #import "PNObjectSynchronizationEvent.h"
 
 
-#pragma mark Private interface declaration
+#pragma mark Static
+
+// This enum represents all data keys which is used in
+// object synchronization event response dictionary from JSON
+struct PNObjectSynchronizationEventDataKeysStruct {
+
+    /**
+     Stores synchronization action type.
+     */
+    __unsafe_unretained NSString *action;
+
+    /**
+     Stores synchronization transaction status
+     */
+    __unsafe_unretained NSString *status;
+
+    /**
+     Stores synchronization group transaction ID
+     */
+    __unsafe_unretained NSString *transactionIdentifier;
+
+    /**
+     Stores synchronization event triggering time.
+     */
+    __unsafe_unretained NSString *timeToken;
+
+    /**
+     Stores location where new value has been specified.
+     */
+    __unsafe_unretained NSString *location;
+
+    /**
+     Stores updated value which should be applied at path specified in \c location field..
+     */
+    __unsafe_unretained NSString *value;
+};
+
+extern struct PNObjectSynchronizationEventDataKeysStruct PNObjectSynchronizationEventDataKeys;
+
+
+#pragma mark - Private interface declaration
 
 @interface PNObjectSynchronizationEvent ()
 
@@ -17,6 +57,7 @@
 #pragma mark - Properties
 
 @property (nonatomic, assign) PNObjectSynchronizationEventType type;
+@property (nonatomic, copy) NSString *eventTransactionIdentifier;
 @property (nonatomic, copy) NSString *objectIdentifier;
 @property (nonatomic, copy) NSString *changeLocation;
 @property (nonatomic, copy) NSString *changeDate;
@@ -38,6 +79,9 @@
  @param changeLocation
  Reference on location at which change should be preformed.
 
+ @param transactionIdentifier
+ Unique identifier for set of events which should be treated at the end as single transaction.
+
  @param changeDate
  Reference on date when this change has been generated.
 
@@ -48,8 +92,33 @@
  @return Ready to use \b PNObjectSynchronizationEvent instance.
  */
 + (PNObjectSynchronizationEvent *)synchronizationEvent:(PNObjectSynchronizationEventType)type forObject:(NSString *)objectIdentifier
-                                            atLocation:(NSString *)changeLocation changeDate:(NSString *)changeDate
-                                               andData:(id)changedData;
+                                 transactionIdentifier:(NSString *)transactionIdentifier atLocation:(NSString *)changeLocation
+                                            changeDate:(NSString *)changeDate andData:(id)changedData;
+
+/**
+ Create synchronization instance from event which arrived from server on one of observation channels.
+
+ @param objectIdentifier
+ Reference on remote object identifier for which this event has been generated.
+
+ @param changeLocation
+ Reference on location at which change should be preformed.
+
+ @param event
+ Reference on event object which arrived from \b PubNub cloud.
+ */
++ (PNObjectSynchronizationEvent *)synchronizationEventForObject:(NSString *)objectIdentifier atPath:(NSString *)changeLocation
+                                                 dromDictionary:(NSDictionary *)event;
+
+/**
+ Verify whether provided payload should be treated as synchronization event or not.
+
+ @param eventPayload
+ Dictionary against which check should be performed.
+
+ @return \c YES in case if this is payload for remote object synchronization.
+ */
++ (BOOL)isSynchronizationEvent:(NSDictionary *)eventPayload;
 
 
 #pragma mark - Instance methods
@@ -67,6 +136,9 @@
  @param changeLocation
  Reference on location at which change should be preformed.
 
+ @param transactionIdentifier
+ Unique identifier for set of events which should be treated at the end as single transaction.
+
  @param changeDate
  Reference on date when this change has been generated.
 
@@ -77,9 +149,8 @@
  @return Ready to use \b PNObjectSynchronizationEvent instance.
  */
 - (id)initWithEvent:(PNObjectSynchronizationEventType)type forObject:(NSString *)objectIdentifier
-         atLocation:(NSString *)changeLocation changeDate:(NSString *)changeDate andData:(id)changedData;
-
-#pragma mark -
+transactionIdentifier:(NSString *)transactionIdentifier atLocation:(NSString *)changeLocation
+           changeDate:(NSString *)changeDate andData:(id)changedData;
 
 
 @end

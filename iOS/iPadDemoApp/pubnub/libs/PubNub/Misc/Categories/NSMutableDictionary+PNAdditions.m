@@ -50,10 +50,15 @@
     if ([self valueForKeyPath:keyPath]) {
 
         NSArray *pathComponents = [keyPath componentsSeparatedByString:@"."];
+        __block NSMutableDictionary *parentLevel = nil;
         __block NSMutableDictionary *currentLevel = self;
         if ([pathComponents count] == 1) {
 
             [currentLevel removeObjectForKey:[pathComponents lastObject]];
+            if (![currentLevel count]) {
+
+                [self removeAllObjects];
+            }
         }
         else {
 
@@ -61,11 +66,16 @@
 
                 if (pathIdx != ([pathComponents count] - 2)) {
 
+                    parentLevel = currentLevel;
                     currentLevel = [currentLevel valueForKey:path];
                 }
                 else {
 
                     [currentLevel removeObjectForKey:path];
+                    if (![currentLevel count]) {
+
+                        [parentLevel removeAllObjects];
+                    }
                 }
             }];
         }

@@ -79,6 +79,15 @@
 #pragma mark - Data Synchronization observers
 
 /**
+ Observing for object synchronization process start (this action will be performed only once per request).
+ After event will be fired this observation request will be removed from queue.
+ */
+- (void)addClientAsObjectSynchronizationStartObserverWithBlock:(PNClientObjectSynchronizationStartProcessingBlock)handlerBlock;
+- (void)removeClientAsObjectSynchronizationStartObserver;
+- (void)addClientAsObjectSynchronizationStopObserverWithBlock:(PNClientObjectSynchronizationStopProcessingBlock)handlerBlock;
+- (void)removeClientAsObjectSynchronizationStopObserver;
+
+/**
  Observing for object retrieval process (this action will be performed only once per request).
  After event will be fired this observation request will be removed from queue.
  */

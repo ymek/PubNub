@@ -82,6 +82,13 @@
 - (void)addObjectFetchObserver:(id)observer withBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
 - (void)removeObjectFetchObserver:(id)observer;
 
+/**
+ * Add/remove observers for synchronization event arrival (event arrived from
+ * PubNub service on subscribed channels)
+ */
+- (void)addObjectChangeObserver:(id)observer withBlock:(PNClientObjectChangedHandlerBlock)handleBlock;
+- (void)removeObjectChangeObserver:(id)observer;
+
 
 #pragma mark - Client channels action/event observation
 

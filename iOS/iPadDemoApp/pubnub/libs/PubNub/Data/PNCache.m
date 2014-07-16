@@ -10,6 +10,7 @@
 #import "PNObjectSynchronizationEvent.h"
 #import "PNObject+Protected.h"
 #import "PNChannel.h"
+#import "PNObjectSynchronizationEvent+Protected.h"
 
 
 #pragma mark Private interface declaration
@@ -197,26 +198,36 @@
 
 #pragma mark - Data Synchronization observers
 
+- (PNObject *)objectWithIdentifier:(NSString *)objectIdentifier {
+
+    return [self.objects valueForKey:objectIdentifier];
+}
+
 - (void)storeSynchronizationEvent:(PNObjectSynchronizationEvent *)event {
 
     // Check whether already created storage for set of events
     if (![self.objectUpdates objectForKey:event.objectIdentifier]) {
 
-        [self.objectUpdates setValue:[NSMutableArray array] forKey:event.objectIdentifier];
+        [self.objectUpdates setValue:[NSMutableDictionary dictionary] forKey:event.objectIdentifier];
     }
 
-    NSMutableArray *changeEvents = [self.objectUpdates valueForKey:event.objectIdentifier];
+    NSMutableArray *changeEvents = [[self.objectUpdates valueForKey:event.objectIdentifier] valueForKey:event.eventTransactionIdentifier];
+    if (!changeEvents) {
+
+        changeEvents = [NSMutableArray array];
+        [[self.objectUpdates valueForKey:event.objectIdentifier] setValue:changeEvents forKey:event.eventTransactionIdentifier];
+
+    }
+
     [changeEvents addObject:event];
 }
 
-- (PNObject *)commitSynchronizationEventForObject:(NSString *)objectIdentifier {
+- (PNObject *)commitSynchronizationEvent:(PNObjectSynchronizationEvent *)event {
 
-    PNObject *object = [self.objects valueForKey:objectIdentifier];
-    if ([self.objectUpdates objectForKey:objectIdentifier]) {
+    PNObject *object = [self.objects valueForKey:event.objectIdentifier];
+    if ([self.objectUpdates objectForKey:event.objectIdentifier]) {
 
-        NSSortDescriptor *tokenSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"changeDate" ascending:YES];
-        NSArray *events = [[self.objectUpdates valueForKey:objectIdentifier] sortedArrayUsingDescriptors:@[tokenSortDescriptor]];
-
+        NSArray *events = [[self.objectUpdates valueForKey:event.objectIdentifier] valueForKey:event.eventTransactionIdentifier];
         NSMutableDictionary *objectData = (object.data ? object.data : [NSMutableDictionary dictionary]);
         [events enumerateObjectsUsingBlock:^(PNObjectSynchronizationEvent *event, NSUInteger eventIdx,
                                              BOOL *eventEnumeratorStop) {
@@ -252,11 +263,12 @@
         if (!object) {
 
             NSString *changeDate = ((PNObjectSynchronizationEvent *)[events lastObject]).changeDate;
-            object = [PNObject objectWithIdentifier:objectIdentifier andData:objectData];
+            object = [PNObject objectWithIdentifier:event.objectIdentifier andData:objectData];
             object.updateDate = [PNDate dateWithToken:PNNumberFromUnsignedLongLongString(changeDate)];
-            [self.objects setValue:object forKey:objectIdentifier];
+            [self.objects setValue:object forKey:event.objectIdentifier];
         }
-        [(NSMutableArray *)[self.objectUpdates valueForKey:objectIdentifier] removeAllObjects];
+        [(NSMutableArray *)[(NSMutableDictionary *)[self.objectUpdates valueForKey:event.objectIdentifier]
+                        valueForKey:event.eventTransactionIdentifier] removeAllObjects];
     }
 
 

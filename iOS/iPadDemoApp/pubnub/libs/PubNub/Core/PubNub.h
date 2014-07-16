@@ -864,7 +864,12 @@ withCompletionHandlingBlock:(PNClientStateRetrieveHandlingBlock)handlerBlock;
  describes what exactly went wrong (check error code and compare it with \b PNErrorCodes ).
  */
 + (void)startObjectSynchronization:(NSString *)objectIdentifier
-       withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
+       withCompletionHandlingBlock:(PNClientObjectSynchronizationStartProcessingBlock)handlerBlock;
+
+
++ (void)startObjectSynchronization:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath;
++ (void)startObjectSynchronization:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath
+       withCompletionHandlingBlock:(PNClientObjectSynchronizationStartProcessingBlock)handlerBlock;
 
 
 /**
@@ -924,7 +929,12 @@ withCompletionHandlingBlock:(PNClientStateRetrieveHandlingBlock)handlerBlock;
  describes what exactly went wrong (check error code and compare it with \b PNErrorCodes ).
  */
 + (void)stopObjectSynchronization:(NSString *)objectIdentifier
-       withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
+       withCompletionHandlingBlock:(PNClientObjectSynchronizationStopProcessingBlock)handlerBlock;
+
+
++ (void)stopObjectSynchronization:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath;
++ (void)stopObjectSynchronization:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath
+       withCompletionHandlingBlock:(PNClientObjectSynchronizationStopProcessingBlock)handlerBlock;
 
 /**
  Create local copy of one of the objects from \b PubNub cloud.
