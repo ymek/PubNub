@@ -35,7 +35,9 @@
     baseChannel.partialObjectDataPath = partialObjectDataPath;
     baseChannel.objectSyncronizationChannel = YES;
 
-    PNSynchronizationChannel *wildCardChannel = [self channelWithName:[NSString stringWithFormat:@"pn_ds_%@.*", objectIdentifier]];
+    PNSynchronizationChannel *wildCardChannel = [self channelWithName:[NSString stringWithFormat:@"pn_ds_%@%@.*",
+                    ([partialObjectDataPath length] > 0 ? [NSString stringWithFormat:@".%@", partialObjectDataPath] : @""),
+                    objectIdentifier]];
     wildCardChannel.objectIdentifier = objectIdentifier;
     wildCardChannel.partialObjectDataPath = partialObjectDataPath;
     wildCardChannel.objectSyncronizationChannel = YES;

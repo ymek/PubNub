@@ -14,7 +14,7 @@
 
 #pragma mark Class forward
 
-@class PNPresenceEvent, PNMessage, PubNub, PNError, PNDate, PNAccessRightsCollection;
+@class PNObjectModificationInformation, PNAccessRightsCollection, PNPresenceEvent, PNMessage, PubNub, PNError, PNDate;
 @class PNClient, PNObject;
 
 
@@ -147,6 +147,75 @@
  \b PNError instance which describe what exactly went wrong.
  */
 - (void)pubnubClient:(PubNub *)client objectFetchDidFailWithError:(PNError *)error;
+
+/**
+ Called on delegate when \b PubNub client successfully updated object in \b PubNub cloud.
+
+ @param client
+ \b PubNub instance which triggered event.
+
+ @param modificationInformation
+ Reference on instance which contains all information about target object action and data which has been used for
+ modification.
+ */
+- (void)pubnubClient:(PubNub *)client didUpdateObject:(PNObjectModificationInformation *)modificationInformation;
+
+/**
+ Called on delegate when \b PubNub client did fail to update object in \b PubNub cloud.
+
+ @param client
+ \b PubNub instance which triggered event.
+
+ @param error
+ \b PNError instance which describe what exactly went wrong.
+ */
+- (void)pubnubClient:(PubNub *)client objectUpdateDidFailWithError:(PNError *)error;
+
+/**
+ Called on delegate when \b PubNub client successfully replaced object in \b PubNub cloud.
+
+ @param client
+ \b PubNub instance which triggered event.
+
+ @param modificationInformation
+ Reference on instance which contains all information about target object action and data which has been used for
+ modification.
+ */
+- (void)pubnubClient:(PubNub *)client didReplaceObject:(PNObjectModificationInformation *)modificationInformation;
+
+/**
+Called on delegate when \b PubNub client did fail to replace object in \b PubNub cloud.
+
+ @param client
+ \b PubNub instance which triggered event.
+
+ @param error
+ \b PNError instance which describe what exactly went wrong.
+ */
+- (void)pubnubClient:(PubNub *)client objectReplaceDidFailWithError:(PNError *)error;
+
+/**
+ Called on delegate when \b PubNub client successfully deleted object in \b PubNub cloud.
+
+ @param client
+ \b PubNub instance which triggered event.
+
+ @param modificationInformation
+ Reference on instance which contains all information about target object action and data which has been used for
+ modification.
+ */
+- (void)pubnubClient:(PubNub *)client didDeleteObject:(PNObjectModificationInformation *)modificationInformation;
+
+/**
+Called on delegate when \b PubNub client did fail to delete object in \b PubNub cloud.
+
+ @param client
+ \b PubNub instance which triggered event.
+
+ @param error
+ \b PNError instance which describe what exactly went wrong.
+ */
+- (void)pubnubClient:(PubNub *)client objectDeleteDidFailWithError:(PNError *)error;
 
 /**
  * Called on delegate when client successfully subscribed to specified

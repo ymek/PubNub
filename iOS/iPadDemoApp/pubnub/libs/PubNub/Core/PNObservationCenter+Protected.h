@@ -94,6 +94,17 @@
 - (void)addClientAsObjectFetchObserverWithBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
 - (void)removeClientAsObjectFetchObserver;
 
+/**
+ Observing for object modification process (this action will be performed only once per request).
+ After event will be fired this observation request will be removed from queue.
+ */
+- (void)addClientAsObjectUpdateObserverWithBlock:(PNClientObjectModificationHandlerBlock)handlerBlock;
+- (void)removeClientAsObjectUpdateObserver;
+- (void)addClientAsObjectReplaceObserverWithBlock:(PNClientObjectModificationHandlerBlock)handlerBlock;
+- (void)removeClientAsObjectReplaceObserver;
+- (void)addClientAsObjectDeleteObserverWithBlock:(PNClientObjectModificationHandlerBlock)handlerBlock;
+- (void)removeClientAsObjectDeleteObserver;
+
 
 #pragma mark - Channels subscribe/leave observers
 

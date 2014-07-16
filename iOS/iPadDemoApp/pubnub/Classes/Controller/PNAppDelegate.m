@@ -10,6 +10,7 @@
 #import "PNIdentificationViewController.h"
 #import "PNMainViewController.h"
 #import "PNDataManager.h"
+#import "PNObservationCenter+Protected.h"
 
 
 #pragma mark Private interface methods
@@ -397,7 +398,7 @@
 
     [PNLogger logGeneralMessageFrom:self message:^NSString * {
 
-        return [NSString stringWithFormat:@"PubNub client started object syncronization: %@", object];
+        return [NSString stringWithFormat:@"PubNub client started object synchronization: %@", object];
     }];
 }
 
@@ -406,7 +407,7 @@
     PNObjectFetchInformation *information = (PNObjectFetchInformation *)error.associatedObject;
     [PNLogger logGeneralMessageFrom:self message:^NSString * {
 
-        return [NSString stringWithFormat:@"PubNub client failed to start remote object %@ syncronize because of error: %@",
+        return [NSString stringWithFormat:@"PubNub client failed to start remote object %@ synchronize because of error: %@",
                         information.objectIdentifier, error];
     }];
 }
@@ -415,7 +416,7 @@
 
     [PNLogger logGeneralMessageFrom:self message:^NSString * {
 
-        return [NSString stringWithFormat:@"PubNub client stopped object syncronization: %@", object];
+        return [NSString stringWithFormat:@"PubNub client stopped object synchronization: %@", object];
     }];
 }
 
@@ -424,7 +425,7 @@
     PNObjectFetchInformation *information = (PNObjectFetchInformation *)error.associatedObject;
     [PNLogger logGeneralMessageFrom:self message:^NSString * {
 
-        return [NSString stringWithFormat:@"PubNub client failed to stop remote object %@ syncronize because of error: %@",
+        return [NSString stringWithFormat:@"PubNub client failed to stop remote object %@ synchronize because of error: %@",
                         information.objectIdentifier, error];
     }];
 }
@@ -452,6 +453,60 @@
 
         return [NSString stringWithFormat:@"PubNub client did fail to fetch '%@' (path: %@) object because of error: %@",
                         information.objectIdentifier, information.partialObjectDataPath, error];
+    }];
+}
+
+- (void)pubnubClient:(PubNub *)client didUpdateObject:(PNObjectModificationInformation *)modificationInformation {
+
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+        return [NSString stringWithFormat:@"PubNub client successfully update remote object: %@", modificationInformation];
+    }];
+}
+
+- (void)pubnubClient:(PubNub *)client objectUpdateDidFailWithError:(PNError *)error {
+
+    PNObjectModificationInformation *information = (PNObjectModificationInformation *)error.associatedObject;
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+        return [NSString stringWithFormat:@"PubNub client did fail to update '%@' (path: %@) object because of error: %@",
+                        information.objectIdentifier, information.modificationLocation, error];
+    }];
+}
+
+- (void)pubnubClient:(PubNub *)client didReplaceObject:(PNObjectModificationInformation *)modificationInformation {
+
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+        return [NSString stringWithFormat:@"PubNub client successfully replaced remote object: %@", modificationInformation];
+    }];
+}
+
+- (void)pubnubClient:(PubNub *)client objectReplaceDidFailWithError:(PNError *)error {
+
+    PNObjectModificationInformation *information = (PNObjectModificationInformation *)error.associatedObject;
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+        return [NSString stringWithFormat:@"PubNub client did fail to replace '%@' (path: %@) object because of error: %@",
+                        information.objectIdentifier, information.modificationLocation, error];
+    }];
+}
+
+- (void)pubnubClient:(PubNub *)client didDeleteObject:(PNObjectModificationInformation *)modificationInformation {
+
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+        return [NSString stringWithFormat:@"PubNub client successfully deleted remote object: %@", modificationInformation];
+    }];
+}
+
+- (void)pubnubClient:(PubNub *)client objectDeleteDidFailWithError:(PNError *)error {
+
+    PNObjectModificationInformation *information = (PNObjectModificationInformation *)error.associatedObject;
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+
+        return [NSString stringWithFormat:@"PubNub client did fail to delete '%@' (path: %@) object because of error: %@",
+                        information.objectIdentifier, information.modificationLocation, error];
     }];
 }
 

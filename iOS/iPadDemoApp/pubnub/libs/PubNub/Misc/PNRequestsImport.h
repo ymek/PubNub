@@ -19,6 +19,7 @@
 #import "PNClientStateRequest+Protected.h"
 #import "PNPushNotificationsRemoveRequest.h"
 #import "PNMessagePostRequest+Protected.h"
+#import "PNObjectModificationRequest.h"
 #import "PNClientStateUpdateRequest.h"
 #import "PNSubscribeRequest+Protected.h"
 #import "PNChangeAccessRightsRequest.h"

@@ -22,6 +22,7 @@
 
 #import "PNServiceChannel.h"
 #import "PNAccessRightsCollection+Protected.h"
+#import "PNObjectModificationRequest+Protected.h"
 #import "PNMessageHistoryRequest+Protected.h"
 #import "PNObjectFetchRequest+Protected.h"
 #import "PNConnectionChannel+Protected.h"
@@ -89,6 +90,7 @@
             [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.stateRetrieveCallback] ||
             [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.stateUpdateCallback] ||
             [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.objectFetchCallback] ||
+            [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.objectModificationCallback] ||
             [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.timeTokenCallback] ||
             [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.channelPushNotificationsEnableCallback] ||
             [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.channelPushNotificationsDisableCallback] ||
@@ -142,6 +144,10 @@
         else if ([request isKindOfClass:[PNObjectFetchRequest class]]) {
 
             response.additionalData = ((PNObjectFetchRequest *)request).information;
+        }
+        else if ([request isKindOfClass:[PNObjectModificationRequest class]]) {
+
+            response.additionalData = ((PNObjectModificationRequest *)request).information;
         }
 
         PNResponseParser *parser = [PNResponseParser parserForResponse:response];
@@ -267,6 +273,84 @@
                 
                 ((PNError *)parsedData).associatedObject = response.additionalData;
                 [self.serviceDelegate serviceChannel:self objectFetchDidFailWithError:parsedData];
+            }
+        }
+        // Check whether request was sent for remote object modification
+        else if ([request isKindOfClass:[PNObjectModificationRequest class]]) {
+
+            PNObjectModificationInformation *objectInformation = ((PNObjectModificationRequest *)request).information;
+
+            // Check whether there is no error while loading participants list
+            if (![parsedData isKindOfClass:[PNError class]]) {
+
+                [PNLogger logCommunicationChannelInfoMessageFrom:self message:^NSString * {
+
+                    NSString *message = [NSString stringWithFormat:@"UPDATED OBJECT DATA WITH IDENTIFIER: %@",
+                                                                     objectInformation.objectIdentifier];
+                    if(objectInformation.type == PNObjectReplaceType) {
+
+                        message = [NSString stringWithFormat:@"REPLACED OBJECT DATA WITH IDENTIFIER: %@",
+                                                              objectInformation.objectIdentifier];
+                    }
+                    else if(objectInformation.type == PNObjectDeleteType) {
+
+                        message = [NSString stringWithFormat:@"DELETED OBJECT DATA WITH IDENTIFIER: %@",
+                                                              objectInformation.objectIdentifier];
+                    }
+
+                    return message;
+                }];
+
+                if(objectInformation.type == PNObjectUpdateType) {
+
+                    [self.serviceDelegate serviceChannel:self didUpdateObjectWithInformation:objectInformation];
+                }
+                else if(objectInformation.type == PNObjectReplaceType) {
+
+                    [self.serviceDelegate serviceChannel:self didReplaceObjectWithInformation:objectInformation];
+                }
+                else {
+
+                    [self.serviceDelegate serviceChannel:self didDeleteObjectWithInformation:objectInformation];
+                }
+            }
+            else {
+
+                [PNLogger logCommunicationChannelErrorMessageFrom:self message:^NSString * {
+
+                    NSString *message = [NSString stringWithFormat:@"CAN'T UPDATE OBJECT DATA WITH IDENTIFIER: %@ "
+                                                                    "BECAUSE OF ERROR: %@",
+                                                                     objectInformation.objectIdentifier, parsedData];
+                    if(objectInformation.type == PNObjectReplaceType) {
+
+                        message = [NSString stringWithFormat:@"CAN'T REPLACE OBJECT DATA WITH IDENTIFIER: %@ "
+                                                              "BECAUSE OF ERROR: %@",
+                                                              objectInformation.objectIdentifier, parsedData];
+                    }
+                    else if(objectInformation.type == PNObjectDeleteType) {
+
+                        message = [NSString stringWithFormat:@"CAN'T DELETE OBJECT DATA WITH IDENTIFIER: %@ "
+                                                              "BECAUSE OF ERROR: %@",
+                                                              objectInformation.objectIdentifier, parsedData];
+                    }
+
+
+                    return message;
+                }];
+
+                ((PNError *)parsedData).associatedObject = response.additionalData;
+                if(objectInformation.type == PNObjectUpdateType) {
+
+                    [self.serviceDelegate serviceChannel:self objectUpdateDidFailWithError:parsedData];
+                }
+                else if(objectInformation.type == PNObjectReplaceType) {
+
+                    [self.serviceDelegate serviceChannel:self objectReplaceDidFailWithError:parsedData];
+                }
+                else {
+
+                    [self.serviceDelegate serviceChannel:self objectDeleteDidFailWithError:parsedData];
+                }
             }
         }
         // Check whether request was sent for message posting

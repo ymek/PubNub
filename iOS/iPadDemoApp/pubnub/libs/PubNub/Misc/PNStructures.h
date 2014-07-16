@@ -11,7 +11,8 @@
 
 #pragma mark Class forward
 
-@class PNAccessRightsCollection, PNPresenceEvent, PNMessage, PNChannel, PNObject, PNClient, PNError, PNDate;
+@class PNObjectModificationInformation, PNAccessRightsCollection, PNPresenceEvent, PNMessage, PNChannel, PNObject;
+@class PNClient, PNError, PNDate;
 
 
 #ifndef PNStructures_h
@@ -125,8 +126,7 @@ typedef void (^PNClientObjectSynchronizationStartProcessingBlock)(PNObject *, PN
 typedef void (^PNClientObjectSynchronizationStopProcessingBlock)(PNObject *, PNError *);
 typedef void (^PNClientObjectRetrieveHandlerBlock)(PNObject *, PNError *);
 typedef void (^PNClientObjectChangedHandlerBlock)(PNObject *);
-typedef void (^PNClientObjectUpdateHandlerBlock)(PNObject *, PNError *);
-typedef void (^PNClientObjectDeleteHandlerBlock)(NSString *, PNError *);
+typedef void (^PNClientObjectModificationHandlerBlock)(PNObjectModificationInformation *, PNError *);
 typedef void (^PNClientChannelSubscriptionHandlerBlock)(PNSubscriptionProcessState state, NSArray *, PNError *);
 typedef void (^PNClientChannelUnsubscriptionHandlerBlock)(NSArray *, PNError *);
 typedef void (^PNClientTimeTokenReceivingCompleteBlock)(NSNumber *, PNError *);

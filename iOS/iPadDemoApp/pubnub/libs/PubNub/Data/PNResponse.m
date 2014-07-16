@@ -42,6 +42,7 @@ struct PNServiceResponseCallbacksStruct PNServiceResponseCallbacks = {
     .stateRetrieveCallback = @"mr",
     .stateUpdateCallback = @"mu",
     .objectFetchCallback = @"of",
+    .objectModificationCallback = @"om",
     .subscriptionCallback = @"s",
     .leaveChannelCallback = @"lv",
     .channelPushNotificationsEnableCallback = @"cpe",

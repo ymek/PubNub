@@ -33,6 +33,7 @@
 #import "PNErrorCodes.h"
 #import "PNStructures.h"
 
+#import "PNObjectModificationInformation.h"
 #import "PNObjectFetchInformation.h"
 #import "PNMessage.h"
 #import "PNChannel.h"

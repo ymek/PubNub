@@ -158,6 +158,63 @@ static NSString * const kPNClientDidFetchObjectNotification = @"PNClientDidFetch
 static NSString * const kPNClientObjectFetchDidFailNotification = @"PNClientObjectFetchDidFailNotification";
 
 /**
+ Sent when \b PubNub client completed remote object update.
+
+ \b userInfo contains reference on \b PNObject instead of \q PNObjectModificationInformation which represent
+ object update information,
+ */
+static NSString * const kPNClientDidUpdateObjectNotification = @"PNClientDidUpdateObjectNotification";
+
+/**
+ Sent when \b PubNub client did fail to update remote object.
+
+ \b userInfo contains \b PNError instead of \a NSDictionary. Reference on object instance for which \b PubNub client
+ was unable to update object will be stored inside of \b PNError's \a 'error.associatedObject'.
+
+ @note Always check \a error.code to find out what caused error (check PNErrorCodes header file and use \a -localizedDescription /
+ \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
+static NSString * const kPNClientObjectUpdateDidFailNotification = @"PNClientObjectUpdateDidFailNotification";
+
+/**
+ Sent when \b PubNub client completed remote object replace.
+
+ \b userInfo contains reference on \b PNObject instead of \q PNObjectModificationInformation which represent
+ object replace information,
+ */
+static NSString * const kPNClientDidReplaceObjectNotification = @"PNClientDidReplaceObjectNotification";
+
+/**
+ Sent when \b PubNub client did fail to replace remote object.
+
+ \b userInfo contains \b PNError instead of \a NSDictionary. Reference on object instance for which \b PubNub client
+ was unable to replace object will be stored inside of \b PNError's \a 'error.associatedObject'.
+
+ @note Always check \a error.code to find out what caused error (check PNErrorCodes header file and use \a -localizedDescription /
+ \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
+static NSString * const kPNClientObjectReplaceDidFailNotification = @"PNClientObjectReplaceDidFailNotification";
+
+/**
+ Sent when \b PubNub client completed remote object delete.
+
+ \b userInfo contains reference on \b PNObject instead of \q PNObjectModificationInformation which represent
+ object delete information,
+ */
+static NSString * const kPNClientDidDeleteObjectNotification = @"PNClientDidDeleteObjectNotification";
+
+/**
+ Sent when \b PubNub client did fail to replace remote object.
+
+ \b userInfo contains \b PNError instead of \a NSDictionary. Reference on object instance for which \b PubNub client
+ was unable to delete object will be stored inside of \b PNError's \a 'error.associatedObject'.
+
+ @note Always check \a error.code to find out what caused error (check PNErrorCodes header file and use \a -localizedDescription /
+ \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
+static NSString * const kPNClientObjectDeleteDidFailNotification = @"PNClientObjectDeleteDidFailNotification";
+
+/**
  Sent when \b PubNub client was able to complete subscription on specified set of channels.
 
  \b userInfo contains reference on \a NSArray of \b PNChannel instances on which \b PubNub client was able to subscribe.

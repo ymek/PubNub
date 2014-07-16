@@ -12,6 +12,7 @@
 //
 
 #import "PNObservationCenter+Protected.h"
+#import "PNObjectModificationInformation.h"
 #import "PNMessagesHistory+Protected.h"
 #import "PNHereNow+Protected.h"
 #import "PNError+Protected.h"
@@ -43,6 +44,9 @@ struct PNObservationEventsStruct {
     __unsafe_unretained NSString *synchronizationStop;
     __unsafe_unretained NSString *objectFetch;
     __unsafe_unretained NSString *objectChanged;
+    __unsafe_unretained NSString *objectUpdated;
+    __unsafe_unretained NSString *objectReplaced;
+    __unsafe_unretained NSString *objectDeleted;
     __unsafe_unretained NSString *clientSubscriptionOnChannels;
     __unsafe_unretained NSString *clientUnsubscribeFromChannels;
     __unsafe_unretained NSString *clientPresenceEnableOnChannels;
@@ -77,6 +81,9 @@ static struct PNObservationEventsStruct PNObservationEvents = {
     .synchronizationStop = @"synchronizationStopEvent",
     .objectFetch = @"objectFetchEvent",
     .objectChanged = @"objectChangedEvent",
+    .objectUpdated = @"objectUpdatedEvent",
+    .objectReplaced = @"objectReplacedEvent",
+    .objectDeleted = @"objectDeletedEvent",
     .clientTimeTokenReceivingComplete = @"clientReceivingTimeTokenEvent",
     .clientSubscriptionOnChannels = @"clientSubscribtionOnChannelsEvent",
     .clientUnsubscribeFromChannels = @"clientUnsubscribeFromChannelsEvent",
@@ -147,6 +154,7 @@ static struct PNObservationObserverDataStruct PNObservationObserverData = {
 - (void)handleClientObjectSynchronizationStartProcess:(NSNotification *)notification;
 - (void)handleClientObjectSynchronizationStopProcess:(NSNotification *)notification;
 - (void)handleClientObjectChanged:(NSNotification *)notification;
+- (void)handleClientObjectModification:(NSNotification *)notification;
 - (void)handleClientObjectFetchProcess:(NSNotification *)notification;
 - (void)handleClientSubscriptionProcess:(NSNotification *)notification;
 - (void)handleClientUnsubscriptionProcess:(NSNotification *)notification;
@@ -243,6 +251,19 @@ static struct PNObservationObserverDataStruct PNObservationObserverData = {
                                    name:kPNClientDidFetchObjectNotification object:nil];
         [notificationCenter addObserver:self selector:@selector(handleClientObjectFetchProcess:)
                                    name:kPNClientObjectFetchDidFailNotification object:nil];
+
+        [notificationCenter addObserver:self selector:@selector(handleClientObjectModification:)
+                                   name:kPNClientDidUpdateObjectNotification object:nil];
+        [notificationCenter addObserver:self selector:@selector(handleClientObjectModification:)
+                                   name:kPNClientObjectUpdateDidFailNotification object:nil];
+        [notificationCenter addObserver:self selector:@selector(handleClientObjectModification:)
+                                   name:kPNClientDidReplaceObjectNotification object:nil];
+        [notificationCenter addObserver:self selector:@selector(handleClientObjectModification:)
+                                   name:kPNClientObjectReplaceDidFailNotification object:nil];
+        [notificationCenter addObserver:self selector:@selector(handleClientObjectModification:)
+                                   name:kPNClientDidDeleteObjectNotification object:nil];
+        [notificationCenter addObserver:self selector:@selector(handleClientObjectModification:)
+                                   name:kPNClientObjectDeleteDidFailNotification object:nil];
 
 
         // Handle subscription events
@@ -545,6 +566,36 @@ static struct PNObservationObserverDataStruct PNObservationObserverData = {
     [self removeObserver:observer forEvent:PNObservationEvents.objectFetch oneTimeEvent:NO];
 }
 
+- (void)addObjectUpdateObserver:(id)observer withBlock:(PNClientObjectModificationHandlerBlock)handlerBlock {
+
+    [self addObserver:observer forEvent:PNObservationEvents.objectUpdated oneTimeEvent:NO withBlock:handlerBlock];
+}
+
+- (void)removeObjectUpdateObserver:(id)observer {
+
+    [self removeObserver:observer forEvent:PNObservationEvents.objectUpdated oneTimeEvent:NO];
+}
+
+- (void)addObjectReplaceObserver:(id)observer withBlock:(PNClientObjectModificationHandlerBlock)handlerBlock {
+
+    [self addObserver:observer forEvent:PNObservationEvents.objectReplaced oneTimeEvent:NO withBlock:handlerBlock];
+}
+
+- (void)removeObjectReplaceObserver:(id)observer {
+
+    [self removeObserver:observer forEvent:PNObservationEvents.objectReplaced oneTimeEvent:NO];
+}
+
+- (void)addObjectDeleteObserver:(id)observer withBlock:(PNClientObjectModificationHandlerBlock)handlerBlock {
+
+    [self addObserver:observer forEvent:PNObservationEvents.objectDeleted oneTimeEvent:NO withBlock:handlerBlock];
+}
+
+- (void)removeObjectDeleteObserver:(id)observer {
+
+    [self removeObserver:observer forEvent:PNObservationEvents.objectDeleted oneTimeEvent:NO];
+}
+
 - (void)addObjectChangeObserver:(id)observer withBlock:(PNClientObjectChangedHandlerBlock)handleBlock {
 
     [self addObserver:observer forEvent:PNObservationEvents.objectChanged oneTimeEvent:NO withBlock:handleBlock];
@@ -553,6 +604,26 @@ static struct PNObservationObserverDataStruct PNObservationObserverData = {
 - (void)removeObjectChangeObserver:(id)observer {
 
     [self removeObserver:observer forEvent:PNObservationEvents.objectChanged oneTimeEvent:NO];
+}
+
+- (void)addObjectSynchronizationStartObserver:(id)observer withBlock:(PNClientObjectSynchronizationStartProcessingBlock)handlerBlock {
+
+    [self addObserver:observer forEvent:PNObservationEvents.synchronizationStart oneTimeEvent:NO withBlock:handlerBlock];
+}
+
+- (void)removeObjectSynchronizationStartObserver:(id)observer {
+
+    [self removeObserver:observer forEvent:PNObservationEvents.synchronizationStart oneTimeEvent:NO];
+}
+
+- (void)addObjectSynchronizationStopObserver:(id)observer withBlock:(PNClientObjectSynchronizationStopProcessingBlock)handlerBlock {
+
+    [self addObserver:observer forEvent:PNObservationEvents.synchronizationStop oneTimeEvent:NO withBlock:handlerBlock];
+}
+
+- (void)removeObjectSynchronizationStopObserver:(id)observer {
+
+    [self removeObserver:observer forEvent:PNObservationEvents.synchronizationStop oneTimeEvent:NO];
 }
 
 - (void)addClientAsObjectSynchronizationStartObserverWithBlock:(PNClientObjectSynchronizationStartProcessingBlock)handlerBlock {
@@ -588,11 +659,43 @@ static struct PNObservationObserverDataStruct PNObservationObserverData = {
     [self removeObserver:[PubNub sharedInstance] forEvent:PNObservationEvents.objectFetch oneTimeEvent:YES];
 }
 
+- (void)addClientAsObjectUpdateObserverWithBlock:(PNClientObjectModificationHandlerBlock)handlerBlock {
+
+    [self addObserver:[PubNub sharedInstance] forEvent:PNObservationEvents.objectUpdated oneTimeEvent:YES
+            withBlock:handlerBlock];
+}
+
+- (void)removeClientAsObjectUpdateObserver {
+
+    [self removeObserver:[PubNub sharedInstance] forEvent:PNObservationEvents.objectUpdated oneTimeEvent:YES];
+}
+
+- (void)addClientAsObjectReplaceObserverWithBlock:(PNClientObjectModificationHandlerBlock)handlerBlock {
+
+    [self addObserver:[PubNub sharedInstance] forEvent:PNObservationEvents.objectReplaced oneTimeEvent:YES
+            withBlock:handlerBlock];
+}
+
+- (void)removeClientAsObjectReplaceObserver {
+
+    [self removeObserver:[PubNub sharedInstance] forEvent:PNObservationEvents.objectReplaced oneTimeEvent:YES];
+}
+
+- (void)addClientAsObjectDeleteObserverWithBlock:(PNClientObjectModificationHandlerBlock)handlerBlock {
+
+    [self addObserver:[PubNub sharedInstance] forEvent:PNObservationEvents.objectDeleted oneTimeEvent:YES
+            withBlock:handlerBlock];
+}
+
+- (void)removeClientAsObjectDeleteObserver {
+
+    [self removeObserver:[PubNub sharedInstance] forEvent:PNObservationEvents.objectDeleted oneTimeEvent:YES];
+}
+
 
 #pragma mark - Client channels action/event observation
 
 - (void)addClientChannelSubscriptionStateObserver:(id)observer
-
                            withCallbackBlock:(PNClientChannelSubscriptionHandlerBlock)callbackBlock {
 
     [self addObserver:observer
@@ -1298,6 +1401,51 @@ static struct PNObservationObserverDataStruct PNObservationObserverData = {
     }];
 }
 
+- (void)handleClientObjectModification:(NSNotification *)notification {
+
+    PNError *error;
+    PNObjectModificationInformation *information;
+    if ([[notification name] isEqualToString:kPNClientDidUpdateObjectNotification] ||
+        [[notification name] isEqualToString:kPNClientDidReplaceObjectNotification] ||
+        [[notification name] isEqualToString:kPNClientDidDeleteObjectNotification]) {
+
+        information = (PNObjectModificationInformation *)notification.userInfo;
+    }
+    else {
+
+        error = (PNError *)notification.userInfo;
+    }
+
+    NSString *targetEvent = PNObservationEvents.objectUpdated;
+    if ([[notification name] isEqualToString:kPNClientDidReplaceObjectNotification] ||
+        [[notification name] isEqualToString:kPNClientObjectReplaceDidFailNotification]) {
+
+        targetEvent = PNObservationEvents.objectReplaced;
+    }
+    else if ([[notification name] isEqualToString:kPNClientDidDeleteObjectNotification] ||
+            [[notification name] isEqualToString:kPNClientObjectDeleteDidFailNotification]) {
+
+        targetEvent = PNObservationEvents.objectDeleted;
+    }
+
+    // Retrieving list of observers (including one time and persistent observers)
+    NSArray *observers = [self observersForEvent:targetEvent];
+
+    // Clean one time observers for specific event
+    [self removeOneTimeObserversForEvent:targetEvent];
+
+    [observers enumerateObjectsUsingBlock:^(NSMutableDictionary *observerData, NSUInteger observerDataIdx,
+                                            BOOL *observerDataEnumeratorStop) {
+
+        // Call handling blocks
+        PNClientObjectModificationHandlerBlock block = [observerData valueForKey:PNObservationObserverData.observerCallbackBlock];
+        if (block) {
+
+            block(information, error);
+        }
+    }];
+}
+
 - (void)handleClientObjectFetchProcess:(NSNotification *)notification {
 
     PNError *error;
@@ -1996,6 +2144,12 @@ static struct PNObservationObserverDataStruct PNObservationObserverData = {
     [notificationCenter removeObserver:self name:kPNClientDidReceiveObjectChangesNotification object:nil];
     [notificationCenter removeObserver:self name:kPNClientDidFetchObjectNotification object:nil];
     [notificationCenter removeObserver:self name:kPNClientObjectFetchDidFailNotification object:nil];
+    [notificationCenter removeObserver:self name:kPNClientDidUpdateObjectNotification object:nil];
+    [notificationCenter removeObserver:self name:kPNClientObjectUpdateDidFailNotification object:nil];
+    [notificationCenter removeObserver:self name:kPNClientDidReplaceObjectNotification object:nil];
+    [notificationCenter removeObserver:self name:kPNClientObjectReplaceDidFailNotification object:nil];
+    [notificationCenter removeObserver:self name:kPNClientDidDeleteObjectNotification object:nil];
+    [notificationCenter removeObserver:self name:kPNClientObjectDeleteDidFailNotification object:nil];
 
     [notificationCenter removeObserver:self name:kPNClientSubscriptionDidCompleteNotification object:nil];
     [notificationCenter removeObserver:self name:kPNClientSubscriptionDidCompleteOnClientIdentifierUpdateNotification object:nil];
