@@ -120,8 +120,7 @@ static NSMutableDictionary *_channelsCache = nil;
     return channel;
 }
 
-+ (id)            channelWithName:(NSString *)channelName
-            shouldObservePresence:(BOOL)observePresence
++ (id)            channelWithName:(NSString *)channelName shouldObservePresence:(BOOL)observePresence
 shouldUpdatePresenceObservingFlag:(BOOL)shouldUpdatePresenceObservingFlag {
 
     PNChannel *channel = [[[self class] channelsCache] valueForKey:channelName];
@@ -208,6 +207,11 @@ shouldUpdatePresenceObservingFlag:(BOOL)shouldUpdatePresenceObservingFlag {
     
     
     return presence;
+}
+
+- (PNSynchronizationChannel *)transactionChannel {
+
+    return nil;
 }
 
 - (PNChannel *)observedChannel {
@@ -326,6 +330,11 @@ shouldUpdatePresenceObservingFlag:(BOOL)shouldUpdatePresenceObservingFlag {
 }
 
 - (BOOL)isPresenceObserver {
+
+    return NO;
+}
+
+- (BOOL)isObjectSynchronizationChannel {
 
     return NO;
 }

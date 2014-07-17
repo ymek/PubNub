@@ -16,6 +16,13 @@
 
 + (NSArray *)arrayWithVarietyList:(va_list)list;
 
+/**
+ Construct from receiver mutable array where every collection inside is mutable as well.
+
+ @return Mutable array with mutable collections inside.
+ */
+- (NSMutableArray *)mutableContent;
+
 #pragma mark -
 
 

@@ -14,8 +14,9 @@
 
 #pragma mark Class forward
 
-@class PNMessagingChannel, PNMessage;
+@class PNSynchronizationChannel, PNMessagingChannel, PNMessage;
 @class PNPresenceEvent;
+@class PNObjectSynchronizationEvent;
 
 
 @protocol PNMessageChannelDelegate <NSObject>
@@ -89,6 +90,39 @@
  */
 - (void)messagingChannel:(PNMessagingChannel *)messagingChannel didFailUnsubscribeOnChannels:(NSArray *)channels
                withError:(PNError *)error sequenced:(BOOL)isSequenced;
+
+/**
+ * Sent to the delegate when client successfully subscribed on channel which is used for remote object changes
+ * delivering.
+ */
+- (void)messagingChannel:(PNMessagingChannel *)messagingChannel didStartObjectSynchronizationAtChannel:(PNSynchronizationChannel *)channel;
+
+/**
+ * Sent to the delegate when client failed to subscribe on channel which is used for remote object changes
+ * delivering.
+ */
+- (void)                    messagingChannel:(PNMessagingChannel *)messagingChannel
+didFailToStartObjectSynchronizationAtChannel:(PNSynchronizationChannel *)channel
+                                   withError:(PNError *)error;
+
+/**
+ * Sent to the delegate when client successfully unsubscribed from channel which is used for remote object changes
+ * delivering.
+ */
+- (void)             messagingChannel:(PNMessagingChannel *)messagingChannel
+didStopObjectSynchronozationAtChannel:(PNSynchronizationChannel *)channel;
+
+/**
+ * Sent to the delegate when client failed to subscribe on channel which is used for remote object changes
+ * delivering.
+ */
+- (void)messagingChannel:(PNMessagingChannel *)messagingChannel didFailToStopObjectSynchronozationAtChannel:(PNSynchronizationChannel *)channel
+               withError:(PNError *)error sequenced:(BOOL)isSequenced;
+
+/**
+ Sent to the delegate each time when new synchronization event arrive to the client.
+ */
+- (void)messagingChannel:(PNMessagingChannel *)messagingChannel didReceiveSynchronizationEvent:(PNObjectSynchronizationEvent *)event;
 
 /**
  * Sent to the delegate when client is about to enable presence observation on specified set of channels

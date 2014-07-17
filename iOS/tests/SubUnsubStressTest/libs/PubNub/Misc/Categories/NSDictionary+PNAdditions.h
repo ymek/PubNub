@@ -23,6 +23,13 @@
  */
 - (BOOL)isValidState;
 
+/**
+ Construct from receiver mutable dictionary where every collection inside is mutable as well.
+
+ @return Mutable dictionary with mutable collections inside.
+ */
+- (NSMutableDictionary *)mutableContent;
+
 #pragma mark -
 
 

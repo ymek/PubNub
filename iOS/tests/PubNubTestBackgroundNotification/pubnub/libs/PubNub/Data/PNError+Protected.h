@@ -17,6 +17,17 @@
 // error is occurred
 @property (nonatomic, strong) id associatedObject;
 
+
+#pragma mark - Instance methods
+
+/**
+ Replace existing associated object with new one. This is exclusion method for rare cases.
+
+ @param object
+ Reference on object which should be stored instead of old one.
+ */
+- (void)replaceAssociatedObjectWith:(id)object;
+
 #pragma mark -
 
 

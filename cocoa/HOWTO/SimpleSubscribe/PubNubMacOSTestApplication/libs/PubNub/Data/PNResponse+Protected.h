@@ -61,6 +61,11 @@ struct PNServiceResponseServiceDataKeysStruct {
     __unsafe_unretained NSString *response;
 
     /**
+     Allow to check whether this is multi-paged response or not.
+     */
+    __unsafe_unretained NSString *nextPageToken;
+
+    /**
      Stores special marker for PubNub internal usage response. This value will store regular expression which will
      allow to test "key" and in case if it is required, extract name of the service which added additional data.
      */
@@ -81,6 +86,7 @@ struct PNServiceResponseServiceDataKeysStruct {
 @property (nonatomic, assign) NSUInteger size;
 @property (nonatomic, copy) NSString *serviceName;
 @property (nonatomic, copy) NSString *message;
+@property (nonatomic, copy) NSString *nextPageToken;
 @property (nonatomic, assign, getter = isErrorResponse) BOOL errorResponse;
 @property (nonatomic, strong) PNError *error;
 @property (nonatomic, copy) NSString *requestIdentifier;

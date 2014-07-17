@@ -7,6 +7,7 @@
 //
 
 #import "NSDictionary+PNAdditions.h"
+#import "NSArray+PNAdditions.h"
 
 
 #pragma mark Private interface declaration
@@ -70,6 +71,19 @@
 
 
     return isValidState;
+}
+
+- (NSMutableDictionary *)mutableContent {
+
+    NSMutableDictionary *mutableDictionary = [NSMutableDictionary dictionaryWithCapacity:[self count]];
+    [self enumerateKeysAndObjectsUsingBlock:^(NSString *objectStoreKey, id object, BOOL *objectEnumeratorStop) {
+
+        [mutableDictionary setValue:([object respondsToSelector:@selector(count)] ? [object mutableContent] : object)
+                             forKey:objectStoreKey];
+    }];
+
+
+    return mutableDictionary;
 }
 
 #pragma mark -

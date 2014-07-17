@@ -7,6 +7,8 @@
  */
 
 #import "PNPrivateImports.h"
+#import "PNObjectSynchronizationEvent+Protected.h"
+#import "PNSynchronizationChannel+Protected.h"
 #import "PNChannelEventsResponseParser.h"
 #import "PNChannelPresence+Protected.h"
 #import "PNPresenceEvent+Protected.h"
@@ -30,14 +32,19 @@
 static NSUInteger const kPNResponseEventsListElementIndex = 0;
 
 /**
+ Stores reference on time token element index in response for events.
+ */
+static NSUInteger const kPNResponseTimeTokenElementIndexForEvent = 1;
+
+/**
  Stores reference on index under which channels list is stored.
  */
 static NSUInteger const kPNResponseChannelsListElementIndex = 2;
 
 /**
- Stores reference on time token element index in response for events.
+ Stores reference on index under which synchronization events channel mapping is stored.
  */
-static NSUInteger const kPNResponseTimeTokenElementIndexForEvent = 1;
+static NSUInteger const kPNResponseSynchronizationChannelsListElementIndex = 3;
 
 
 #pragma mark - Private interface methods
@@ -133,10 +140,10 @@ static NSUInteger const kPNResponseTimeTokenElementIndexForEvent = 1;
 
         // Retrieving list of channels on which events fired
         NSArray *channels = nil;
-        if ([responseData count] > kPNResponseChannelsListElementIndex) {
+        if ([responseData count] > kPNResponseSynchronizationChannelsListElementIndex) {
 
-            channels = [[responseData objectAtIndex:kPNResponseChannelsListElementIndex]
-                    componentsSeparatedByString:@","];
+            channels = [[responseData objectAtIndex:kPNResponseSynchronizationChannelsListElementIndex]
+                        componentsSeparatedByString:@","];
         }
 
         if ([events count] > 0) {
@@ -161,10 +168,32 @@ static NSUInteger const kPNResponseTimeTokenElementIndexForEvent = 1;
                 id eventObject = nil;
 
                 // Checking whether event presence event or not
-                if ([event isKindOfClass:[NSDictionary class]] && [PNPresenceEvent isPresenceEventObject:event]) {
+                if ([event isKindOfClass:[NSDictionary class]] &&
+                    ([PNPresenceEvent isPresenceEventObject:event] || [PNObjectSynchronizationEvent isSynchronizationEvent:event])) {
 
-                    eventObject = [PNPresenceEvent presenceEventForResponse:event];
-                    ((PNPresenceEvent *)eventObject).channel = channel;
+                    if ([PNPresenceEvent isPresenceEventObject:event]) {
+
+                        eventObject = [PNPresenceEvent presenceEventForResponse:event];
+                        ((PNPresenceEvent *)eventObject).channel = channel;
+                    }
+                    else if ([PNObjectSynchronizationEvent isSynchronizationEvent:event] ) {
+
+                        if (![channel isObjectSynchronizationChannel]) {
+
+                            NSArray *components = [channel.name componentsSeparatedByString:@"."];
+                            if ([components count] > 1) {
+
+                                channel = [PNSynchronizationChannel channelForObject:[components objectAtIndex:0]
+                                                dataPath:([components count] > 2 ? [components lastObject] : nil)];
+                            }
+                        }
+                        if ([channel isObjectSynchronizationChannel]) {
+
+                            eventObject = [PNObjectSynchronizationEvent synchronizationEventForObject:((PNSynchronizationChannel *)channel).objectIdentifier
+                                           atPath:((PNSynchronizationChannel *)channel).partialObjectDataPath
+                                   dromDictionary:event];
+                        }
+                    }
                 }
                 else {
 

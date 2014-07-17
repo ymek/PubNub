@@ -37,6 +37,19 @@
     return array;
 }
 
+- (NSMutableArray *)mutableContent {
+
+    NSMutableArray *mutableArray = [NSMutableArray arrayWithCapacity:[self count]];
+
+    [self enumerateObjectsUsingBlock:^(id object, NSUInteger objectIdx, BOOL *objectEnumeratorStop) {
+
+        [mutableArray addObject:([object respondsToSelector:@selector(count)] ? [object mutableContent] : object)];
+    }];
+
+
+    return mutableArray;
+}
+
 #pragma mark -
 
 

@@ -69,10 +69,45 @@
 /**
  Add/remove observer which would like to know when \b PubNub client update state.
 
- @warning Methods will be completely removed before feature release.
  */
 - (void)addClientStateUpdateObserver:(id)observer withBlock:(PNClientStateUpdateHandlingBlock)handleBlock;
 - (void)removeClientStateUpdateObserver:(id)observer;
+
+
+#pragma mark - Data Synchronization observers
+
+/**
+ Observing for object synchronization process start (this action will be performed only once per request).
+ After event will be fired this observation request will be removed from queue.
+ */
+- (void)addObjectSynchronizationStartObserver:(id)observer withBlock:(PNClientObjectSynchronizationStartProcessingBlock)handlerBlock;
+- (void)removeObjectSynchronizationStartObserver:(id)observer;
+- (void)addObjectSynchronizationStopObserver:(id)observer withBlock:(PNClientObjectSynchronizationStopProcessingBlock)handlerBlock;
+- (void)removeObjectSynchronizationStopObserver:(id)observer;
+
+/**
+ Add/remove observer which would like to know when \b PubNub client completes cloud object fetch request.
+ */
+- (void)addObjectFetchObserver:(id)observer withBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
+- (void)removeObjectFetchObserver:(id)observer;
+
+/**
+ Observing for object modification process (this action will be performed only once per request).
+ After event will be fired this observation request will be removed from queue.
+ */
+- (void)addObjectUpdateObserver:(id)observer withBlock:(PNClientObjectModificationHandlerBlock)handlerBlock;
+- (void)removeObjectUpdateObserver:(id)observer;
+- (void)addObjectReplaceObserver:(id)observer withBlock:(PNClientObjectModificationHandlerBlock)handlerBlock;
+- (void)removeObjectReplaceObserver:(id)observer;
+- (void)addObjectDeleteObserver:(id)observer withBlock:(PNClientObjectModificationHandlerBlock)handlerBlock;
+- (void)removeObjectDeleteObserver:(id)observer;
+
+/**
+ * Add/remove observers for synchronization event arrival (event arrived from
+ * PubNub service on subscribed channels)
+ */
+- (void)addObjectChangeObserver:(id)observer withBlock:(PNClientObjectChangedHandlerBlock)handleBlock;
+- (void)removeObjectChangeObserver:(id)observer;
 
 
 #pragma mark - Client channels action/event observation

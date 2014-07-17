@@ -24,11 +24,30 @@ typedef NS_OPTIONS(NSInteger , PNRequestHTTPMethod) {
      Request will be sent as plain GET request and all data will be sent via request URL
      */
     PNRequestGETMethod,
-    
+
     /**
-     Request will be sent as POST request which may split parameters which should be send between POST body and URL string
+     Request will be sent as POST request which may split parameters which should be sent between POST body and URL
+     string
      */
-    PNRequestPOSTMethod
+    PNRequestPOSTMethod,
+
+    /**
+     Request will be sent as PATCH request which may split parameters which should be send between PATCH body and URL
+     string
+     */
+    PNRequestPATCHMethod,
+
+    /**
+     Request will be sent as DELETE request which may split parameters which should be send between DELETE body and URL
+     string
+     */
+    PNRequestDELETEMethod,
+
+    /**
+     Request will be sent as PUT which may split parameters which should be send between PUT body and URL
+     string
+     */
+    PNRequestPUTMethod,
 };
 
 
@@ -99,11 +118,16 @@ typedef NS_OPTIONS(NSInteger , PNRequestHTTPMethod) {
 /**
  Each subclass may have it's own rule for request sending method.
  
- @note By default if subclass won't owerride this method it will return \c PNRequestGETMethod.
+ @note By default if subclass won't override this method it will return \c PNRequestGETMethod.
  
  @return one of \b PNRequestHTTPMethod enumerator fields which is set by any particular request.
  */
 - (PNRequestHTTPMethod)HTTPMethod;
+
+/**
+ Stringified version of HTTP method which should be used during request.
+ */
+- (NSString *)HTTPMethodName;
 
 /**
  In case if \c -HTTPMethod will return \c PNRequestPOSTMethod this value will be checked on whether POST body should be compressed or not.

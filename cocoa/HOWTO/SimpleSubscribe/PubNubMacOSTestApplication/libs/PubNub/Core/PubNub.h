@@ -803,6 +803,1906 @@ withCompletionHandlingBlock:(PNClientStateRetrieveHandlingBlock)handlerBlock;
  withCompletionHandlingBlock:(PNClientStateUpdateHandlingBlock)handlerBlock;
 
 
+#pragma mark - Data Synchronization
+
+/**
+ Start synchronization of object state from \b PubNub cloud to this client using object's identifier. As soon as
+ synchronization has been launched, all changes which has been done from other clients will be populated via change
+ events.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub startObjectSynchronization:@"chessboard"];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didStartObjectSynchronization:(PNObject *)object {
+
+     // PubNub client started object synchronization.
+ }
+
+ - (void)pubnubClient:(PubNub *)client didFailToStartObjectSynchronizationWithError:(PNError *)error {
+
+     // PubNub client failed to start remote object synchronization.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+     // start synchronization with local object copy.
+ }
+ @endcode
+
+ There is also way to observe synchronization process from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectSynchronizationStartObserver:self
+                                                                  withBlock:^(PNObject *object, PNError *error) {
+
+     if (!error) {
+
+        // PubNub client started object synchronization.
+     }
+     else {
+
+        // PubNub client failed to start remote object synchronization.
+        //
+        // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+        // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+        // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+        // start synchronization with local object copy.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidStartObjectSynchronizationNotification and
+ kPNClientObjectSynchronizationStartDidFailWithErrorNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+ */
++ (void)startObjectSynchronization:(NSString *)objectIdentifier;
+
+/**
+ Start synchronization of object state from \b PubNub cloud to this client using object's identifier. As soon as
+ synchronization has been launched, all changes which has been done from other clients will be populated via change
+ events.
+
+ @code
+ @endcode
+ This method extends \a +startObjectSynchronization: and allow to specify object synchronization handling block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub startObjectSynchronization:@"chessboard" withCompletionHandlingBlock:^(PNObject *object, PNError *error){
+
+     if (!error) {
+
+         // Handle object synchronization successful completion.
+     }
+     else {
+
+         // Handle object synchronization failure. Make sure to check error.code to find out what exactly went wrong.
+     }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didStartObjectSynchronization:(PNObject *)object {
+
+     // PubNub client started object synchronization.
+ }
+
+ - (void)pubnubClient:(PubNub *)client didFailToStartObjectSynchronizationWithError:(PNError *)error {
+
+     // PubNub client failed to start remote object synchronization.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+     // start synchronization with local object copy.
+ }
+ @endcode
+
+ There is also way to observe synchronization process from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectSynchronizationStartObserver:self
+                                                                  withBlock:^(PNObject *object, PNError *error) {
+
+     if (!error) {
+
+        // PubNub client started object synchronization.
+     }
+     else {
+
+        // PubNub client failed to start remote object synchronization.
+        //
+        // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+        // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+        // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+        // start synchronization with local object copy.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidStartObjectSynchronizationNotification and
+ kPNClientObjectSynchronizationStartDidFailWithErrorNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param handlerBlock
+ The block which will be called by \b PubNub client as soon as object data synchronization will be completed. The
+ block takes two arguments:
+ \c object - reference on \b PNObject which is used to represent object from \b PubNub cloud; \c error -
+ describes what exactly went wrong (check error code and compare it with \b PNErrorCodes ).
+ */
++ (void)startObjectSynchronization:(NSString *)objectIdentifier
+       withCompletionHandlingBlock:(PNClientObjectSynchronizationStartProcessingBlock)handlerBlock;
+
+/**
+ Start synchronization of object state from \b PubNub cloud to this client using object's identifier. As soon as
+ synchronization has been launched, all changes which has been done from other clients will be populated via change
+ events.
+
+ @code
+ @endcode
+ This method extends \a +startObjectSynchronization: and allow to specify specific part of the object which should be
+ synchronized.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub startObjectSynchronization:@"chessboard" dataPath:@"moves"];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didStartObjectSynchronization:(PNObject *)object {
+
+     // PubNub client started object synchronization.
+ }
+
+ - (void)pubnubClient:(PubNub *)client didFailToStartObjectSynchronizationWithError:(PNError *)error {
+
+     // PubNub client failed to start remote object synchronization.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+     // start synchronization with local object copy.
+ }
+ @endcode
+
+ There is also way to observe synchronization process from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectSynchronizationStartObserver:self
+                                                                  withBlock:^(PNObject *object, PNError *error) {
+
+     if (!error) {
+
+        // PubNub client started object synchronization.
+     }
+     else {
+
+        // PubNub client failed to start remote object synchronization.
+        //
+        // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+        // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+        // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+        // start synchronization with local object copy.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidStartObjectSynchronizationNotification and
+ kPNClientObjectSynchronizationStartDidFailWithErrorNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param partialObjectDataPath
+ Path which represent piece of remote object which should be synchronized with local copy.
+
+ @note If \c partialObjectDataPath is specified, then only part of data which is stored under specified key-path will
+ be synchronized from \b PubNub cloud and merged with local object (if it was fetched before).
+ */
++ (void)startObjectSynchronization:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath;
+
+/**
+ Start synchronization of object state from \b PubNub cloud to this client using object's identifier. As soon as
+ synchronization has been launched, all changes which has been done from other clients will be populated via change
+ events.
+
+ @code
+ @endcode
+ This method extends \a +startObjectSynchronization:dataPath: and allow to specify object synchronization process handling
+ block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub startObjectSynchronization:@"chessboard" dataPath:@"moves"
+        withCompletionHandlingBlock:^(PNObject *object, PNError *error){
+
+     if (!error) {
+
+         // Handle object synchronization successful completion.
+     }
+     else {
+
+         // Handle object synchronization failure. Make sure to check error.code to find out what exactly went wrong.
+     }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didStartObjectSynchronization:(PNObject *)object {
+
+     // PubNub client started object synchronization.
+ }
+
+ - (void)pubnubClient:(PubNub *)client didFailToStartObjectSynchronizationWithError:(PNError *)error {
+
+     // PubNub client failed to start remote object synchronization.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+     // start synchronization with local object copy.
+ }
+ @endcode
+
+ There is also way to observe synchronization process from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectSynchronizationStartObserver:self
+                                                                  withBlock:^(PNObject *object, PNError *error) {
+
+     if (!error) {
+
+        // PubNub client started object synchronization.
+     }
+     else {
+
+        // PubNub client failed to start remote object synchronization.
+        //
+        // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+        // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+        // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+        // start synchronization with local object copy.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidStartObjectSynchronizationNotification and
+ kPNClientObjectSynchronizationStartDidFailWithErrorNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param partialObjectDataPath
+ Path which represent piece of remote object which should be synchronized with local copy.
+
+ @param handlerBlock
+ The block which will be called by \b PubNub client as soon as object data synchronization will be completed. The
+ block takes two arguments:
+ \c object - reference on \b PNObject which is used to represent object from \b PubNub cloud; \c error -
+ describes what exactly went wrong (check error code and compare it with \b PNErrorCodes ).
+
+ @note If \c partialObjectDataPath is specified, then only part of data which is stored under specified key-path will
+ be synchronized from \b PubNub cloud and merged with local object (if it was fetched before).
+ */
++ (void)startObjectSynchronization:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath
+       withCompletionHandlingBlock:(PNClientObjectSynchronizationStartProcessingBlock)handlerBlock;
+
+/**
+ Stop synchronization of object state from \b PubNub cloud to this client using object's identifier. Object will be
+ removed from local cache and stop receiving object real-time updates processing.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub stopObjectSynchronization:@"chessboard"];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didStopObjectSynchronization:(PNObject *)object {
+
+     // PubNub client stopped object synchronization.
+ }
+
+ - (void)pubnubClient:(PubNub *)client didFailToStopObjectSynchronizationWithError:(PNError *)error {
+
+     // PubNub client failed to start remote object synchronization.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+     // stop synchronization with local object copy.
+ }
+ @endcode
+
+ There is also way to observe synchronization process from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectSynchronizationStopObserver:self
+                                                                 withBlock:^(PNObject *object, PNError *error) {
+
+     if (!error) {
+
+        // PubNub client stopped object synchronization.
+     }
+     else {
+
+        // PubNub client failed to stop remote object synchronization.
+        //
+        // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+        // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+        // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+        // stop synchronization with local object copy.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidStopObjectSynchronizationNotification and
+ kPNClientObjectSynchronizationStopDidFailWithErrorNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+ */
++ (void)stopObjectSynchronization:(NSString *)objectIdentifier;
+
+/**
+ Stop synchronization of object state from \b PubNub cloud to this client using object's identifier. Object will be
+ removed from local cache and stop receiving object real-time updates processing.
+
+ @code
+ @endcode
+ This method extends \a +stopObjectSynchronization: and allow to specify object synchronization termination process
+ handling block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub stopObjectSynchronization:@"chessboard" withCompletionHandlingBlock:^(PNObject *object, PNError *error){
+
+     if (!error) {
+
+         // Handle object successful synchronization termination completion.
+     }
+     else {
+
+         // Handle object synchronization termination failure. Make sure to check error.code to find out what exactly went wrong.
+     }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didStopObjectSynchronization:(PNObject *)object {
+
+     // PubNub client stopped object synchronization.
+ }
+
+ - (void)pubnubClient:(PubNub *)client didFailToStopObjectSynchronizationWithError:(PNError *)error {
+
+     // PubNub client failed to stop remote object synchronization.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+     // stop synchronization with local object copy.
+ }
+ @endcode
+
+ There is also way to observe synchronization process from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectSynchronizationStopObserver:self
+                                                                 withBlock:^(PNObject *object, PNError *error) {
+
+     if (!error) {
+
+        // PubNub client stopped object synchronization.
+     }
+     else {
+
+        // PubNub client failed to start remote object synchronization.
+        //
+        // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+        // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+        // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+        // stop synchronization with local object copy.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidStopObjectSynchronizationNotification and
+ kPNClientObjectSynchronizationStopDidFailWithErrorNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param handlerBlock
+ The block which will be called by \b PubNub client as soon as object data synchronization will be completed. The
+ block takes two arguments:
+ \c object - reference on \b PNObject which is used to represent object from \b PubNub cloud; \c error -
+ describes what exactly went wrong (check error code and compare it with \b PNErrorCodes ).
+ */
++ (void)stopObjectSynchronization:(NSString *)objectIdentifier
+       withCompletionHandlingBlock:(PNClientObjectSynchronizationStopProcessingBlock)handlerBlock;
+
+/**
+ Stop synchronization of object state from \b PubNub cloud to this client using object's identifier. Object will be
+ removed from local cache and stop receiving object real-time updates processing.
+
+ @code
+ @endcode
+ This method extends \a +stopObjectSynchronization: and allow to specify specific part of the object which
+ synchronization should be topped.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub stopObjectSynchronization:@"chessboard" dataPath:@"moves"];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didStopObjectSynchronization:(PNObject *)object {
+
+     // PubNub client stopped object synchronization.
+ }
+
+ - (void)pubnubClient:(PubNub *)client didFailToStopObjectSynchronizationWithError:(PNError *)error {
+
+     // PubNub client failed to start remote object synchronization.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+     // stop synchronization with local object copy.
+ }
+ @endcode
+
+ There is also way to observe synchronization process from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectSynchronizationStopObserver:self
+                                                                 withBlock:^(PNObject *object, PNError *error) {
+
+     if (!error) {
+
+        // PubNub client stopped object synchronization.
+     }
+     else {
+
+        // PubNub client failed to stop remote object synchronization.
+        //
+        // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+        // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+        // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+        // stop synchronization with local object copy.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidStopObjectSynchronizationNotification and
+ kPNClientObjectSynchronizationStopDidFailWithErrorNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param partialObjectDataPath
+ Path which represent piece of remote object which should be synchronized with local copy.
+ */
++ (void)stopObjectSynchronization:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath;
+
+/**
+ Stop synchronization of object state from \b PubNub cloud to this client using object's identifier. Object will be
+ removed from local cache and stop receiving object real-time updates processing.
+
+ @code
+ @endcode
+ This method extends \a +stopObjectSynchronization:dataPath: and allow to specify object synchronization termination
+ process handling block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub stopObjectSynchronization:@"chessboard" dataPath:@"moves"
+       withCompletionHandlingBlock:^(PNObject *object, PNError *error){
+
+      if (!error) {
+
+          // Handle object successful synchronization termination completion.
+      }
+      else {
+
+          // Handle object synchronization termination failure. Make sure to check error.code to find out what exactly went wrong.
+      }
+  }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didStopObjectSynchronization:(PNObject *)object {
+
+     // PubNub client stopped object synchronization.
+ }
+
+ - (void)pubnubClient:(PubNub *)client didFailToStopObjectSynchronizationWithError:(PNError *)error {
+
+     // PubNub client failed to start remote object synchronization.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+     // stop synchronization with local object copy.
+ }
+ @endcode
+
+ There is also way to observe synchronization process from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectSynchronizationStopObserver:self
+                                                                 withBlock:^(PNObject *object, PNError *error) {
+
+     if (!error) {
+
+        // PubNub client stopped object synchronization.
+     }
+     else {
+
+        // PubNub client failed to stop remote object synchronization.
+        //
+        // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+        // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+        // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+        // stop synchronization with local object copy.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidStopObjectSynchronizationNotification and
+ kPNClientObjectSynchronizationStopDidFailWithErrorNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param partialObjectDataPath
+ Path which represent piece of remote object which should be synchronized with local copy.
+
+ @param handlerBlock
+ The block which will be called by \b PubNub client as soon as object data synchronization will be completed. The
+ block takes two arguments:
+ \c object - reference on \b PNObject which is used to represent object from \b PubNub cloud; \c error -
+ describes what exactly went wrong (check error code and compare it with \b PNErrorCodes ).
+ */
++ (void)stopObjectSynchronization:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath
+       withCompletionHandlingBlock:(PNClientObjectSynchronizationStopProcessingBlock)handlerBlock;
+
+/**
+ Create local copy of one of the objects from \b PubNub cloud.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub fetchObject:@"chessboard"];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didFetchObject:(PNObject *)object {
+
+     // PubNub client retrieved remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectFetchDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to retrieve remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+     // create local copy.
+ }
+ @endcode
+
+ There is also way to observe object fetch process from any place in your application using  \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectFetchObserver:self
+                                                   withBlock:^(PNObject *object, PNError *error) {
+
+     if (!error) {
+
+         // PubNub client retrieved remote object.
+     }
+     else {
+
+         // PubNub client did fail to retrieve remote object.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+         // create local copy.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidFetchObjectNotification and
+ kPNClientObjectFetchDidFailNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+ */
++ (void)fetchObject:(NSString *)objectIdentifier;
+
+/**
+ Create local copy of one of the objects from \b PubNub cloud.
+
+ @code
+ @endcode
+ This method extends \a +fetchObject: and allow to specify object retrieve process handling block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub fetchObject:@"chessboard" withCompletionHandlingBlock:^(PNObject *object, PNError *error){
+
+      if (!error) {
+
+          // PubNub client retrieved remote object.
+      }
+      else {
+
+          // PubNub client did fail to retrieve remote object.
+          //
+          // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+          // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+          // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+          // create local copy.
+      }
+  }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didFetchObject:(PNObject *)object {
+
+     // PubNub client retrieved remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectFetchDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to retrieve remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+     // create local copy.
+ }
+ @endcode
+
+ There is also way to observe object fetch process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectFetchObserver:self
+                                                   withBlock:^(PNObject *object, PNError *error) {
+
+     if (!error) {
+
+         // PubNub client retrieved remote object.
+     }
+     else {
+
+         // PubNub client did fail to retrieve remote object.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+         // create local copy.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidFetchObjectNotification and
+ kPNClientObjectFetchDidFailNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param handlerBlock
+ The block which will be called by \b PubNub client during remote object fetch request processing. The
+ block takes two arguments:
+ \c object - reference on \b PNObject which is used to represent object from \b PubNub cloud (it will be \c nil in
+ case of error); \c error - describes what exactly went wrong (check error code and compare it with \b PNErrorCodes).
+ */
++ (void)fetchObject:(NSString *)objectIdentifier withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
+
+/**
+ Create local copy of one of the objects from \b PubNub cloud.
+
+ @code
+ @endcode
+ This method extends \a +fetchObject: and allow to specify specific part of the object which should be retrieved.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub fetchObject:@"chessboard" dataPath:@"players.white.firstName"];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didFetchObject:(PNObject *)object {
+
+     // PubNub client retrieved remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectFetchDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to retrieve remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+     // create local copy.
+ }
+ @endcode
+
+ There is also way to observe object fetch process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectFetchObserver:self
+                                                   withBlock:^(PNObject *object, PNError *error) {
+
+     if (!error) {
+
+         // PubNub client retrieved remote object.
+     }
+     else {
+
+         // PubNub client did fail to retrieve remote object.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+         // create local copy.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidFetchObjectNotification and
+ kPNClientObjectFetchDidFailNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param partialObjectDataPath
+ Is key-path to concrete portion of object stored in \b PubNub cloud.
+
+ @note If \c partialObjectDataPath is specified, then only part of data which is stored under specified key-path will
+ be retrieved from \b PubNub cloud and merged with local object (if it was fetched before).
+ */
++ (void)fetchObject:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath;
+
+/**
+ Create local copy of one of the objects from \b PubNub cloud.
+
+ @code
+ @endcode
+ This method extends \a +fetchObject: and allow to specify object retrieve process handling block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub fetchObject:@"chessboard" dataPath:@"players.white.firstName"
+ withCompletionHandlingBlock:^(PNObject *object, PNError *error){
+
+       if (!error) {
+
+           // PubNub client retrieved remote object.
+       }
+       else {
+
+           // PubNub client did fail to retrieve remote object.
+           //
+           // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+           // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+           // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+           // create local copy.
+       }
+   }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didFetchObject:(PNObject *)object {
+
+     // PubNub client retrieved remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectFetchDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to retrieve remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+     // create local copy.
+ }
+ @endcode
+
+ There is also way to observe object fetch process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectFetchObserver:self
+                                                   withBlock:^(PNObject *object, PNError *error) {
+
+     if (!error) {
+
+         // PubNub client retrieved remote object.
+     }
+     else {
+
+         // PubNub client did fail to retrieve remote object.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+         // create local copy.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidFetchObjectNotification and
+ kPNClientObjectFetchDidFailNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param partialObjectDataPath
+ Is key-path to concrete portion of object stored in \b PubNub cloud.
+
+ @param handlerBlock
+ The block which will be called by \b PubNub client during remote object fetch request processing. The
+ block takes two arguments:
+ \c object - reference on \b PNObject which is used to represent object from \b PubNub cloud (it will be \c nil in
+ case of error); \c error - describes what exactly went wrong (check error code and compare it with \b PNErrorCodes).
+
+ @note If \c partialObjectDataPath is specified, then only part of data which is stored under specified key-path will
+ be retrieved from \b PubNub cloud and merged with local object (if it was fetched before).
+ */
++ (void)fetchObject:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath
+        withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
+
+/**
+ Update object data in the cloud.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub updateObject:@"chessboard" withData:@{@"players":@{"white":@{},@"black":@{}}}];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didUpdateObject:(PNObjectModificationInformation *)modificationInformation {
+
+     // PubNub client successfully update remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectUpdateDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to update remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to update
+     // remote object.
+ }
+ @endcode
+
+ There is also way to observe object fetch process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectUpdateObserver:self
+                                                    withBlock:^(PNObjectModificationInformation *information,
+                                                                PNError *error) {
+
+     if (!error) {
+
+         // PubNub client successfully update remote object.
+     }
+     else {
+
+         // PubNub client did fail to retrieve remote object.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+         // create local copy.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidUpdateObjectNotification and
+ kPNClientObjectUpdateDidFailNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param data
+ Stores reference on object which should be stored in cloud at the root or of object or at specified location.
+
+ @warning \c data should be \a NSDictionary.
+ */
++ (void)updateObject:(NSString *)objectIdentifier withData:(id)data;
+
+/**
+ Update object data in the cloud.
+
+ @code
+ @endcode
+ This method extends \a +updateObject:withData: and allow to specify remote object update processing handler block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub updateObject:@"chessboard" withData:@{@"players":@{"white":@{},@"black":@{}}}
+ andCompletionHandlingBlock:^(PNObjectModificationInformation *information, PNError *error){
+
+    if (!error) {
+
+        // PubNub client successfully update remote object.
+    }
+    else {
+
+        // PubNub client did fail to update remote object.
+        //
+        // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+        // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+        // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to update
+        // remote object.
+    }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didUpdateObject:(PNObjectModificationInformation *)modificationInformation {
+
+     // PubNub client successfully update remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectUpdateDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to update remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to update
+     // remote object.
+ }
+ @endcode
+
+ There is also way to observe object fetch process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectUpdateObserver:self
+                                                    withBlock:^(PNObjectModificationInformation *information,
+                                                                PNError *error) {
+
+     if (!error) {
+
+         // PubNub client successfully update remote object.
+     }
+     else {
+
+         // PubNub client did fail to retrieve remote object.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+         // create local copy.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidUpdateObjectNotification and
+ kPNClientObjectUpdateDidFailNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param data
+ Stores reference on object which should be stored in cloud at the root or of object or at specified location.
+
+ @param handlerBlock
+ The block which will be called by \b PubNub client during remote object update request processing. The
+ block takes two arguments:
+ \c object - reference on \b PNObjectModificationInformation which is used to represent action which should be
+ performed on remote object from \b PubNub cloud (it will be \c nil in
+ case of error); \c error - describes what exactly went wrong (check error code and compare it with \b PNErrorCodes).
+
+ @warning \c data should be \a NSDictionary.
+ */
++ (void)       updateObject:(NSString *)objectIdentifier withData:(id)data
+andCompletionHandlingBlock:(PNClientObjectModificationHandlerBlock)handlerBlock;
+
+/**
+ Update object data in the cloud.
+
+ @code
+ @endcode
+ This method extends \a +updateObject:withData: and allow to specify specific part of the object which should updated.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub updateObject:@"chessboard" dataPath:@"players.white.firstName" withData:@"Bob"];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didUpdateObject:(PNObjectModificationInformation *)modificationInformation {
+
+     // PubNub client successfully update remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectUpdateDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to update remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to update
+     // remote object.
+ }
+ @endcode
+
+ There is also way to observe object fetch process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectUpdateObserver:self
+                                                    withBlock:^(PNObjectModificationInformation *information,
+                                                                PNError *error) {
+
+     if (!error) {
+
+         // PubNub client successfully update remote object.
+     }
+     else {
+
+         // PubNub client did fail to retrieve remote object.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+         // create local copy.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidUpdateObjectNotification and
+ kPNClientObjectUpdateDidFailNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param updateLocation
+ Is key-path to concrete portion of object stored in \b PubNub cloud which should be updated with provided data.
+
+ @param data
+ Stores reference on object which should be stored in cloud at the root or of object or at specified location.
+
+ @warning If \c updateLocation not specified, then \c data should be \a NSDictionary. When \c updateLocation specified
+ \c data can be any object.
+ */
++ (void)updateObject:(NSString *)objectIdentifier dataPath:(NSString *)updateLocation withData:(id)data;
+
+/**
+ Update object data in the cloud.
+
+ @code
+ @endcode
+ This method extends \a +updateObject:dataPath:withData: and allow to specify remote object update processing handler
+ block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub updateObject:@"chessboard" dataPath:@"players.white.firstName" withData:@"Bob"
+ andCompletionHandlingBlock:^(PNObjectModificationInformation *information, PNError *error){
+
+    if (!error) {
+
+        // PubNub client successfully update remote object.
+    }
+    else {
+
+        // PubNub client did fail to update remote object.
+        //
+        // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+        // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+        // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to update
+        // remote object.
+    }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didUpdateObject:(PNObjectModificationInformation *)modificationInformation {
+
+     // PubNub client successfully update remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectUpdateDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to update remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to update
+     // remote object.
+ }
+ @endcode
+
+ There is also way to observe object fetch process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectUpdateObserver:self
+                                                    withBlock:^(PNObjectModificationInformation *information,
+                                                                PNError *error) {
+
+     if (!error) {
+
+         // PubNub client successfully update remote object.
+     }
+     else {
+
+         // PubNub client did fail to retrieve remote object.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+         // create local copy.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidUpdateObjectNotification and
+ kPNClientObjectUpdateDidFailNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param updateLocation
+ Is key-path to concrete portion of object stored in \b PubNub cloud which should be updated with provided data.
+
+ @param data
+ Stores reference on object which should be stored in cloud at the root or of object or at specified location.
+
+ @param handlerBlock
+ The block which will be called by \b PubNub client during remote object update request processing. The
+ block takes two arguments:
+ \c object - reference on \b PNObjectModificationInformation which is used to represent action which should be
+ performed on remote object from \b PubNub cloud (it will be \c nil in
+ case of error); \c error - describes what exactly went wrong (check error code and compare it with \b PNErrorCodes).
+
+ @warning If \c updateLocation not specified, then \c data should be \a NSDictionary. When \c updateLocation specified
+ \c data can be any object.
+ */
++ (void)      updateObject:(NSString *)objectIdentifier dataPath:(NSString *)updateLocation withData:(id)data
+andCompletionHandlingBlock:(PNClientObjectModificationHandlerBlock)handlerBlock;
+
+/**
+ Replace object data in the cloud.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub replaceObject:@"chessboard" withData:@{"white":@{},@"black":@{}}];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didReplaceObject:(PNObjectModificationInformation *)modificationInformation {
+
+     // PubNub client successfully replaced remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectReplaceDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to replace remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to replace
+     // remote object.
+ }
+ @endcode
+
+ There is also way to observe object fetch process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectReplaceObserver:self
+                                                     withBlock:^(PNObjectModificationInformation *information,
+                                                                 PNError *error) {
+
+     if (!error) {
+
+         // PubNub client successfully replace remote object.
+     }
+     else {
+
+         // PubNub client did fail to replace remote object.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to replace
+         // remote object.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidReplaceObjectNotification and
+ kPNClientObjectReplaceDidFailNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param data
+ Stores reference on object which should be used for data replacement in cloud at the root or of object or at specified
+ location.
+
+ @warning \c data should be \a NSDictionary.
+ */
++ (void)replaceObject:(NSString *)objectIdentifier withData:(id)data;
+
+/**
+ Replace object data in the cloud.
+
+ @code
+ @endcode
+ This method extends \a +replaceObject:withData: and allow to specify remote object replace processing handler block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub replaceObject:@"chessboard" withData:@{"white":@{},@"black":@{}}
+ andCompletionHandlingBlock:^(PNObjectModificationInformation *information, PNError *error){
+
+    if (!error) {
+
+        // PubNub client successfully update remote object.
+    }
+    else {
+
+        // PubNub client did fail to update remote object.
+        //
+        // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+        // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+        // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to update
+        // remote object.
+    }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didReplaceObject:(PNObjectModificationInformation *)modificationInformation {
+
+     // PubNub client successfully replaced remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectReplaceDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to replace remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to replace
+     // remote object.
+ }
+ @endcode
+
+ There is also way to observe object fetch process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectReplaceObserver:self
+                                                     withBlock:^(PNObjectModificationInformation *information,
+                                                                 PNError *error) {
+
+     if (!error) {
+
+         // PubNub client successfully replace remote object.
+     }
+     else {
+
+         // PubNub client did fail to replace remote object.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to replace
+         // remote object.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidReplaceObjectNotification and
+ kPNClientObjectReplaceDidFailNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param data
+ Stores reference on object which should be used for data replacement in cloud at the root or of object or at specified
+ location.
+
+ @param handlerBlock
+ The block which will be called by \b PubNub client during remote object replace request processing. The
+ block takes two arguments:
+ \c object - reference on \b PNObjectModificationInformation which is used to represent action which should be
+ performed on remote object from \b PubNub cloud (it will be \c nil in
+ case of error); \c error - describes what exactly went wrong (check error code and compare it with \b PNErrorCodes).
+
+ @warning \c data should be \a NSDictionary.
+ */
++ (void)     replaceObject:(NSString *)objectIdentifier withData:(id)data
+andCompletionHandlingBlock:(PNClientObjectModificationHandlerBlock)handlerBlock;
+
+/**
+ Replace object data in the cloud.
+
+ @code
+ @endcode
+ This method extends \a +replaceObject:withData: and allow to specify specific part of the object which should replaced.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub replaceObject:@"chessboard" dataPath:@"players.white" withData:@{@"fullName":@"Bob Di",@"age":@(23)}];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didReplaceObject:(PNObjectModificationInformation *)modificationInformation {
+
+     // PubNub client successfully replaced remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectReplaceDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to replace remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to replace
+     // remote object.
+ }
+ @endcode
+
+ There is also way to observe object fetch process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectReplaceObserver:self
+                                                     withBlock:^(PNObjectModificationInformation *information,
+                                                                 PNError *error) {
+
+     if (!error) {
+
+         // PubNub client successfully replace remote object.
+     }
+     else {
+
+         // PubNub client did fail to replace remote object.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to replace
+         // remote object.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidReplaceObjectNotification and
+ kPNClientObjectReplaceDidFailNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param replaceLocation
+ Is key-path to concrete portion of object stored in \b PubNub cloud which should be replaced with provided data.
+
+ @param data
+ Stores reference on object which should be used for data replacement in cloud at the root or of object or at specified
+ location.
+
+ @warning If \c replaceLocation not specified, then \c data should be \a NSDictionary. When \c replaceLocation specified
+ \c data can be any object.
+ */
++ (void)replaceObject:(NSString *)objectIdentifier dataPath:(NSString *)replaceLocation withData:(id)data;
+
+/**
+ Replace object data in the cloud.
+
+ @code
+ @endcode
+ This method extends \a +replaceObject:dataPath:withData: and allow to specify remote object replace processing handler
+ block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub replaceObject:@"chessboard" dataPath:@"players.white" withData:@{@"fullName":@"Bob Di",@"age":@(23)}
+ andCompletionHandlingBlock:^(PNObjectModificationInformation *information, PNError *error){
+
+    if (!error) {
+
+        // PubNub client successfully replace remote object.
+    }
+    else {
+
+        // PubNub client did fail to update remote object.
+        //
+        // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+        // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+        // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to replace
+        // remote object.
+    }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didReplaceObject:(PNObjectModificationInformation *)modificationInformation {
+
+     // PubNub client successfully replaced remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectReplaceDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to replace remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to replace
+     // remote object.
+ }
+ @endcode
+
+ There is also way to observe object fetch process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectReplaceObserver:self
+                                                     withBlock:^(PNObjectModificationInformation *information,
+                                                                 PNError *error) {
+
+     if (!error) {
+
+         // PubNub client successfully replace remote object.
+     }
+     else {
+
+         // PubNub client did fail to replace remote object.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to replace
+         // remote object.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidReplaceObjectNotification and
+ kPNClientObjectReplaceDidFailNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param replaceLocation
+ Is key-path to concrete portion of object stored in \b PubNub cloud which should be replaced with provided data.
+
+ @param data
+ Stores reference on object which should be used for data replacement in cloud at the root or of object or at specified
+ location.
+
+ @param handlerBlock
+ The block which will be called by \b PubNub client during remote object replace request processing. The
+ block takes two arguments:
+ \c object - reference on \b PNObjectModificationInformation which is used to represent action which should be
+ performed on remote object from \b PubNub cloud (it will be \c nil in
+ case of error); \c error - describes what exactly went wrong (check error code and compare it with \b PNErrorCodes).
+
+ @warning If \c replaceLocation not specified, then \c data should be \a NSDictionary. When \c replaceLocation specified
+ \c data can be any object.
+ */
++ (void)     replaceObject:(NSString *)objectIdentifier dataPath:(NSString *)replaceLocation withData:(id)data
+andCompletionHandlingBlock:(PNClientObjectModificationHandlerBlock)handlerBlock;
+
+/**
+ Delete object data from the cloud.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub deleteObject:@"chessboard"];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didDeleteObject:(PNObjectModificationInformation *)modificationInformation {
+
+     // PubNub client successfully deleted remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectDeleteDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to delete remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to delete
+     // remote object.
+ }
+ @endcode
+
+ There is also way to observe object fetch process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectDeleteObserver:self
+                                                    withBlock:^(PNObjectModificationInformation *information,
+                                                                PNError *error) {
+
+     if (!error) {
+
+         // PubNub client successfully deleted remote object.
+     }
+     else {
+
+         // PubNub client did fail to delete remote object.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to delete
+         // remote object.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidDeleteObjectNotification and
+ kPNClientObjectDeleteDidFailNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+ */
++ (void)deleteObject:(NSString *)objectIdentifier;
+
+/**
+ Delete object data in the cloud.
+
+ @code
+ @endcode
+ This method extends \a +deleteObject: and allow to specify remote object delete processing handler block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub replaceObject:@"chessboard" withCompletionHandlingBlock:^(PNObjectModificationInformation *information, PNError *error){
+
+    if (!error) {
+
+        // PubNub client successfully deleted remote object.
+    }
+    else {
+
+        // PubNub client did fail to delete remote object.
+        //
+        // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+        // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+        // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to delete
+        // remote object.
+    }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didDeleteObject:(PNObjectModificationInformation *)modificationInformation {
+
+     // PubNub client successfully deleted remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectDeleteDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to delete remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to delete
+     // remote object.
+ }
+ @endcode
+
+ There is also way to observe object fetch process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectDeleteObserver:self
+                                                    withBlock:^(PNObjectModificationInformation *information,
+                                                                PNError *error) {
+
+     if (!error) {
+
+         // PubNub client successfully deleted remote object.
+     }
+     else {
+
+         // PubNub client did fail to delete remote object.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to delete
+         // remote object.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidDeleteObjectNotification and
+ kPNClientObjectDeleteDidFailNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param handlerBlock
+ The block which will be called by \b PubNub client during remote object delete request processing. The
+ block takes two arguments:
+ \c object - reference on \b PNObjectModificationInformation which is used to represent action which should be
+ performed on remote object from \b PubNub cloud (it will be \c nil in
+ case of error); \c error - describes what exactly went wrong (check error code and compare it with \b PNErrorCodes).
+ */
++ (void)       deleteObject:(NSString *)objectIdentifier
+withCompletionHandlingBlock:(PNClientObjectModificationHandlerBlock)handlerBlock;
+
+/**
+ Delete object data in the cloud.
+
+ @code
+ @endcode
+ This method extends \a +deleteObject: and allow to specify specific part of the object which should deleted.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub deleteObject:@"chessboard" dataPath:@"players.white"];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didDeleteObject:(PNObjectModificationInformation *)modificationInformation {
+
+     // PubNub client successfully deleted remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectDeleteDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to delete remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to delete
+     // remote object.
+ }
+ @endcode
+
+ There is also way to observe object fetch process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectDeleteObserver:self
+                                                    withBlock:^(PNObjectModificationInformation *information,
+                                                                PNError *error) {
+
+     if (!error) {
+
+         // PubNub client successfully deleted remote object.
+     }
+     else {
+
+         // PubNub client did fail to delete remote object.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to delete
+         // remote object.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidDeleteObjectNotification and
+ kPNClientObjectDeleteDidFailNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param deleteLocation
+ Is key-path to concrete portion of object stored in \b PubNub cloud which should be deleted with provided data.
+ */
++ (void)deleteObject:(NSString *)objectIdentifier dataPath:(NSString *)deleteLocation;
+
+/**
+ Delete object data in the cloud.
+
+ @code
+ @endcode
+ This method extends \a +deleteObject:dataPath: and allow to specify remote object deletion processing handler
+ block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setConfiguration:[PNConfiguration defaultConfiguration] andDelegate:self];
+ [PubNub connect];
+ [PubNub deleteObject:@"chessboard" dataPath:@"players.white"
+ andCompletionHandlingBlock:^(PNObjectModificationInformation *information, PNError *error){
+
+    if (!error) {
+
+        // PubNub client successfully delete remote object.
+    }
+    else {
+
+        // PubNub client did fail to delete remote object.
+        //
+        // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+        // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+        // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to delete
+        // remote object.
+    }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didDeleteObject:(PNObjectModificationInformation *)modificationInformation {
+
+     // PubNub client successfully deleted remote object.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectDeleteDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to delete remote object.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to delete
+     // remote object.
+ }
+ @endcode
+
+ There is also way to observe object fetch process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectDeleteObserver:self
+                                                    withBlock:^(PNObjectModificationInformation *information,
+                                                                PNError *error) {
+
+     if (!error) {
+
+         // PubNub client successfully deleted remote object.
+     }
+     else {
+
+         // PubNub client did fail to delete remote object.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' reference on PNObjectModificationInformation for which PubNub client was unable to delete
+         // remote object.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientDidDeleteObjectNotification and
+ kPNClientObjectDeleteDidFailNotification.
+
+ @param objectIdentifier
+ String identifier under which information is stored on \b PubNub cloud servers.
+
+ @param deleteLocation
+ Is key-path to concrete portion of object stored in \b PubNub cloud which should be deleted with provided data.
+
+ @param handlerBlock
+ The block which will be called by \b PubNub client during remote object delete request processing. The
+ block takes two arguments:
+ \c object - reference on \b PNObjectModificationInformation which is used to represent action which should be
+ performed on remote object from \b PubNub cloud (it will be \c nil in
+ case of error); \c error - describes what exactly went wrong (check error code and compare it with \b PNErrorCodes).
+ */
++ (void)      deleteObject:(NSString *)objectIdentifier dataPath:(NSString *)deleteLocation
+andCompletionHandlingBlock:(PNClientObjectModificationHandlerBlock)handlerBlock;
+
+
 #pragma mark - Channels subscription management
 
 /**

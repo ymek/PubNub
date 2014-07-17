@@ -114,10 +114,8 @@ typedef enum _PNConnectionChannelType {
  * Same as scheduleRequest:shouldObserveProcessing: but allow to specify whether request should be put
  * out of order (executed next) or not
  */
-- (void)scheduleRequest:(PNBaseRequest *)request
-shouldObserveProcessing:(BOOL)shouldObserveProcessing
-             outOfOrder:(BOOL)shouldEnqueueRequestOutOfOrder
-       launchProcessing:(BOOL)shouldLaunchRequestsProcessing;
+- (void)scheduleRequest:(PNBaseRequest *)request shouldObserveProcessing:(BOOL)shouldObserveProcessing
+             outOfOrder:(BOOL)shouldEnqueueRequestOutOfOrder launchProcessing:(BOOL)shouldLaunchRequestsProcessing;
 
 /**
  * Triggering requests queue execution (maybe it was locked with previous request and waited)

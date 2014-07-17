@@ -196,6 +196,22 @@
     return PNRequestGETMethod;
 }
 
+- (NSString *)HTTPMethodName {
+
+    NSString *HTTPMethodName = @"PATCH";
+    if ([self HTTPMethod] == PNRequestPUTMethod) {
+
+        HTTPMethodName = @"PUT";
+    }
+    else if ([self HTTPMethod] == PNRequestDELETEMethod) {
+
+        HTTPMethodName = @"DELETE";
+    }
+
+
+    return HTTPMethodName;
+}
+
 - (BOOL)shouldCompressPOSTBody {
     
     return NO;
@@ -215,22 +231,21 @@
 
         acceptEncoding = @"Accept-Encoding: gzip, deflate\r\n";
     }
-    
-    NSString *HTTPMethod = @"GET";
+
     NSData *postBody = nil;
-    if ([self HTTPMethod] == PNRequestPOSTMethod) {
-        
-        HTTPMethod = @"POST";
+    if ([self HTTPMethod] == PNRequestPOSTMethod || [self HTTPMethod] == PNRequestPATCHMethod ||
+        [self HTTPMethod] == PNRequestPUTMethod || [self HTTPMethod] == PNRequestDELETEMethod) {
+
         postBody = [self POSTBody];
         
-        if ([self shouldCompressPOSTBody]) {
+        if ([self shouldCompressPOSTBody] && [self HTTPMethod] == PNRequestPOSTMethod) {
             
             postBody = [postBody GZIPDeflate];
         }
     }
     
     [plainPayload appendFormat:@"%@ %@ HTTP/1.1\r\nHost: %@\r\nAccept: */*\r\n%@",
-     HTTPMethod, [self resourcePath], [PubNub sharedInstance].configuration.origin, acceptEncoding];
+     [self HTTPMethodName], [self resourcePath], [PubNub sharedInstance].configuration.origin, acceptEncoding];
     
     if (postBody) {
         

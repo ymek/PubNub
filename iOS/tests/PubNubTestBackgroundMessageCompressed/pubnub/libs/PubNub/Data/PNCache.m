@@ -6,7 +6,11 @@
  */
 
 #import "PNCache.h"
+#import "NSMutableDictionary+PNAdditions.h"
+#import "PNObjectSynchronizationEvent.h"
+#import "PNObject+Protected.h"
 #import "PNChannel.h"
+#import "PNObjectSynchronizationEvent+Protected.h"
 
 
 #pragma mark Private interface declaration
@@ -19,6 +23,17 @@
  Unified storage for cached data across all channels which is in use by client and developer.
  */
 @property (nonatomic, strong) NSMutableDictionary *stateCache;
+
+/**
+ Storage which store local copies of objects from \b PubNub cloud.
+ */
+@property (nonatomic, strong) NSMutableDictionary *objects;
+
+/**
+ Storage which is used to store list of changes which should be applied to the object as soon as it's synchronization
+ will be completed.
+ */
+@property (nonatomic, strong) NSMutableDictionary *objectUpdates;
 
 #pragma mark -
 
@@ -39,10 +54,14 @@
     if ((self = [super init])) {
 
         self.stateCache = [NSMutableDictionary dictionary];
+        self.objects = [NSMutableDictionary dictionary];
+        self.objectUpdates = [NSMutableDictionary dictionary];
     }
+
 
     return self;
 }
+
 
 #pragma mark - State management method
 
@@ -174,6 +193,92 @@
 - (void)purgeAllState {
 
     [self.stateCache removeAllObjects];
+}
+
+
+#pragma mark - Data Synchronization observers
+
+- (PNObject *)objectWithIdentifier:(NSString *)objectIdentifier {
+
+    return [self.objects valueForKey:objectIdentifier];
+}
+
+- (void)storeSynchronizationEvent:(PNObjectSynchronizationEvent *)event {
+
+    // Check whether already created storage for set of events
+    if (![self.objectUpdates objectForKey:event.objectIdentifier]) {
+
+        [self.objectUpdates setValue:[NSMutableDictionary dictionary] forKey:event.objectIdentifier];
+    }
+
+    NSMutableArray *changeEvents = [[self.objectUpdates valueForKey:event.objectIdentifier] valueForKey:event.eventTransactionIdentifier];
+    if (!changeEvents) {
+
+        changeEvents = [NSMutableArray array];
+        [[self.objectUpdates valueForKey:event.objectIdentifier] setValue:changeEvents forKey:event.eventTransactionIdentifier];
+
+    }
+
+    [changeEvents addObject:event];
+}
+
+- (PNObject *)commitSynchronizationEvent:(PNObjectSynchronizationEvent *)event {
+
+    PNObject *object = [self.objects valueForKey:event.objectIdentifier];
+    if ([self.objectUpdates objectForKey:event.objectIdentifier]) {
+
+        NSArray *events = [[self.objectUpdates valueForKey:event.objectIdentifier] valueForKey:event.eventTransactionIdentifier];
+        NSMutableDictionary *objectData = (object.data ? object.data : [NSMutableDictionary dictionary]);
+        [events enumerateObjectsUsingBlock:^(PNObjectSynchronizationEvent *event, NSUInteger eventIdx,
+                                             BOOL *eventEnumeratorStop) {
+
+            PNObjectSynchronizationEventType eventType = event.type;
+
+            // Checking whether changed/retrieved only piece of information
+            if (event.changeLocation != nil) {
+
+                if (eventType == PNObjectInitEvent || eventType == PNObjectUpdateEvent) {
+
+                    [objectData setValue:event.changedData forKeyPath:event.changeLocation createIntermediateEntries:YES];
+                }
+                else {
+
+                    [objectData removeObjectForKeyPath:event.changeLocation];
+                }
+            }
+            else {
+
+                if (eventType == PNObjectInitEvent || eventType == PNObjectUpdateEvent) {
+
+                    [objectData mergeWithDictionary:event.changedData];
+                }
+                else {
+
+                    [objectData removeAllObjects];
+                }
+            }
+        }];
+
+
+        if (!object) {
+
+            NSString *changeDate = ((PNObjectSynchronizationEvent *)[events lastObject]).changeDate;
+            object = [PNObject objectWithIdentifier:event.objectIdentifier andData:objectData];
+            object.updateDate = [PNDate dateWithToken:PNNumberFromUnsignedLongLongString(changeDate)];
+            [self.objects setValue:object forKey:event.objectIdentifier];
+        }
+        [(NSMutableArray *)[(NSMutableDictionary *)[self.objectUpdates valueForKey:event.objectIdentifier]
+                        valueForKey:event.eventTransactionIdentifier] removeAllObjects];
+    }
+
+
+    return object;
+}
+
+- (void)purgeAllObjects {
+
+    [self.objectUpdates removeAllObjects];
+    [self.objects removeAllObjects];
 }
 
 #pragma mark -
