@@ -1,0 +1,121 @@
+//
+//  PNPubNubDataSyncTest.m
+//  pubnub
+//
+//  Created by Vadim Osovets on 7/17/14.
+//  Copyright (c) 2014 PubNub Inc. All rights reserved.
+//
+
+#import <SenTestingKit/SenTestingKit.h>
+
+static NSString * const kTestFetchObject = @"ios_test_db";
+static NSString * const kTestFetchPath = @"test";
+
+@interface PNPubNubDataSyncFetchTest : SenTestCase
+<
+PNDelegate
+>
+
+@end
+
+@implementation PNPubNubDataSyncFetchTest {
+    dispatch_group_t _testFetch;
+    dispatch_group_t _testFetchCompleteBlock;
+}
+
+- (void)setUp
+{
+    [super setUp];
+    // Put setup code here. This method is called before the invocation of each test method in the class.
+    
+    [PubNub setDelegate:self];
+    
+    [PubNub setConfiguration:[PNConfiguration configurationForOrigin:@"pubsub-beta.pubnub.com"
+                                                          publishKey:@"demo" subscribeKey:@"demo" secretKey:@"demo"]];
+    
+    [PubNub connect];
+}
+
+- (void)tearDown
+{
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    [super tearDown];
+    
+    [PubNub disconnect];
+}
+
+- (void)testSimpleFetch
+{
+    _testFetch = dispatch_group_create();
+    
+    dispatch_group_enter(_testFetch);
+    
+    [PubNub fetchObject:kTestFetchObject];
+    
+    [GCDWrapper waitGroup:_testFetch];
+    
+    _testFetch = NULL;
+}
+
+- (void)testFetch
+{
+    dispatch_group_t syncGroup = dispatch_group_create();
+    
+    dispatch_group_enter(syncGroup);
+    
+    [PubNub fetchObject:@"ios_test_db"];
+    
+    [GCDWrapper waitGroup:syncGroup];
+}
+
+- (void)testFetchWithSuccessBlock
+{
+    dispatch_group_t syncGroup = dispatch_group_create();
+    
+    dispatch_group_enter(syncGroup);
+    
+    [PubNub fetchObject:@"ios_test_db" dataPath:@"a"
+    withCompletionHandlingBlock:^(PNObject *object, PNError *error) {
+        
+        if (!error) {
+            
+            NSLog(@"Retrieved object: %@", object);
+            
+            STFail(@"Cannot retrieve test data");
+        }
+        else {
+            
+            NSLog(@"Failed to retrieve because of error: %@", error);
+        }
+        
+        dispatch_group_leave(syncGroup);
+    }];
+    
+    [GCDWrapper waitGroup:syncGroup];
+}
+
+#pragma mark - PNDelegate
+
+- (void)pubnubClient:(PubNub *)client didFetchObject:(PNObject *)object {
+    // PubNub client retrieved remote object.
+    
+    if (_testFetch != NULL) {
+        dispatch_group_leave(_testFetch);
+    }
+}
+
+- (void)pubnubClient:(PubNub *)client objectFetchDidFailWithError:(PNError *)error {
+    
+    // PubNub client did fail to retrieve remote object.
+    //
+    // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+    // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+    // 'error.associatedObject' reference on PNObjectFetchInformation instance for which PubNub client was unable to
+    // create local copy.
+    
+    if (_testFetch != NULL) {
+        STFail(@"Fail to retrieve simple fetch: %@", [error localizedDescription]);
+    }
+}
+
+@end
