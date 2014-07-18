@@ -21,6 +21,7 @@ PNDelegate
 @implementation PNPubNubDataSyncFetchTest {
     dispatch_group_t _testFetch;
     dispatch_group_t _testFetchObserver;
+    dispatch_group_t _testFetchNotification;
     dispatch_group_t _testFetchCompleteBlock;
 }
 
@@ -95,6 +96,25 @@ PNDelegate
     [GCDWrapper waitGroup:_testFetchObserver];
     
     _testFetchObserver = NULL;
+}
+
+- (void)testSimpleFetchNotification
+{
+    _testFetchNotification = dispatch_group_create();
+    
+    dispatch_group_enter(_testFetchNotification);
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(simpleFetchNotificaiton:)
+                                                 name:kPNClientDidFetchObjectNotification
+                                               object:nil];
+    
+    [PubNub fetchObject:kTestFetchObject];
+    
+    [GCDWrapper waitGroup:_testFetchNotification];
+    
+    _testFetchNotification = NULL;
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)testFetchWithSuccessBlock
@@ -199,6 +219,14 @@ withCompletionHandlingBlock:^(PNObject *object, PNError *error) {
     
     if (_testFetch != NULL) {
         STFail(@"Fail to retrieve simple fetch: %@", [error localizedDescription]);
+    }
+}
+
+#pragma mark - Notifications
+
+- (void)simpleFetchNotificaiton:(NSNotification *)notif {
+    if (_testFetchNotification != NULL) {
+        dispatch_group_leave(_testFetchNotification);
     }
 }
 
