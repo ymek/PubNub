@@ -43,7 +43,7 @@
 #pragma mark Static
 
 static NSString * const kPNCodebaseBranch = @"feature-pt74838232";
-static NSString * const kPNCodeCommitIdentifier = @"0afbd827264f91e226fe7d80385932c73ccc7c03";
+static NSString * const kPNCodeCommitIdentifier = @"96baf76ab52483404df8aea86d6864ccab648f67";
 
 // Stores reference on singleton PubNub instance
 static PubNub *_sharedInstance = nil;

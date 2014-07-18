@@ -198,8 +198,16 @@
 
 - (NSString *)HTTPMethodName {
 
-    NSString *HTTPMethodName = @"PATCH";
-    if ([self HTTPMethod] == PNRequestPUTMethod) {
+    NSString *HTTPMethodName = @"GET";
+    if ([self HTTPMethod] == PNRequestPOSTMethod) {
+
+        HTTPMethodName = @"POST";
+    }
+    else if ([self HTTPMethod] == PNRequestPATCHMethod) {
+
+            HTTPMethodName = @"PATCH";
+    }
+    else if ([self HTTPMethod] == PNRequestPUTMethod) {
 
         HTTPMethodName = @"PUT";
     }
