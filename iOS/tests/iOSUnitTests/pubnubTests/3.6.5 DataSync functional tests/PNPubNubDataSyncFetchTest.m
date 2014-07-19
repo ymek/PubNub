@@ -9,7 +9,8 @@
 #import <SenTestingKit/SenTestingKit.h>
 
 static NSString * const kTestFetchObject = @"ios_test_db";
-static NSString * const kTestFetchPath = @"test";
+static NSString * const kTestFetchPathFirst = @"test";
+static NSString * const kTestFetchPathSecond = @"test/second";
 
 @interface PNPubNubDataSyncFetchTest : SenTestCase
 <
@@ -22,6 +23,7 @@ PNDelegate
     dispatch_group_t _testFetch;
     dispatch_group_t _testFetchObserver;
     dispatch_group_t _testFetchNotification;
+    dispatch_group_t _testFetchObjectDataPath;
     dispatch_group_t _testFetchCompleteBlock;
 }
 
@@ -117,6 +119,26 @@ PNDelegate
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+- (void)testSimpleFetchObjectDataPath
+{
+    _testFetchObjectDataPath = dispatch_group_create();
+    
+    dispatch_group_enter(_testFetchObjectDataPath);
+    dispatch_group_enter(_testFetchObjectDataPath);
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(simpleFetchNotificaiton:)
+                                                 name:kPNClientDidFetchObjectNotification
+                                               object:nil];
+    
+    [PubNub fetchObject:kTestFetchObject dataPath:kTestFetchPathSecond];
+    
+    [GCDWrapper waitGroup:_testFetchObjectDataPath];
+    
+    _testFetchObjectDataPath = NULL;
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (void)testFetchWithSuccessBlock
 {
     _testFetchCompleteBlock = dispatch_group_create();
@@ -206,6 +228,10 @@ withCompletionHandlingBlock:^(PNObject *object, PNError *error) {
     if (_testFetch != NULL) {
         dispatch_group_leave(_testFetch);
     }
+    
+    if (_testFetchObjectDataPath != NULL) {
+        dispatch_group_leave(_testFetchObjectDataPath);
+    }
 }
 
 - (void)pubnubClient:(PubNub *)client objectFetchDidFailWithError:(PNError *)error {
@@ -227,6 +253,10 @@ withCompletionHandlingBlock:^(PNObject *object, PNError *error) {
 - (void)simpleFetchNotificaiton:(NSNotification *)notif {
     if (_testFetchNotification != NULL) {
         dispatch_group_leave(_testFetchNotification);
+    }
+    
+    if (_testFetchObjectDataPath != NULL) {
+        dispatch_group_leave(_testFetchObjectDataPath);
     }
 }
 
