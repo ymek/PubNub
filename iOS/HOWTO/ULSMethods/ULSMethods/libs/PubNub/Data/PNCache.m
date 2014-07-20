@@ -239,9 +239,22 @@
                 
                 if (eventType == PNObjectInitEvent || eventType == PNObjectUpdateEvent) {
                     
-                    [objectData setValue:event.changedData forKeyPath:event.changeLocation createIntermediateEntries:YES];
+                    if (event.changedData) {
+                        
+                        if (![event.changedData isKindOfClass:[NSDictionary class]] || ![objectData valueForKeyPath:event.changeLocation]) {
+                            
+                            [objectData setValue:event.changedData forKeyPath:event.changeLocation createIntermediateEntries:YES];
+                        }
+                        else if ([objectData valueForKeyPath:event.changeLocation] && [event.changedData isKindOfClass:[NSDictionary class]]) {
+                            
+                            if ([[objectData valueForKeyPath:event.changeLocation] isKindOfClass:[NSMutableDictionary class]]) {
+                                
+                                [(NSMutableDictionary *)[objectData valueForKeyPath:event.changeLocation] mergeWithDictionary:event.changedData];
+                            }
+                        }
+                    }
                 }
-                else {
+                else if (eventType == PNObjectDeleteEvent) {
                     
                     [objectData removeObjectForKeyPath:event.changeLocation];
                 }

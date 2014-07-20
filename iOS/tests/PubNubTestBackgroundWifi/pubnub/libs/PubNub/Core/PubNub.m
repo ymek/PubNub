@@ -44,7 +44,7 @@
 #pragma mark Static
 
 static NSString * const kPNCodebaseBranch = @"feature-pt74838232";
-static NSString * const kPNCodeCommitIdentifier = @"f956c97cc30cd3aee1f559deaeb149b3acedb96a";
+static NSString * const kPNCodeCommitIdentifier = @"29703bcecf7fab045045d939dc9accee897a25f2";
 
 // Stores reference on singleton PubNub instance
 static PubNub *_sharedInstance = nil;
@@ -8145,9 +8145,10 @@ didStopObjectSynchronozationAtChannel:(PNSynchronizationChannel *)channel {
 
     [self handleLockingOperationBlockCompletion:^{
 
+        PNObjectSynchronizationEvent *completionEvent = [PNObjectSynchronizationEvent synchronizationCompletionFromEvent:event];
         [self.cache storeSynchronizationEvent:event];
-        [self.cache storeSynchronizationEvent:[PNObjectSynchronizationEvent synchronizationCompletionFromEvent:event]];
-        PNObject *object = [self.cache commitSynchronizationEvent:event];
+        [self.cache storeSynchronizationEvent:completionEvent];
+        PNObject *object = [self.cache commitSynchronizationEvent:completionEvent];
 
         [PNLogger logGeneralMessageFrom:self message:^NSString * {
 

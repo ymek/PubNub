@@ -50,7 +50,7 @@
 
             if (keyIdx == ([keyPathComponents count] - 1)) {
 
-                id targetValue = ([updatedValue respondsToSelector:@selector(count)] ? [updatedValue mutableCopy] : updatedValue);
+                id targetValue = ([updatedValue respondsToSelector:@selector(count)] ? [updatedValue mutableContent] : updatedValue);
                 [targetValueStorage setValue:targetValue forKey:key];
             }
             else {

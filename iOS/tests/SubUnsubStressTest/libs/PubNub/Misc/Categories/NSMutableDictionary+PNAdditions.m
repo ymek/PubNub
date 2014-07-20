@@ -84,7 +84,6 @@
 
 - (void)mergeWithDictionary:(NSMutableDictionary *)dictionary {
 
-    dictionary = [dictionary mutableCopy];
     [dictionary enumerateKeysAndObjectsUsingBlock:^(NSString *entryKey, id entryValue, BOOL *entryEnumeratorStop) {
 
         if ([self valueForKey:entryKey] && [entryValue isKindOfClass:[NSDictionary class]]) {

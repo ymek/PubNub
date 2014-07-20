@@ -147,6 +147,7 @@
         else if ([request isKindOfClass:[PNObjectFetchRequest class]]) {
 
             response.additionalData = ((PNObjectFetchRequest *)request).information;
+            ((PNObjectFetchInformation *)response.additionalData).dataNextPageToken = response.nextPageToken;
         }
         else if ([request isKindOfClass:[PNObjectModificationRequest class]]) {
 
@@ -255,7 +256,7 @@
                 PNObjectSynchronizationEvent *event = [PNObjectSynchronizationEvent synchronizationEvent:PNObjectInitEvent
                                                        forObject:objectIdentifier transactionIdentifier:nil
                                                       atLocation:changeLocation changeDate:snapshotDate
-                                                         andData:response.response];
+                                                         andData:parsedData];
                 if (response.nextPageToken == nil) {
 
                     [self.serviceDelegate serviceChannel:self didFetchObject:response.additionalData data:event];
