@@ -149,6 +149,7 @@
 		96831B6A17500139002F150F /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD71B83AEEA2DBCDE169F068 /* QuartzCore.framework */; };
 		96831B6B1750013B002F150F /* libz.1.2.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DD71B1E2DB5B835A0C695908 /* libz.1.2.5.dylib */; };
 		96831B6C17500171002F150F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79C32230166DF847006DB535 /* CoreGraphics.framework */; };
+		96AA178E197B0D9600F81523 /* PNPubNubDataSyncSetTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 96AA178D197B0D9600F81523 /* PNPubNubDataSyncSetTest.m */; };
 		96C5EBDD1977F16D0084AB0A /* PNPubNubDataSyncFetchTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C5EBDC1977F16D0084AB0A /* PNPubNubDataSyncFetchTest.m */; };
 		96C5ECCA1977F2F10084AB0A /* PNObservationCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C5EBE21977F2F00084AB0A /* PNObservationCenter.m */; };
 		96C5ECCB1977F2F10084AB0A /* PubNub.m in Sources */ = {isa = PBXBuildFile; fileRef = 96C5EBE51977F2F00084AB0A /* PubNub.m */; };
@@ -373,6 +374,7 @@
 		960D791F196459DF00F8A89F /* TimeCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeCommand.m; sourceTree = "<group>"; };
 		960D7920196459DF00F8A89F /* W_ChaosTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = W_ChaosTest.h; sourceTree = "<group>"; };
 		960D7921196459DF00F8A89F /* W_ChaosTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = W_ChaosTest.m; sourceTree = "<group>"; };
+		96AA178D197B0D9600F81523 /* PNPubNubDataSyncSetTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNPubNubDataSyncSetTest.m; sourceTree = "<group>"; };
 		96C5EBDC1977F16D0084AB0A /* PNPubNubDataSyncFetchTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNPubNubDataSyncFetchTest.m; sourceTree = "<group>"; };
 		96C5EBE01977F2F00084AB0A /* PNObservationCenter+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PNObservationCenter+Protected.h"; sourceTree = "<group>"; };
 		96C5EBE11977F2F00084AB0A /* PNObservationCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PNObservationCenter.h; sourceTree = "<group>"; };
@@ -999,6 +1001,7 @@
 			isa = PBXGroup;
 			children = (
 				96C5EBDC1977F16D0084AB0A /* PNPubNubDataSyncFetchTest.m */,
+				96AA178D197B0D9600F81523 /* PNPubNubDataSyncSetTest.m */,
 			);
 			path = "3.6.5 DataSync functional tests";
 			sourceTree = "<group>";
@@ -1755,6 +1758,7 @@
 				96C5ED141977F2F10084AB0A /* PNWhereNowRequest.m in Sources */,
 				960D7932196459DF00F8A89F /* PAMTestError.m in Sources */,
 				960D7960196459DF00F8A89F /* PNLeaveUsubscribeBlock.m in Sources */,
+				96AA178E197B0D9600F81523 /* PNPubNubDataSyncSetTest.m in Sources */,
 				96C5ED0F1977F2F10084AB0A /* PNPushNotificationsEnabledChannelsRequest.m in Sources */,
 				960D797C196459DF00F8A89F /* PNWriteBufferTest.m in Sources */,
 				960D794A196459DF00F8A89F /* PNConnectionChannelTest.m in Sources */,
