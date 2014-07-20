@@ -36,6 +36,13 @@
  */
 - (BOOL)isSubscribedOnClientStateChange:(id)observer;
 
+/**
+ Check whether observer is subscribed on Data Synchronization start/stop events or not.
+ */
+- (BOOL)isSubscribedOnSynchronizationStart:(id)observer;
+- (BOOL)isSubscribedOnSynchronizationStop:(id)observer;
+
+
 
 #pragma mark - Client connection state observation
 
@@ -67,6 +74,36 @@
  */
 - (void)addClientAsStateUpdateObserverWithBlock:(PNClientStateUpdateHandlingBlock)handleBlock;
 - (void)removeClientAsStateUpdateObserver;
+
+
+#pragma mark - Data Synchronization observers
+
+/**
+ Observing for object synchronization process start (this action will be performed only once per request).
+ After event will be fired this observation request will be removed from queue.
+ */
+- (void)addClientAsObjectSynchronizationStartObserverWithBlock:(PNClientObjectSynchronizationStartProcessingBlock)handlerBlock;
+- (void)removeClientAsObjectSynchronizationStartObserver;
+- (void)addClientAsObjectSynchronizationStopObserverWithBlock:(PNClientObjectSynchronizationStopProcessingBlock)handlerBlock;
+- (void)removeClientAsObjectSynchronizationStopObserver;
+
+/**
+ Observing for object retrieval process (this action will be performed only once per request).
+ After event will be fired this observation request will be removed from queue.
+ */
+- (void)addClientAsObjectFetchObserverWithBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
+- (void)removeClientAsObjectFetchObserver;
+
+/**
+ Observing for object modification process (this action will be performed only once per request).
+ After event will be fired this observation request will be removed from queue.
+ */
+- (void)addClientAsObjectUpdateObserverWithBlock:(PNClientObjectModificationHandlerBlock)handlerBlock;
+- (void)removeClientAsObjectUpdateObserver;
+- (void)addClientAsObjectReplaceObserverWithBlock:(PNClientObjectModificationHandlerBlock)handlerBlock;
+- (void)removeClientAsObjectReplaceObserver;
+- (void)addClientAsObjectDeleteObserverWithBlock:(PNClientObjectModificationHandlerBlock)handlerBlock;
+- (void)removeClientAsObjectDeleteObserver;
 
 
 #pragma mark - Channels subscribe/leave observers

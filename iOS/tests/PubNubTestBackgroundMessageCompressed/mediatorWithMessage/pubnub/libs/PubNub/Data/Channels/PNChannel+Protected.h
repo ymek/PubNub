@@ -17,9 +17,7 @@
 
 #pragma mark Class forward
 
-@class PNChannelPresence;
-@class PNPresenceEvent;
-@class PNHereNow;
+@class PNSynchronizationChannel, PNChannelPresence, PNPresenceEvent, PNHereNow;
 
 
 #pragma mark Protected interface methods
@@ -54,8 +52,7 @@
 /**
  * Retrieve reference on channel by it's name and update presence observing settings by request
  */
-+ (id)            channelWithName:(NSString *)channelName
-            shouldObservePresence:(BOOL)observePresence
++ (id)            channelWithName:(NSString *)channelName shouldObservePresence:(BOOL)observePresence
 shouldUpdatePresenceObservingFlag:(BOOL)shouldUpdatePresenceObservingFlag;
 
 /**
@@ -69,6 +66,11 @@ shouldUpdatePresenceObservingFlag:(BOOL)shouldUpdatePresenceObservingFlag;
  * Return whether channel is presence observer or not
  */
 - (BOOL)isPresenceObserver;
+
+/**
+ Return whether channel created for data object synchronization or not.
+ */
+- (BOOL)isObjectSynchronizationChannel;
 
 /**
  * Depending on whether channel was configured to receive presence events or not it will return presence observing

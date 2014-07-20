@@ -14,7 +14,8 @@
 
 #pragma mark Class forward
 
-@class PNAccessRightsCollection, PNServiceChannel, PNMessagesHistory, PNWhereNow, PNResponse, PNHereNow, PNClient;
+@class PNObjectSynchronizationEvent, PNAccessRightsCollection, PNServiceChannel, PNMessagesHistory, PNWhereNow;
+@class PNResponse, PNHereNow, PNClient;
 
 
 @protocol PNServiceChannelDelegate<NSObject>
@@ -50,10 +51,10 @@
 
 /**
  Sent to the delegate when \b PubNub client successfully updated state for client.
-
+ 
  @param channel
  Communication channel over which request has been sent and processed response from \b PubNub services.
-
+ 
  @param client
  \b PNClient instance which hold information on for who this response and updated state on concrete channel.
  */
@@ -73,6 +74,140 @@
  \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
  */
 - (void)serviceChannel:(PNServiceChannel *)channel clientStateUpdateDidFailWithError:(PNError *)error;
+
+/**
+ Sent to the delegate when \b PubNub client successfully received whole object from \b PubNub cloud.
+
+ @param channel
+ Communication channel over which request has been sent and processed response from \b PubNub services.
+
+ @param information
+ \b PNObjectFetchInformation instance which store information about object which has been requested from the cloud.
+
+ @param event
+ Remote object payload information which has been received during synchronization with cloud.
+ */
+- (void)serviceChannel:(PNServiceChannel *)channel didFetchObject:(PNObjectFetchInformation *)information
+                  data:(PNObjectSynchronizationEvent *)event;
+
+/**
+ Sent to the delegate when \b PubNub client successfully received only portion of the object from \b PubNub cloud. This
+ event mostly will be triggered when
+
+ @param channel
+ Communication channel over which request has been sent and processed response from \b PubNub services.
+
+ @param information
+ \b PNObjectFetchInformation instance which store information about object which has been requested from the cloud.
+
+ @param partialObjectData
+ Portion of the data retrieved from \b PubNub cloud.
+
+ @param event
+ Remote object payload information which has been received during synchronization with cloud.
+ */
+- (void)serviceChannel:(PNServiceChannel *)channel didFetchPartOfTheObject:(PNObjectFetchInformation *)information
+           partialData:(PNObjectSynchronizationEvent *)event nextPortionToken:(NSString *)nextObjectDataPortionToken;
+
+/**
+ Sent to the delegate when \b PubNub client did fail to receive remote object from cloud.
+
+ @param channel
+ Communication channel over which request has been sent and processed response from \b PubNub services.
+
+ @param error
+ \b PNError instance which holds information about what went wrong and why request failed. \a 'error.associatedObject'
+ contains reference on \b PNObjectModificationInformation instance which represent information as for object for which
+ client were unable to fetch remote object.
+
+ @note Always check \a error.code to find out what caused error (check PNErrorCodes header file and use \a -localizedDescription /
+ \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
+- (void)serviceChannel:(PNServiceChannel *)channel objectFetchDidFailWithError:(PNError *)error;
+
+/**
+ Sent to the delegate when \b PubNub client successfully updated remote object information using data object with
+ description.
+
+ @param channel
+ Communication channel over which request has been sent and processed response from \b PubNub services.
+
+ @param information
+ Reference on object which store all required information to update remote object.
+ */
+- (void)serviceChannel:(PNServiceChannel *)channel didUpdateObjectWithInformation:(PNObjectModificationInformation *)information;
+
+/**
+ Sent to the delegate when \b PubNub client did fail to update remote object data.
+
+ @param channel
+ Communication channel over which request has been sent and processed response from \b PubNub services.
+
+ @param error
+ \b PNError instance which holds information about what went wrong and why request failed. \a 'error.associatedObject'
+ contains reference on \b PNObjectModificationInformation instance which represent information as for object for which
+ client were unable to update remote object.
+
+ @note Always check \a error.code to find out what caused error (check PNErrorCodes header file and use \a -localizedDescription /
+ \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
+- (void)serviceChannel:(PNServiceChannel *)channel objectUpdateDidFailWithError:(PNError *)error;
+
+/**
+ Sent to the delegate when \b PubNub client successfully replaced remote object information using data object with
+ description.
+
+ @param channel
+ Communication channel over which request has been sent and processed response from \b PubNub services.
+
+ @param information
+ Reference on object which store all required information to replace remote object data.
+ */
+- (void)serviceChannel:(PNServiceChannel *)channel didReplaceObjectWithInformation:(PNObjectModificationInformation *)information;
+
+/**
+ Sent to the delegate when \b PubNub client did fail to replace remote object data.
+
+ @param channel
+ Communication channel over which request has been sent and processed response from \b PubNub services.
+
+ @param error
+ \b PNError instance which holds information about what went wrong and why request failed. \a 'error.associatedObject'
+ contains reference on \b PNObjectModificationInformation instance which represent information as for object for which
+ client were unable to replace remote object.
+
+ @note Always check \a error.code to find out what caused error (check PNErrorCodes header file and use \a -localizedDescription /
+ \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
+- (void)serviceChannel:(PNServiceChannel *)channel objectReplaceDidFailWithError:(PNError *)error;
+
+/**
+ Sent to the delegate when \b PubNub client successfully delete remote object information using data object with
+ description.
+
+ @param channel
+ Communication channel over which request has been sent and processed response from \b PubNub services.
+
+ @param information
+ Reference on object which store all required information to delete remote object data.
+ */
+- (void)serviceChannel:(PNServiceChannel *)channel didDeleteObjectWithInformation:(PNObjectModificationInformation *)information;
+
+/**
+ Sent to the delegate when \b PubNub client did fail to delete remote object data.
+
+ @param channel
+ Communication channel over which request has been sent and processed response from \b PubNub services.
+
+ @param error
+ \b PNError instance which holds information about what went wrong and why request failed. \a 'error.associatedObject'
+ contains reference on \b PNObjectModificationInformation instance which represent information as for object for which
+ client were unable to delete remote object.
+
+ @note Always check \a error.code to find out what caused error (check PNErrorCodes header file and use \a -localizedDescription /
+ \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
+- (void)serviceChannel:(PNServiceChannel *)channel objectDeleteDidFailWithError:(PNError *)error;
 
 /**
  Sent to the delegate when \b PubNub client successfully changed access rights.

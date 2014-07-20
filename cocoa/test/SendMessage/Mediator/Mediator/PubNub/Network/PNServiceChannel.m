@@ -22,7 +22,9 @@
 
 #import "PNServiceChannel.h"
 #import "PNAccessRightsCollection+Protected.h"
+#import "PNObjectModificationRequest+Protected.h"
 #import "PNMessageHistoryRequest+Protected.h"
+#import "PNObjectFetchRequest+Protected.h"
 #import "PNConnectionChannel+Protected.h"
 #import "PNOperationStatus+Protected.h"
 #import "NSInvocation+PNAdditions.h"
@@ -39,6 +41,9 @@
 #import "PNRequestsQueue.h"
 #import "PNClient.h"
 #import "PNDate.h"
+#import "PNObjectSynchronizationEvent.h"
+#import "PNObjectSynchronizationEvent+Protected.h"
+#import "PNObjectFetchInformation+Protected.h"
 
 
 // ARC check
@@ -84,6 +89,8 @@
     return ([response.callbackMethod hasPrefix:PNServiceResponseCallbacks.latencyMeasureMessageCallback] ||
             [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.stateRetrieveCallback] ||
             [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.stateUpdateCallback] ||
+            [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.objectFetchCallback] ||
+            [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.objectModificationCallback] ||
             [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.timeTokenCallback] ||
             [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.channelPushNotificationsEnableCallback] ||
             [response.callbackMethod hasPrefix:PNServiceResponseCallbacks.channelPushNotificationsDisableCallback] ||
@@ -133,6 +140,14 @@
             NSString *identifier = [request valueForKey:@"clientIdentifier"];
             PNChannel *channel = [request valueForKey:@"channel"];
             response.additionalData = [PNClient clientForIdentifier:identifier channel:channel andData:nil];
+        }
+        else if ([request isKindOfClass:[PNObjectFetchRequest class]]) {
+
+            response.additionalData = ((PNObjectFetchRequest *)request).information;
+        }
+        else if ([request isKindOfClass:[PNObjectModificationRequest class]]) {
+
+            response.additionalData = ((PNObjectModificationRequest *)request).information;
         }
 
         PNResponseParser *parser = [PNResponseParser parserForResponse:response];
@@ -213,7 +228,131 @@
                 [self.serviceDelegate serviceChannel:self clientStateUpdateDidFailWithError:parsedData];
             }
         }
+        // Check whether request was sent for remote object fetch
+        else if ([request isKindOfClass:[PNObjectFetchRequest class]]) {
+            
+            // Check whether there is no error while loading participants list
+            if (![parsedData isKindOfClass:[PNError class]]) {
 
+                [PNLogger logCommunicationChannelInfoMessageFrom:self message:^NSString * {
+
+                    NSString *message = [NSString stringWithFormat:@"[CHANNEL::%@] REMOTE OBJECT RETRIEVED: %@",
+                                                self, parsedData];
+                    if (response.nextPageToken != nil) {
+
+                        message = [NSString stringWithFormat:@"[CHANNEL::%@] PART OF REMOTE OBJECT RETRIEVED: %@",
+                                                                        self, parsedData];
+                    }
+                    return message;
+                }];
+
+                NSString *snapshotDate = ((PNObjectFetchInformation *)response.additionalData).snapshotDate;
+                NSString *objectIdentifier = ((PNObjectFetchInformation *)response.additionalData).objectIdentifier;
+                NSString *changeLocation = ((PNObjectFetchInformation *)response.additionalData).partialObjectDataPath;
+                PNObjectSynchronizationEvent *event = [PNObjectSynchronizationEvent synchronizationEvent:PNObjectInitEvent
+                                                       forObject:objectIdentifier transactionIdentifier:nil
+                                                      atLocation:changeLocation changeDate:snapshotDate
+                                                         andData:response.response];
+                if (response.nextPageToken == nil) {
+
+                    [self.serviceDelegate serviceChannel:self didFetchObject:response.additionalData data:event];
+                }
+                else {
+
+                    [self.serviceDelegate serviceChannel:self didFetchPartOfTheObject:response.additionalData
+                                             partialData:event nextPortionToken:response.nextPageToken];
+                }
+            }
+            else {
+                
+                [PNLogger logCommunicationChannelErrorMessageFrom:self message:^NSString * {
+                    
+                    return [NSString stringWithFormat:@"[CHANNEL::%@] REMOTE OBJECT FETCH DID FAIL WITH ERROR: %@",
+                            self, parsedData];
+                }];
+                
+                ((PNError *)parsedData).associatedObject = response.additionalData;
+                [self.serviceDelegate serviceChannel:self objectFetchDidFailWithError:parsedData];
+            }
+        }
+        // Check whether request was sent for remote object modification
+        else if ([request isKindOfClass:[PNObjectModificationRequest class]]) {
+
+            PNObjectModificationInformation *objectInformation = ((PNObjectModificationRequest *)request).information;
+
+            // Check whether there is no error while loading participants list
+            if (![parsedData isKindOfClass:[PNError class]]) {
+
+                [PNLogger logCommunicationChannelInfoMessageFrom:self message:^NSString * {
+
+                    NSString *message = [NSString stringWithFormat:@"UPDATED OBJECT DATA WITH IDENTIFIER: %@",
+                                                                     objectInformation.objectIdentifier];
+                    if(objectInformation.type == PNObjectReplaceType) {
+
+                        message = [NSString stringWithFormat:@"REPLACED OBJECT DATA WITH IDENTIFIER: %@",
+                                                              objectInformation.objectIdentifier];
+                    }
+                    else if(objectInformation.type == PNObjectDeleteType) {
+
+                        message = [NSString stringWithFormat:@"DELETED OBJECT DATA WITH IDENTIFIER: %@",
+                                                              objectInformation.objectIdentifier];
+                    }
+
+                    return message;
+                }];
+
+                if(objectInformation.type == PNObjectUpdateType) {
+
+                    [self.serviceDelegate serviceChannel:self didUpdateObjectWithInformation:objectInformation];
+                }
+                else if(objectInformation.type == PNObjectReplaceType) {
+
+                    [self.serviceDelegate serviceChannel:self didReplaceObjectWithInformation:objectInformation];
+                }
+                else {
+
+                    [self.serviceDelegate serviceChannel:self didDeleteObjectWithInformation:objectInformation];
+                }
+            }
+            else {
+
+                [PNLogger logCommunicationChannelErrorMessageFrom:self message:^NSString * {
+
+                    NSString *message = [NSString stringWithFormat:@"CAN'T UPDATE OBJECT DATA WITH IDENTIFIER: %@ "
+                                                                    "BECAUSE OF ERROR: %@",
+                                                                     objectInformation.objectIdentifier, parsedData];
+                    if(objectInformation.type == PNObjectReplaceType) {
+
+                        message = [NSString stringWithFormat:@"CAN'T REPLACE OBJECT DATA WITH IDENTIFIER: %@ "
+                                                              "BECAUSE OF ERROR: %@",
+                                                              objectInformation.objectIdentifier, parsedData];
+                    }
+                    else if(objectInformation.type == PNObjectDeleteType) {
+
+                        message = [NSString stringWithFormat:@"CAN'T DELETE OBJECT DATA WITH IDENTIFIER: %@ "
+                                                              "BECAUSE OF ERROR: %@",
+                                                              objectInformation.objectIdentifier, parsedData];
+                    }
+
+
+                    return message;
+                }];
+
+                ((PNError *)parsedData).associatedObject = response.additionalData;
+                if(objectInformation.type == PNObjectUpdateType) {
+
+                    [self.serviceDelegate serviceChannel:self objectUpdateDidFailWithError:parsedData];
+                }
+                else if(objectInformation.type == PNObjectReplaceType) {
+
+                    [self.serviceDelegate serviceChannel:self objectReplaceDidFailWithError:parsedData];
+                }
+                else {
+
+                    [self.serviceDelegate serviceChannel:self objectDeleteDidFailWithError:parsedData];
+                }
+            }
+        }
         // Check whether request was sent for message posting
         else if ([request isKindOfClass:[PNMessagePostRequest class]]) {
 
@@ -555,6 +694,20 @@
         [self.delegate performSelector:errorSelector withObject:self withObject:error];
         #pragma clang diagnostic pop
     }
+    // Check whether request was sent for remote object fetch
+    else if ([request isKindOfClass:[PNObjectFetchRequest class]]) {
+
+        PNObjectFetchInformation *information = ((PNObjectFetchRequest *)request).information;
+
+        [PNLogger logCommunicationChannelErrorMessageFrom:self message:^NSString * {
+
+            return [NSString stringWithFormat:@"[CHANNEL::%@] REMOTE OBJECT FETCH DID FAIL WITH ERROR: %@",
+                    self, information];
+        }];
+
+        error.associatedObject = information;
+        [self.serviceDelegate serviceChannel:self objectFetchDidFailWithError:error];
+    }
     // Check whether this is 'Post message' request or not
     else if ([request isKindOfClass:[PNMessagePostRequest class]]) {
 
@@ -841,6 +994,17 @@
         #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         [self.delegate performSelector:errorSelector withObject:self withObject:error];
         #pragma clang diagnostic pop
+    }
+    // Check whether request was sent for remote object fetch
+    else if ([request isKindOfClass:[PNObjectFetchRequest class]]) {
+
+        PNObjectFetchInformation *information = ((PNObjectFetchRequest *)request).information;
+
+        errorMessage = @"Object fetch request failed by timeout";
+        PNError *error = [PNError errorWithMessage:errorMessage code:errorCode];
+        error.associatedObject = information;
+
+        [self.serviceDelegate serviceChannel:self objectFetchDidFailWithError:error];
     }
     // Check whether this is 'Post message' request or not
     else if ([request isKindOfClass:[PNMessagePostRequest class]]) {

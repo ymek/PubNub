@@ -75,6 +75,11 @@
 @property (nonatomic, readonly, assign, getter = isLastResponseOnConnection) BOOL lastResponseOnConnection;
 
 /**
+ Stores reference on next page token in case if this is multi-paged response.
+ */
+@property (nonatomic, readonly, copy) NSString *nextPageToken;
+
+/**
  Stores reference on response body object (array in most of cases).
  */
 @property (nonatomic, readonly, strong) id response;

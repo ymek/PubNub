@@ -146,7 +146,7 @@
             self.preparedMessage = [message nonStringPercentEscapedString];
 #endif
         }
-        else {
+        else if ([self HTTPMethod] == PNRequestPOSTMethod) {
             
             self.preparedMessage = message;
         }

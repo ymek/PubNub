@@ -14,8 +14,8 @@
 
 #pragma mark Class forward
 
-@class PNPresenceEvent, PNMessage, PubNub, PNError, PNDate, PNAccessRightsCollection;
-@class PNClient;
+@class PNObjectModificationInformation, PNAccessRightsCollection, PNPresenceEvent, PNMessage, PubNub, PNError, PNDate;
+@class PNClient, PNObject;
 
 
 @protocol PNDelegate <NSObject>
@@ -125,6 +125,99 @@
 - (void)pubnubClient:(PubNub *)client clientStateUpdateDidFailWithError:(PNError *)error;
 
 /**
+ Called on delegate when \b PubNub client successfully retrieved and created local copy of object stored in \b PubNub
+ cloud.
+
+ @param client
+ \b PubNub instance which triggered event.
+
+ @param object
+ Reference on local instance of object retrieved from \b PubNub cloud.
+ */
+- (void)pubnubClient:(PubNub *)client didFetchObject:(PNObject *)object;
+
+/**
+ Called on delegate when \b PubNub client did fail to retrieved and created local copy of object stored in \b PubNub
+ cloud.
+
+ @param client
+ \b PubNub instance which triggered event.
+
+ @param error
+ \b PNError instance which describe what exactly went wrong.
+ */
+- (void)pubnubClient:(PubNub *)client objectFetchDidFailWithError:(PNError *)error;
+
+/**
+ Called on delegate when \b PubNub client successfully updated object in \b PubNub cloud.
+
+ @param client
+ \b PubNub instance which triggered event.
+
+ @param modificationInformation
+ Reference on instance which contains all information about target object action and data which has been used for
+ modification.
+ */
+- (void)pubnubClient:(PubNub *)client didUpdateObject:(PNObjectModificationInformation *)modificationInformation;
+
+/**
+ Called on delegate when \b PubNub client did fail to update object in \b PubNub cloud.
+
+ @param client
+ \b PubNub instance which triggered event.
+
+ @param error
+ \b PNError instance which describe what exactly went wrong.
+ */
+- (void)pubnubClient:(PubNub *)client objectUpdateDidFailWithError:(PNError *)error;
+
+/**
+ Called on delegate when \b PubNub client successfully replaced object in \b PubNub cloud.
+
+ @param client
+ \b PubNub instance which triggered event.
+
+ @param modificationInformation
+ Reference on instance which contains all information about target object action and data which has been used for
+ modification.
+ */
+- (void)pubnubClient:(PubNub *)client didReplaceObject:(PNObjectModificationInformation *)modificationInformation;
+
+/**
+Called on delegate when \b PubNub client did fail to replace object in \b PubNub cloud.
+
+ @param client
+ \b PubNub instance which triggered event.
+
+ @param error
+ \b PNError instance which describe what exactly went wrong.
+ */
+- (void)pubnubClient:(PubNub *)client objectReplaceDidFailWithError:(PNError *)error;
+
+/**
+ Called on delegate when \b PubNub client successfully deleted object in \b PubNub cloud.
+
+ @param client
+ \b PubNub instance which triggered event.
+
+ @param modificationInformation
+ Reference on instance which contains all information about target object action and data which has been used for
+ modification.
+ */
+- (void)pubnubClient:(PubNub *)client didDeleteObject:(PNObjectModificationInformation *)modificationInformation;
+
+/**
+Called on delegate when \b PubNub client did fail to delete object in \b PubNub cloud.
+
+ @param client
+ \b PubNub instance which triggered event.
+
+ @param error
+ \b PNError instance which describe what exactly went wrong.
+ */
+- (void)pubnubClient:(PubNub *)client objectDeleteDidFailWithError:(PNError *)error;
+
+/**
  * Called on delegate when client successfully subscribed to specified
  * set of channels
  */
@@ -163,6 +256,31 @@
  *         on which this error occurred and possible reason of error
  */
 - (void)pubnubClient:(PubNub *)client unsubscriptionDidFailWithError:(PNError *)error;
+
+/**
+ Called on delegate when \b PubNub client completed remote object synchronization.
+ */
+- (void)pubnubClient:(PubNub *)client didStartObjectSynchronization:(PNObject *)object;
+
+/**
+ Called on delegate when some kind of error occurred during synchronization process start.
+ */
+- (void)pubnubClient:(PubNub *)client didFailToStartObjectSynchronizationWithError:(PNError *)error;
+
+/**
+ Called on delegate when \b PubNub client stopped remote object synchronization.
+ */
+- (void)pubnubClient:(PubNub *)client didStopObjectSynchronization:(PNObject *)object;
+
+/**
+ Called on delegate when some kind of error occurred during remote object synchronization stopping.
+ */
+- (void)pubnubClient:(PubNub *)client didFailToStopObjectSynchronizationWithError:(PNError *)error;
+
+/**
+ * Called on delegate when client received remote object change event
+ */
+- (void)pubnubClient:(PubNub *)client didReceiveObjectChangeEvent:(PNObject *)object;
 
 /**
  * Called on delegate when client successfully enabled presence observation on
