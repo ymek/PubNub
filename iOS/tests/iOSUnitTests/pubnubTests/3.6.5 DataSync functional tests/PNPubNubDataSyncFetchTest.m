@@ -11,6 +11,7 @@
 static NSString * const kTestFetchObject = @"ios_test_db";
 static NSString * const kTestFetchPathFirst = @"test";
 static NSString * const kTestFetchPathSecond = @"test/second";
+static const NSUInteger kTestStandardTimeout = 10;
 
 @interface PNPubNubDataSyncFetchTest : SenTestCase
 <
@@ -57,7 +58,8 @@ PNDelegate
     
     [PubNub fetchObject:kTestFetchObject];
     
-    [GCDWrapper waitGroup:_testFetch];
+    STAssertFalse([GCDWrapper isGroup:_testFetch
+                    timeoutFiredValue:kTestStandardTimeout], @"Simple fetch Object - failed.");
     
     _testFetch = NULL;
 }
@@ -91,13 +93,16 @@ PNDelegate
                                                                   
                                                                   STFail(@"Fail to retrieve simple fetch: %@", [error localizedDescription]);
                                                               }
-                                                              [[PNObservationCenter defaultCenter] removeObjectFetchObserver:self];
+                                                              
+                                                              dispatch_group_leave(_testFetchObserver);
                                                           }
                                                       }];
     
-    [GCDWrapper waitGroup:_testFetchObserver];
+    STAssertFalse([GCDWrapper isGroup:_testFetchObserver
+                    timeoutFiredValue:kTestStandardTimeout], @"Simple fetch Object with observer - failed.");
     
     _testFetchObserver = NULL;
+    [[PNObservationCenter defaultCenter] removeObjectFetchObserver:self];
 }
 
 - (void)testSimpleFetchNotification
@@ -113,7 +118,8 @@ PNDelegate
     
     [PubNub fetchObject:kTestFetchObject];
     
-    [GCDWrapper waitGroup:_testFetchNotification];
+    STAssertFalse([GCDWrapper isGroup:_testFetchNotification
+                    timeoutFiredValue:kTestStandardTimeout], @"Simple fetch Object with notification - failed.");
     
     _testFetchNotification = NULL;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -133,8 +139,9 @@ PNDelegate
     
     [PubNub fetchObject:kTestFetchObject dataPath:kTestFetchPathSecond];
     
-    [GCDWrapper waitGroup:_testFetchObjectDataPath];
-    
+    STAssertFalse([GCDWrapper isGroup:_testFetchObjectDataPath
+                    timeoutFiredValue:kTestStandardTimeout], @"Simple fetch Object data path - failed.");
+
     _testFetchObjectDataPath = NULL;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
@@ -161,7 +168,11 @@ PNDelegate
         dispatch_group_leave(_testFetchCompleteBlock);
     }];
     
-    [GCDWrapper waitGroup:_testFetchCompleteBlock];
+    STAssertFalse([GCDWrapper isGroup:_testFetchCompleteBlock
+                    timeoutFiredValue:kTestStandardTimeout], @"Simple fetch Object with success block - failed.");    STAssertFalse([GCDWrapper isGroup:_testFetchCompleteBlock
+                                                                                                                                      timeoutFiredValue:kTestStandardTimeout], @"Simple fetch Object with success block - failed.");
+
+    
     
     _testFetchCompleteBlock = NULL;
     
@@ -173,7 +184,8 @@ PNDelegate
     
     [PubNub fetchObject:kTestFetchObject];
     
-    [GCDWrapper waitGroup:_testFetch];
+    STAssertFalse([GCDWrapper isGroup:_testFetch
+                    timeoutFiredValue:kTestStandardTimeout], @"Simple fetch Object second call - failed.");
     
     _testFetch = NULL;
 }
@@ -203,7 +215,8 @@ withCompletionHandlingBlock:^(PNObject *object, PNError *error) {
     dispatch_group_leave(_testFetchCompleteBlock);
 }];
     
-    [GCDWrapper waitGroup:_testFetchCompleteBlock];
+    STAssertFalse([GCDWrapper isGroup:_testFetchCompleteBlock
+                    timeoutFiredValue:kTestStandardTimeout], @"Simple fetch Object with completion block - failed.");
     
     _testFetchCompleteBlock = NULL;
     
@@ -215,7 +228,9 @@ withCompletionHandlingBlock:^(PNObject *object, PNError *error) {
     
     [PubNub fetchObject:kTestFetchObject];
     
-    [GCDWrapper waitGroup:_testFetch];
+    STAssertFalse([GCDWrapper isGroup:_testFetch
+                    timeoutFiredValue:kTestStandardTimeout], @"Simple fetch Object with completion block - failed.");
+
     
     _testFetch = NULL;
 }
