@@ -163,6 +163,8 @@ static NSTimeInterval const kPNViewDisappearAnimationDuration = 0.2f;
             
             view = [self viewFromNibForUserGrant];
             break;
+        default:
+            break;
     }
     [view updateLayoutForAccessRightsInformation:information];
     

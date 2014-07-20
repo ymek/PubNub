@@ -147,6 +147,11 @@
     }
     
     [self initializePubNubClient];
+    [PubNub setConfiguration:[PNConfiguration configurationForOrigin:@"pubsub-beta.pubnub.com"
+                                                          publishKey:@"demo" subscribeKey:@"demo" secretKey:@"demo"]];
+    [PubNub connect];
+    [PubNub startObjectSynchronization:@"moonlight2_ios_test_db"];
+
     
     UIRemoteNotificationType type = (UIRemoteNotificationTypeAlert|UIRemoteNotificationTypeBadge|UIRemoteNotificationTypeSound);
     [[UIApplication sharedApplication] registerForRemoteNotificationTypes:type];
@@ -200,6 +205,24 @@
     }];
 }
 
+- (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+    
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+        
+        return [NSString stringWithFormat:@"PubNub client changed cloud object access rights configuration: %@",
+                accessRightsCollection];
+    }];
+}
+
+- (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+    
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+        
+        return [NSString stringWithFormat:@"PubNub client failed to change cloud object access rights configuration because of error: %@",
+                error];
+    }];
+}
+
 - (void)pubnubClient:(PubNub *)client didAuditAccessRights:(PNAccessRightsCollection *)accessRightsCollection {
 
     [PNLogger logGeneralMessageFrom:self message:^NSString * {
@@ -214,6 +237,24 @@
     [PNLogger logGeneralMessageFrom:self message:^NSString * {
 
         return [NSString stringWithFormat:@"PubNub client failed to audit access rights because of error: %@",
+                error];
+    }];
+}
+
+- (void)pubnubClient:(PubNub *)client didAuditObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+    
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+        
+        return [NSString stringWithFormat:@"PubNub client completed cloud object access rights audition: %@",
+                accessRightsCollection];
+    }];
+}
+
+- (void)pubnubClient:(PubNub *)client objectAccessRightsAuditDidFailWithError:(PNError *)error {
+    
+    [PNLogger logGeneralMessageFrom:self message:^NSString * {
+        
+        return [NSString stringWithFormat:@"PubNub client failed to audit cloud object access rights because of error: %@",
                 error];
     }];
 }
