@@ -29,4 +29,7 @@ static NSString * const kPNResponseErrorServiceKey = @"service";
 // Stores reference on key under which list of channels on which error occurred is stored
 static NSString * const kPNResponseErrorChannelsKey = @"channels";
 
+// Stores reference on key under which list of cloud objects on which error occurred is stored
+static NSString * const kPNResponseErrorObjectsKey = @"objects";
+
 #endif

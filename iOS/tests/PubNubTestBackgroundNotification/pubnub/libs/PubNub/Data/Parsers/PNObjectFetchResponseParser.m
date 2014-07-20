@@ -49,7 +49,6 @@
     // Check whether initialization successful or not
     if ((self = [super init])) {
 
-
         self.data = ([response.response respondsToSelector:@selector(count)] ? [response.response mutableContent] : response.response);
     }
 

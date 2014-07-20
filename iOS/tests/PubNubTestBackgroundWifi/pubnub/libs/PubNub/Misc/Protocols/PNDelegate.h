@@ -389,6 +389,32 @@ Called on delegate when \b PubNub client did fail to delete object in \b PubNub 
 - (void)pubnubClient:(PubNub *)client accessRightsChangeDidFailWithError:(PNError *)error;
 
 /**
+ Called on delegate when \b PubNub client did complete access rights change operation on cloud object.
+ 
+ @param client
+ \b PubNub client which completed request processing (this is singleton).
+ 
+ @param accessRightsCollection
+ Instance of \b PNObjectAccessRightsCollection which stores set of access rights on different levels.
+ */
+- (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection;
+
+/**
+ Called on delegate when \b PubNub client did fail to change access rights on cloud object.
+ 
+ @param client
+ \b PubNub client which failed request processing (this is singleton).
+ 
+ @param error
+ \b PNError instance which holds information about when wrong and why request failed. \a 'error.associatedObject'
+ contains reference on \b PNObjectAccessRightOptions instance which will allow to review and identify what options \b PubNub client tried to apply on cloud object.
+ 
+ @note Always check \a error.code to find out what caused error (check PNErrorCodes header file and use \a -localizedDescription /
+ \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
+- (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error;
+
+/**
  Called on delegate when \b PubNub client did complete access rights audit operation.
 
  @param client
@@ -413,6 +439,32 @@ Called on delegate when \b PubNub client did fail to delete object in \b PubNub 
  \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
  */
 - (void)pubnubClient:(PubNub *)client accessRightsAuditDidFailWithError:(PNError *)error;
+
+/**
+ Called on delegate when \b PubNub client did complete access rights audit operation.
+ 
+ @param client
+ \b PubNub client which completed request processing (this is singleton).
+ 
+ @param accessRightsCollection
+ Instance of \b PNObjectAccessRightsCollection which stores set of access rights on different levels.
+ */
+- (void)pubnubClient:(PubNub *)client didAuditObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection;
+
+/**
+ Called on delegate when \b PubNub client did fail to audit access rights.
+ 
+ @param client
+ \b PubNub client which failed request processing (this is singleton).
+ 
+ @param error
+ \b PNError instance which holds information about when wrong and why request failed. \a 'error.associatedObject'
+ contains reference on \b PNObjectAccessRightOptions instance which will allow to review and identify what options \b PubNub client tried to apply.
+ 
+ @note Always check \a error.code to find out what caused error (check PNErrorCodes header file and use \a -localizedDescription /
+ \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
+- (void)pubnubClient:(PubNub *)client objectAccessRightsAuditDidFailWithError:(PNError *)error;
 
 /**
  * Called on delegate when PubNub client retrieved time

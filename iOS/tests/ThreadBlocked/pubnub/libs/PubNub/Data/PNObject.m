@@ -7,6 +7,7 @@
 //
 
 #import "PNObject+Protected.h"
+#import "NSDictionary+PNAdditions.h"
 #import "PNDate.h"
 
 
@@ -32,7 +33,7 @@
 
         self.identifier = identifier;
         self.updateDate = [PNDate dateWithDate:[NSDate date]];
-        self.data = (objectData ? [objectData mutableCopy] : [NSMutableDictionary dictionary]);
+        self.data = (objectData ? [objectData mutableContent] : [NSMutableDictionary dictionary]);
     }
 
 

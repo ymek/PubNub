@@ -8,6 +8,7 @@
 
 
 #import "PNErrorResponseParser.h"
+#import "PNSynchronizationChannel+Protected.h"
 #import "PNErrorResponseParser+Protected.h"
 #import "PNError+Protected.h"
 #import "PNResponse.h"
@@ -108,6 +109,10 @@
             if ([responseData valueForKeyPath:kPNResponseErrorChannelsKey]) {
                 
                 associatedChannels = [PNChannel channelsWithNames:[responseData valueForKeyPath:kPNResponseErrorChannelsKey]];
+            }
+            else if ([responseData valueForKeyPath:kPNResponseErrorObjectsKey]) {
+                
+                associatedChannels = [responseData valueForKeyPath:kPNResponseErrorObjectsKey];
             }
             
             

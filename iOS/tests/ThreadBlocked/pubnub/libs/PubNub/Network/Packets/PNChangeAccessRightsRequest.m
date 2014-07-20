@@ -8,6 +8,7 @@
 
 
 #import "PNChangeAccessRightsRequest.h"
+#import "PNSynchronizationChannel+Protected.h"
 #import "PNAccessRightOptions+Protected.h"
 #import "PNServiceResponseCallbacks.h"
 #import "NSString+PNAddition.h"
@@ -74,19 +75,17 @@
 
 #pragma mark - Instance methods
 
-- (id)initWithChannels:(NSArray *)channels accessRights:(PNAccessRights)accessRights
-                                                clients:(NSArray *)clientsAuthorizationKey period:(NSInteger)accessPeriod {
+- (id)initWithChannels:(NSArray *)channels accessRights:(PNAccessRights)accessRights clients:(NSArray *)clientsAuthorizationKey
+                period:(NSInteger)accessPeriod {
 
     // Check whether initialization was successful or not
     if ((self = [super init])) {
 
         self.sendingByUserRequest = YES;
         self.accessRightOptions = [PNAccessRightOptions accessRightOptionsForApplication:[PubNub sharedInstance].configuration.subscriptionKey
-                                                                              withRights:accessRights
-                                                                                channels:channels
+                                                                              withRights:accessRights channels:channels
                                                                                  clients:clientsAuthorizationKey
                                                                             accessPeriod:accessPeriod];
-
     }
 
 
@@ -113,13 +112,19 @@
     [parameters addObject:[NSString stringWithFormat:@"callback=%@_%@", [self callbackMethodName], self.shortIdentifier]];
 
     if ([self.accessRightOptions.channels count] > 0) {
-
+        
         NSString *channel = [[self.accessRightOptions.channels lastObject] name];
+        BOOL isObjectAccessRightsChangeRequest = [PNSynchronizationChannel isObjectSynchronizationChannel:channel];
         if ([self.accessRightOptions.channels count] > 1) {
 
-            channel = [[self.accessRightOptions.channels valueForKey:@"name"] componentsJoinedByString:@","];
+            channel = [[self.accessRightOptions.channels valueForKey:(isObjectAccessRightsChangeRequest ? @"objectIdentifier" : @"name")] componentsJoinedByString:@","];
         }
-        [parameters addObject:[NSString stringWithFormat:@"channel=%@", [channel percentEscapedString]]];
+        else if(isObjectAccessRightsChangeRequest) {
+            
+            channel =  [[self.accessRightOptions.channels lastObject] valueForKey:@"objectIdentifier"];
+        }
+        [parameters addObject:[NSString stringWithFormat:@"%@=%@", (isObjectAccessRightsChangeRequest ? @"obj-id" : @"channel"),
+                               [channel percentEscapedString]]];
     }
 
     [parameters addObject:[NSString stringWithFormat:@"pnsdk=%@", [self clientInformationField]]];
@@ -164,11 +169,17 @@
 
         authorizationKey = [self.accessRightOptions.clientsAuthorizationKeys componentsJoinedByString:@","];
     }
-
+    
     NSString *channel = [[self.accessRightOptions.channels lastObject] name];
+    BOOL isObjectAccessRightsChangeRequest = [PNSynchronizationChannel isObjectSynchronizationChannel:channel];
     if ([self.accessRightOptions.channels count] > 1) {
 
-        channel = [[self.accessRightOptions.channels valueForKey:@"name"] componentsJoinedByString:@","];
+        channel = [[self.accessRightOptions.channels valueForKey:(isObjectAccessRightsChangeRequest ? @"objectIdentifier" : @"name")]
+                   componentsJoinedByString:@","];
+    }
+    else if(isObjectAccessRightsChangeRequest) {
+        
+        channel =  [[self.accessRightOptions.channels lastObject] valueForKey:@"objectIdentifier"];
     }
 
 
@@ -176,9 +187,11 @@
                                        "=%@&%@", [[PubNub sharedInstance].configuration.subscriptionKey percentEscapedString],
                     (authorizationKey ? [NSString stringWithFormat:@"auth=%@&", [authorizationKey percentEscapedString]] : @""),
                     [self callbackMethodName], self.shortIdentifier,
-                    (channel ? [NSString stringWithFormat:@"&channel=%@", [channel percentEscapedString]] : @""),
-                    [self clientInformationField], [NSString stringWithFormat:@"r=%@", [PNBitwiseHelper is:self.accessRightOptions.rights
-                                                                                               containsBit:PNReadAccessRight] ? @"1" : @"0"],
+                    (channel ? [NSString stringWithFormat:@"&%@=%@", (isObjectAccessRightsChangeRequest ? @"obj-id" : @"channel"),
+                                [channel percentEscapedString]] : @""),
+                    [self clientInformationField],
+                    [NSString stringWithFormat:@"r=%@", [PNBitwiseHelper is:self.accessRightOptions.rights
+                                                                containsBit:PNReadAccessRight] ? @"1" : @"0"],
                     (unsigned long)[self requestTimestamp], (unsigned long)self.accessRightOptions.accessPeriodDuration,
                     [self PAMSignature], [NSString stringWithFormat:@"w=%@",
                     [PNBitwiseHelper is:self.accessRightOptions.rights containsBit:PNWriteAccessRight] ? @"1" : @"0"]];

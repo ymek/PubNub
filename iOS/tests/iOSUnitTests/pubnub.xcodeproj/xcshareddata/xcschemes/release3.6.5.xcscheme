@@ -185,6 +185,9 @@
                   Identifier = "PNPresenceEventTest">
                </Test>
                <Test
+                  Identifier = "PNPubNubDataSyncFetchTest">
+               </Test>
+               <Test
                   Identifier = "PNPushNotificationsEnabledChannelsParserTest">
                </Test>
                <Test

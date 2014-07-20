@@ -8,6 +8,7 @@
 
 
 #import "PNAccessRightsAuditRequest.h"
+#import "PNSynchronizationChannel+Protected.h"
 #import "PNAccessRightOptions+Protected.h"
 #import "PNServiceResponseCallbacks.h"
 #import "NSString+PNAddition.h"
@@ -99,15 +100,18 @@
         [parameters addObject:[NSString stringWithFormat:@"auth=%@", [authorizationKey percentEscapedString]]];
     }
     [parameters addObject:[NSString stringWithFormat:@"callback=%@_%@", [self callbackMethodName], self.shortIdentifier]];
-
+    
+    
     if ([self.accessRightOptions.channels count] > 0) {
-
+        
         NSString *channel = [[self.accessRightOptions.channels lastObject] name];
+        BOOL isObjectAccessRightsChangeRequest = [PNSynchronizationChannel isObjectSynchronizationChannel:channel];
         if ([self.accessRightOptions.channels count] > 1) {
-
+            
             channel = [[self.accessRightOptions.channels valueForKey:@"name"] componentsJoinedByString:@","];
         }
-        [parameters addObject:[NSString stringWithFormat:@"channel=%@", [channel percentEscapedString]]];
+        [parameters addObject:[NSString stringWithFormat:@"%@=%@", (isObjectAccessRightsChangeRequest ? @"obj-id" : @"channel"),
+                               [channel percentEscapedString]]];
     }
     
     [parameters addObject:[NSString stringWithFormat:@"pnsdk=%@", [self clientInformationField]]];
@@ -149,6 +153,7 @@
     }
 
     NSString *channel = [[self.accessRightOptions.channels lastObject] name];
+    BOOL isObjectAccessRightsChangeRequest = [PNSynchronizationChannel isObjectSynchronizationChannel:channel];
     if ([self.accessRightOptions.channels count] > 1) {
 
         channel = [[self.accessRightOptions.channels valueForKey:@"name"] componentsJoinedByString:@","];
@@ -159,7 +164,8 @@
                     [[PubNub sharedInstance].configuration.subscriptionKey percentEscapedString],
                     (authorizationKey ? [NSString stringWithFormat:@"auth=%@&", [authorizationKey percentEscapedString]] : @""),
                     [self callbackMethodName], self.shortIdentifier,
-                    (channel ? [NSString stringWithFormat:@"&channel=%@", [channel percentEscapedString]] : @""),
+                    (channel ? [NSString stringWithFormat:@"&%@=%@", (isObjectAccessRightsChangeRequest ? @"obj-id" : @"channel"),
+                               [channel percentEscapedString]] : @""),
                     [self clientInformationField], (unsigned long)[self requestTimestamp], [self PAMSignature]];
 }
 

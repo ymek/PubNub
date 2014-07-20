@@ -11,6 +11,7 @@
 //
 
 #import "PNChannel+Protected.h"
+#import "PNSynchronizationChannel+Protected.h"
 #import "PNChannelPresence+Protected.h"
 #import "NSString+PNAddition.h"
 #import "PNHereNow+Protected.h"
@@ -81,9 +82,7 @@ static NSMutableDictionary *_channelsCache = nil;
 
     NSMutableArray *channels = [NSMutableArray arrayWithCapacity:[channelsName count]];
 
-    [channelsName enumerateObjectsUsingBlock:^(NSString *channelName,
-                                               NSUInteger channelNameIdx,
-                                               BOOL *channelNamesEnumerator) {
+    [channelsName enumerateObjectsUsingBlock:^(NSString *channelName, NSUInteger channelNameIdx, BOOL *channelNamesEnumerator) {
 
         PNChannel *channel = [PNChannel channelWithName:channelName];
         if (channel) {
@@ -102,6 +101,13 @@ static NSMutableDictionary *_channelsCache = nil;
     if ([PNChannelPresence isPresenceObservingChannelName:channelName]) {
 
         channel = [PNChannelPresence presenceForChannelWithName:channelName];
+    }
+    else if ([PNSynchronizationChannel isObjectSynchronizationChannel:channelName]) {
+        
+        if ([self isSubclassOfClass:[PNChannel class]]) {
+            
+            channel = [PNSynchronizationChannel channelForObject:channelName];
+        }
     }
     else {
 

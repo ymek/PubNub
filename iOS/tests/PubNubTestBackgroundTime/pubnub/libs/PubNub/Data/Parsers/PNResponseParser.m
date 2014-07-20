@@ -155,14 +155,19 @@
     }
     // Check whether result is result of "Object fetch" request or not.
     else if ([response.callbackMethod isEqualToString:PNServiceResponseCallbacks.objectFetchCallback]) {
-
-        parserClass = [PNObjectFetchResponseParser class];
-
+        
+        if (![response isErrorResponse]) {
+            
+            parserClass = [PNObjectFetchResponseParser class];
+        }
     }
     // Check whether result is result of "Object modification" request or not.
     else if ([response.callbackMethod isEqualToString:PNServiceResponseCallbacks.objectModificationCallback]) {
+        
+        if (![response isErrorResponse]) {
 
-        parserClass = [PNObjectModificationParser class];
+            parserClass = [PNObjectModificationParser class];
+        }
     }
     // Check whether result is result for "Here now" request execution or not.
     else if ([response.callbackMethod isEqualToString:PNServiceResponseCallbacks.channelParticipantsCallback]) {

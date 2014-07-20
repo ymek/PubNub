@@ -230,12 +230,19 @@
 
 /**
  * Add/remove observer for PAM manipulation and audit.
- * After event will be fired this observation request will be removed from queue.
  */
 - (void)addAccessRightsChangeObserver:(id)observer withBlock:(PNClientChannelAccessRightsChangeBlock)handlerBlock;
 - (void)removeAccessRightsObserver:(id)observer;
 - (void)addAccessRightsAuditObserver:(id)observer withBlock:(PNClientChannelAccessRightsAuditBlock)handlerBlock;
 - (void)removeAccessRightsAuditObserver:(id)observer;
+
+/**
+ * Add/remove observer for PAM manipulation and audit on cloud objects.
+ */
+- (void)addObjectAccessRightsChangeObserver:(id)observer withBlock:(PNClientObjectAccessRightsChangeBlock)handlerBlock;
+- (void)removeObjectAccessRightsObserver:(id)observer;
+- (void)addObjectAccessRightsAuditObserver:(id)observer withBlock:(PNClientObjectAccessRightsAuditBlock)handlerBlock;
+- (void)removeObjectAccessRightsAuditObserver:(id)observer;
 
 
 #pragma mark - Participants observing

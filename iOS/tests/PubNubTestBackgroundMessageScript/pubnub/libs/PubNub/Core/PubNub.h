@@ -7945,6 +7945,756 @@ andCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBlock
            withCompletionHandlingBlock:(PNClientChannelAccessRightsChangeBlock)handlerBlock;
 
 /**
+ Grant \a 'read' access right on cloud \a 'object' object which will be valid for specified amount of time.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantReadAccessRightForObject:@"chessboard" forPeriod:10];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud 'object' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud 'object' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud 'object' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud 'object' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+
+ @note When this API is used, it will grant \a 'read' access right and revoke \a 'write' access right for
+ cloud \a 'object' access level.
+
+ @warning Cloud \a 'object' access level is top-layer of access tree. If \a 'user' access level grant \a 'write' access rights, 
+ then \b PubNub client will ignore the fact that top-layer forbid \a 'write' access right and allow specific user (which has been granted 
+ with \a 'write' access right) to change cloud object data (for which \a 'write' access right has been granted).
+ 
+ @param objectIdentifier
+ Reference on unique cloud object identifier for which \b PubNub client should change access rights to \a 'read'.
+
+ @param accessPeriodDuration
+ Duration in minutes during which cloud \a 'object' access level is granted with \a 'read' access rights.
+ */
++ (void)grantReadAccessRightForObject:(NSString *)objectIdentifier forPeriod:(NSInteger)accessPeriodDuration;
+
+/**
+ Grant \a 'read' access right on cloud \a 'object' object which will be valid for specified amount of time.
+ 
+ @code
+ @endcode
+ This method extends \a +grantReadAccessRightForObject:forPeriod: and allow to specify access rights change handler block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantReadAccessRightForObject:@"chessboard" forPeriod:10 
+            withCompletionHandlingBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+        if (error == nil) {
+
+            // PubNub client successfully changed access rights for cloud 'object' level.
+        }
+        else {
+
+            // PubNub client did fail to changed access rights for cloud 'object' level.
+            //
+            // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+            // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+            // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+            // has been requested.
+        }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud 'object' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud 'object' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud 'object' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud 'object' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+
+ @note When this API is used, it will grant \a 'read' access right and revoke \a 'write' access right for
+ cloud object at \a 'user' access level.
+
+ @warning Cloud \a 'object' access level is top-layer of access tree. If \a 'user' access level grant \a 'write' access rights, 
+ then \b PubNub client will ignore the fact that top-layer forbid \a 'write' access right and allow specific user (which has been granted 
+ with \a 'write' access right) to change cloud object data (for which \a 'write' access right has been granted).
+ 
+ @param objectIdentifier
+ Reference on unique cloud object identifier for which \b PubNub client should change access rights to \a 'read'.
+
+ @param accessPeriodDuration
+ Duration in minutes during which cloud \a 'object' access level is granted with \a 'read' access rights.
+ 
+ @param handlerBlock
+ The block which will be called by \b PubNub client when one of success or error events will be received. The block takes two arguments:
+ \c collection - \b PNObjectAccessRightsCollection instance which hold set of \b PNObjectAccessRightsInformation instances to
+ describe new \a 'object' access rights; \c error - error which describes what exactly went wrong
+ during access rights change. Always check \a error.code to find out what caused error (check PNErrorCodes header file
+ and use \a -localizedDescription / \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
++ (void)grantReadAccessRightForObject:(NSString *)objectIdentifier forPeriod:(NSInteger)accessPeriodDuration
+          withCompletionHandlingBlock:(PNClientObjectAccessRightsChangeBlock)handlerBlock;
+
+/**
+ Grant \a 'read' access right on cloud object at \a 'user' level which will be valid for specified amount of time.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantReadAccessRightForObject:@"chessboard" forPeriod:10 client:@"Bob"];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud object at 'user' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud object at 'user' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud object at 'user' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud object at 'user' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+
+ @note When this API is used, it will grant \a 'read' access right and revoke \a 'write' access right for
+ cloud object at \a 'user' access level.
+ 
+ @warning \a 'user' access level is low-layer of access tree. If one of upper layers will grant \a 'write' access rights,
+ then \b PubNub client will ignore the fact that low-layer forbid \a 'write' access rights and will allow cloud object modification 
+ to all users (including the one which has been specified).
+ 
+ @param objectIdentifier
+ Reference on unique cloud object identifier for which \b PubNub client should change access rights to \a 'read'.
+
+ @param accessPeriodDuration
+ Duration in minutes during which cloud object at \a 'user' access level is granted with \a 'read' access rights.
+ 
+ @param clientAuthorizationKey
+ \a NSString instance which identify client which should be granted with \a 'read' access right on specific cloud object.
+ */
++ (void)grantReadAccessRightForObject:(NSString *)objectIdentifier forPeriod:(NSInteger)accessPeriodDuration
+                               client:(NSString *)clientsAuthorizationKey;
+
+/**
+ Grant \a 'read' access right on cloud object at \a 'user' level which will be valid for specified amount of time.
+ 
+ @code
+ @endcode
+ This method extends \a +grantReadAccessRightForObject:forPeriod:client: and allow to specify concrete user for which access rights will be applied.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantReadAccessRightForObject:@"chessboard" forPeriod:10 client:@"Bob"
+           withCompletionHandlingBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+        if (error == nil) {
+
+            // PubNub client successfully changed access rights for cloud 'object' level.
+        }
+        else {
+
+            // PubNub client did fail to changed access rights for cloud 'object' level.
+            //
+            // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+            // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+            // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+            // has been requested.
+        }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud 'object' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud 'object' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud 'object' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud 'object' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+
+ @note When this API is used, it will grant \a 'read' access right and revoke \a 'write' access right for
+ cloud \a 'object' access level.
+ 
+ @warning \a 'user' access level is low-layer of access tree. If one of upper layers will grant \a 'write' access rights,
+ then \b PubNub client will ignore the fact that low-layer forbid \a 'write' access rights and will allow cloud object modification 
+ to all users (including the one which has been specified).
+ 
+ @param objectIdentifier
+ Reference on unique cloud object identifier for which \b PubNub client should change access rights to \a 'read'.
+ 
+ @param accessPeriodDuration
+ Duration in minutes during which cloud object at \a 'user' access level is granted with \a 'read' access rights.
+ 
+ @param clientAuthorizationKey
+ \a NSString instance which identify client which should be granted with \a 'read' access right on specific cloudn object.
+ 
+ @param handlerBlock
+ The block which will be called by \b PubNub client when one of success or error events will be received. The block takes two arguments:
+ \c collection - \b PNObjectAccessRightsCollection instance which hold set of \b PNObjectAccessRightsInformation instances to
+ describe new \a 'user' access rights for cloud object; \c error - error which describes what exactly went wrong
+ during access rights change. Always check \a error.code to find out what caused error (check PNErrorCodes header file
+ and use \a -localizedDescription / \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
++ (void)grantReadAccessRightForObject:(NSString *)objectIdentifier forPeriod:(NSInteger)accessPeriodDuration
+                               client:(NSString *)clientsAuthorizationKey
+          withCompletionHandlingBlock:(PNClientObjectAccessRightsChangeBlock)handlerBlock;
+
+/**
+ Grant \a 'read' access right on set of cloud \a 'object' which will be valid for specified amount of time.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantReadAccessRightForObjects:@[@"chessboard", @"go"] forPeriod:10];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud object at 'user' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud object at 'user' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud object at 'user' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud object at 'user' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+
+ @note When this API is used, it will grant \a 'read' access right and revoke \a 'write' access right for
+ cloud object at \a 'user' access level.
+ 
+ @warning \a 'user' access level is low-layer of access tree. If one of upper layers will grant \a 'write' access rights,
+ then \b PubNub client will ignore the fact that low-layer forbid \a 'write' access rights and will allow cloud object modification 
+ to all users (including the one which has been specified).
+ 
+ @param objectIdentifiers
+ Reference on set of unique cloud object identifiers for which \b PubNub client should change access rights to \a 'read'.
+ 
+ @param accessPeriodDuration
+ Duration in minutes during which cloud object at \a 'user' access level is granted with \a 'read' access rights.
+ 
+ @param clientAuthorizationKey
+ \a NSString instance which identify client which should be granted with \a 'read' access right on specific cloudn object.
+ */
++ (void)grantReadAccessRightForObjects:(NSArray *)objectIdentifiers forPeriod:(NSInteger)accessPeriodDuration;
+
+/**
+ Grant \a 'read' access right on set of cloud \a 'object' which will be valid for specified amount of time.
+ 
+ @code
+ @endcode
+ This method extends \a +grantReadAccessRightForObjects:forPeriod: and allow to specify access rights change handler block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantReadAccessRightForObjects:@[@"chessboard", @"go"] forPeriod:10
+            withCompletionHandlingBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+        if (error == nil) {
+
+            // PubNub client successfully changed access rights for cloud 'object' level.
+        }
+        else {
+
+            // PubNub client did fail to changed access rights for cloud 'object' level.
+            //
+            // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+            // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+            // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+            // has been requested.
+        }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud 'object' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud 'object' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud 'object' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud 'object' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+
+ @note When this API is used, it will grant \a 'read' access right and revoke \a 'write' access right for
+ cloud \a 'object' access level.
+ 
+ @warning \a 'user' access level is low-layer of access tree. If one of upper layers will grant \a 'write' access rights,
+ then \b PubNub client will ignore the fact that low-layer forbid \a 'write' access rights and will allow cloud object modification 
+ to all users (including the one which has been specified).
+ 
+ @param objectIdentifiers
+ Reference on set of unique cloud object identifiers for which \b PubNub client should change access rights to \a 'read'.
+ 
+ @param accessPeriodDuration
+ Duration in minutes during which cloud object at \a 'user' access level is granted with \a 'read' access rights.
+ 
+ @param clientAuthorizationKey
+ \a NSString instance which identify client which should be granted with \a 'read' access right on specific cloudn object.
+ 
+ @param handlerBlock
+ The block which will be called by \b PubNub client when one of success or error events will be received. The block takes two arguments:
+ \c collection - \b PNObjectAccessRightsCollection instance which hold set of \b PNObjectAccessRightsInformation instances to
+ describe new \a 'user' access rights for cloud object; \c error - error which describes what exactly went wrong
+ during access rights change. Always check \a error.code to find out what caused error (check PNErrorCodes header file
+ and use \a -localizedDescription / \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
++ (void)grantReadAccessRightForObjects:(NSArray *)objectIdentifiers forPeriod:(NSInteger)accessPeriodDuration
+           withCompletionHandlingBlock:(PNClientObjectAccessRightsChangeBlock)handlerBlock;
+
+/**
+ Grant \a 'read' access right on cloud object at \a 'user' level which will be valid for specified amount of time.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantReadAccessRightForObject:@"chessboard" forPeriod:10 clients:@[@"Bob", @"Scot"]];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud object at 'user' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud object at 'user' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud object at 'user' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud object at 'user' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+
+ @note When this API is used, it will grant \a 'read' access right and revoke \a 'write' access right for
+ cloud object at \a 'user' access level.
+ 
+ @warning \a 'user' access level is low-layer of access tree. If one of upper layers will grant \a 'write' access rights,
+ then \b PubNub client will ignore the fact that low-layer forbid \a 'write' access rights and will allow cloud object modification 
+ to all users (including the one which has been specified).
+ 
+ @param objectIdentifier
+ Reference on unique cloud object identifier for which \b PubNub client should change access rights to \a 'read'.
+
+ @param accessPeriodDuration
+ Duration in minutes during which cloud object at \a 'user' access level is granted with \a 'read' access rights.
+ 
+ @param clientsAuthorizationKey
+ \a NSString instance which identify set of clients which should be granted with \a 'read' access right on specific cloudn object.
+ */
++ (void)grantReadAccessRightForObject:(NSString *)objectIdentifier forPeriod:(NSInteger)accessPeriodDuration
+                              clients:(NSArray *)clientsAuthorizationKey;
+
+/**
+ Grant \a 'read' access right on cloud object at \a 'user' level which will be valid for specified amount of time.
+ 
+ @code
+ @endcode
+ This method extends \a +grantReadAccessRightForObject:forPeriod:clients: and allow to specify access rights change handler block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantReadAccessRightForObject:@"chessboard" forPeriod:10 clients:@[@"Bob", @"Scot"]
+           withCompletionHandlingBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+        if (error == nil) {
+
+            // PubNub client successfully changed access rights for cloud 'object' level.
+        }
+        else {
+
+            // PubNub client did fail to changed access rights for cloud 'object' level.
+            //
+            // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+            // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+            // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+            // has been requested.
+        }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud 'object' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud 'object' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud 'object' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud 'object' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+
+ @note When this API is used, it will grant \a 'read' access right and revoke \a 'write' access right for
+ cloud \a 'object' access level.
+ 
+ @warning \a 'user' access level is low-layer of access tree. If one of upper layers will grant \a 'write' access rights,
+ then \b PubNub client will ignore the fact that low-layer forbid \a 'write' access rights and will allow cloud object modification 
+ to all users (including the one which has been specified).
+ 
+ @param objectIdentifier
+ Reference on unique cloud object identifier for which \b PubNub client should change access rights to \a 'read'.
+ 
+ @param accessPeriodDuration
+ Duration in minutes during which cloud object at \a 'user' access level is granted with \a 'read' access rights.
+ 
+ @param clientsAuthorizationKey
+ \a NSString instance which identify set of clients which should be granted with \a 'read' access right on specific cloudn object.
+ 
+ @param handlerBlock
+ The block which will be called by \b PubNub client when one of success or error events will be received. The block takes two arguments:
+ \c collection - \b PNObjectAccessRightsCollection instance which hold set of \b PNObjectAccessRightsInformation instances to
+ describe new \a 'user' access rights for cloud object; \c error - error which describes what exactly went wrong
+ during access rights change. Always check \a error.code to find out what caused error (check PNErrorCodes header file
+ and use \a -localizedDescription / \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
++ (void)grantReadAccessRightForObject:(NSString *)objectIdentifier forPeriod:(NSInteger)accessPeriodDuration
+                              clients:(NSArray *)clientsAuthorizationKey
+          withCompletionHandlingBlock:(PNClientObjectAccessRightsChangeBlock)handlerBlock;
+
+/**
  Grant \a 'write' access right on \a 'channel' access level which will be valid for specified amount of time.
 
  @code
@@ -8644,6 +9394,568 @@ andCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBlock
                                 clients:(NSArray *)clientsAuthorizationKeys
             withCompletionHandlingBlock:(PNClientChannelAccessRightsChangeBlock)handlerBlock;
 
+/**
+ Grant \a 'write' access right on cloud \a 'object' object which will be valid for specified amount of time.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantWriteAccessRightForObject:@"chessboard" forPeriod:10];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud 'object' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud 'object' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud 'object' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud 'object' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+
+ @note When this API is used, it will grant \a 'write' access right and revoke \a 'read' access right for
+ cloud \a 'object' access level.
+
+ @warning Cloud \a 'object' access level is top-layer of access tree. If \a 'user' access level grant \a 'read' access rights, 
+ then \b PubNub client will ignore the fact that top-layer forbid \a 'read' access right and allow specific user (which has been granted 
+ with \a 'read' access right) to read cloud object data (for which \a 'read' access right has been granted).
+ 
+ @param objectIdentifier
+ Reference on unique cloud object identifier for which \b PubNub client should change access rights to \a 'write'.
+
+ @param accessPeriodDuration
+ Duration in minutes during which cloud \a 'object' access level is granted with \a 'write' access rights.
+ */
++ (void)grantWriteAccessRightForObject:(NSString *)objectIdentifier forPeriod:(NSInteger)accessPeriodDuration;
+
+/**
+ Grant \a 'write' access right on cloud \a 'object' object which will be valid for specified amount of time.
+ 
+ @code
+ @endcode
+ This method extends \a +grantWriteAccessRightForObject:forPeriod: and allow to specify access rights change handler block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantWriteAccessRightForObject:@"chessboard" forPeriod:10 
+            withCompletionHandlingBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+        if (error == nil) {
+
+            // PubNub client successfully changed access rights for cloud 'object' level.
+        }
+        else {
+
+            // PubNub client did fail to changed access rights for cloud 'object' level.
+            //
+            // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+            // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+            // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+            // has been requested.
+        }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud 'object' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud 'object' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud 'object' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud 'object' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+
+ @note When this API is used, it will grant \a 'write' access right and revoke \a 'read' access right for
+ cloud \a 'object' access level.
+
+ @warning Cloud \a 'object' access level is top-layer of access tree. If \a 'user' access level grant \a 'read' access rights, 
+ then \b PubNub client will ignore the fact that top-layer forbid \a 'read' access right and allow specific user (which has been granted 
+ with \a 'read' access right) to read cloud object data (for which \a 'read' access right has been granted).
+ 
+ @param objectIdentifier
+ Reference on unique cloud object identifier for which \b PubNub client should change access rights to \a 'write'.
+
+ @param accessPeriodDuration
+ Duration in minutes during which cloud \a 'object' access level is granted with \a 'write' access rights.
+ 
+ @param handlerBlock
+ The block which will be called by \b PubNub client when one of success or error events will be received. The block takes two arguments:
+ \c collection - \b PNObjectAccessRightsCollection instance which hold set of \b PNObjectAccessRightsInformation instances to
+ describe new \a 'object' access rights; \c error - error which describes what exactly went wrong
+ during access rights change. Always check \a error.code to find out what caused error (check PNErrorCodes header file
+ and use \a -localizedDescription / \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
++ (void)grantWriteAccessRightForObject:(NSString *)objectIdentifier forPeriod:(NSInteger)accessPeriodDuration
+           withCompletionHandlingBlock:(PNClientObjectAccessRightsChangeBlock)handlerBlock;
+
+/**
+ Grant \a 'write' access right on set of cloud \a 'object' which will be valid for specified amount of time.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantWriteAccessRightForObjects:@[@"chessboard", @"go"] forPeriod:10];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud object at 'user' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud object at 'user' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud object at 'user' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud object at 'user' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+
+ @note When this API is used, it will grant \a 'write' access right and revoke \a 'read' access right for
+ cloud \a 'object' access level.
+ 
+ @warning Cloud \a 'object' access level is top-layer of access tree. If \a 'user' access level grant \a 'read' access rights,
+ then \b PubNub client will ignore the fact that top-layer forbid \a 'read' access right and allow specific user (which has been granted
+ with \a 'read' access right) to read cloud object data (for which \a 'read' access right has been granted).
+ 
+ @warning \a 'user' access level is low-layer of access tree. If one of upper layers will grant \a 'read' access rights,
+ then \b PubNub client will ignore the fact that low-layer forbid \a 'read' access rights and will allow access to cloud object
+ to all users (including the one which has been specified).
+ 
+ @param objectIdentifiers
+ Reference on set of unique cloud object identifiers for which \b PubNub client should change access rights to \a 'write'.
+ 
+ @param accessPeriodDuration
+ Duration in minutes during which cloud \a 'object' access level is granted with \a 'write' access rights.
+ */
++ (void)grantWriteAccessRightForObjects:(NSArray *)objectIdentifiers forPeriod:(NSInteger)accessPeriodDuration;
+
+/**
+ Grant \a 'read' access right on set of cloud \a 'object' which will be valid for specified amount of time.
+ 
+ @code
+ @endcode
+ This method extends \a +grantReadAccessRightForObjects:forPeriod: and allow to specify access rights change handler block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantReadAccessRightForObjects:@[@"chessboard", @"go"] forPeriod:10
+            withCompletionHandlingBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+        if (error == nil) {
+
+            // PubNub client successfully changed access rights for cloud 'object' level.
+        }
+        else {
+
+            // PubNub client did fail to changed access rights for cloud 'object' level.
+            //
+            // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+            // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+            // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+            // has been requested.
+        }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud 'object' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud 'object' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud 'object' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud 'object' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+ 
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+ 
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+ 
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+ 
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+ 
+ @note When this API is used, it will grant \a 'write' access right and revoke \a 'read' access right for
+ cloud \a 'object' access level.
+ 
+ @warning Cloud \a 'object' access level is top-layer of access tree. If \a 'user' access level grant \a 'read' access rights,
+ then \b PubNub client will ignore the fact that top-layer forbid \a 'read' access right and allow specific user (which has been granted
+ with \a 'read' access right) to read cloud object data (for which \a 'read' access right has been granted).
+ 
+ @warning \a 'user' access level is low-layer of access tree. If one of upper layers will grant \a 'read' access rights,
+ then \b PubNub client will ignore the fact that low-layer forbid \a 'read' access rights and will allow access to cloud object
+ to all users (including the one which has been specified).
+ 
+ @param objectIdentifiers
+ Reference on set of unique cloud object identifiers for which \b PubNub client should change access rights to \a 'write'.
+ 
+ @param accessPeriodDuration
+ Duration in minutes during which cloud \a 'object' access level is granted with \a 'write' access rights.
+ 
+ @param handlerBlock
+ The block which will be called by \b PubNub client when one of success or error events will be received. The block takes two arguments:
+ \c collection - \b PNObjectAccessRightsCollection instance which hold set of \b PNObjectAccessRightsInformation instances to
+ describe new \a 'object' access rights; \c error - error which describes what exactly went wrong
+ during access rights change. Always check \a error.code to find out what caused error (check PNErrorCodes header file
+ and use \a -localizedDescription / \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
++ (void)grantWriteAccessRightForObjects:(NSArray *)objectIdentifiers forPeriod:(NSInteger)accessPeriodDuration
+            withCompletionHandlingBlock:(PNClientObjectAccessRightsChangeBlock)handlerBlock;
+
+/**
+ Grant \a 'write' access right on cloud object at \a 'user' level which will be valid for specified amount of time.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantWriteAccessRightForObject:@"chessboard" forPeriod:10 clients:@[@"Bob", @"Scot"]];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud object at 'user' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud object at 'user' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud object at 'user' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud object at 'user' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+
+ @note When this API is used, it will grant \a 'write' access right and revoke \a 'read' access right for
+ cloud object at \a 'user' access level.
+ 
+ @warning \a 'user' access level is low-layer of access tree. If one of upper layers will grant \a 'read' access rights,
+ then \b PubNub client will ignore the fact that low-layer forbid \a 'read' access rights and will allow read cloud object data
+ (including the one which has been specified).
+ 
+ @param objectIdentifier
+ Reference on unique cloud object identifier for which \b PubNub client should change access rights to \a 'read'.
+
+ @param accessPeriodDuration
+ Duration in minutes during which cloud object at \a 'user' access level is granted with \a 'read' access rights.
+ 
+ @param clientsAuthorizationKey
+ \a NSArray instance which identify set of clients which should be granted with \a 'read' access right on specific cloudn object.
+ */
++ (void)grantWriteAccessRightForObject:(NSString *)objectIdentifier forPeriod:(NSInteger)accessPeriodDuration
+                               clients:(NSArray *)clientsAuthorizationKey;
+
+/**
+ Grant \a 'read' access right on cloud object at \a 'user' level which will be valid for specified amount of time.
+ 
+ @code
+ @endcode
+ This method extends \a +grantReadAccessRightForObject:forPeriod:clients: and allow to specify access rights change handler block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantWriteAccessRightForObject:@"chessboard" forPeriod:10 clients:@[@"Bob", @"Scot"]
+           withCompletionHandlingBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+        if (error == nil) {
+
+            // PubNub client successfully changed access rights for cloud 'object' level.
+        }
+        else {
+
+            // PubNub client did fail to changed access rights for cloud 'object' level.
+            //
+            // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+            // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+            // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+            // has been requested.
+        }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud 'object' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud 'object' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud 'object' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud 'object' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+ 
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+ 
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+ 
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+ 
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+ 
+ @note When this API is used, it will grant \a 'write' access right and revoke \a 'read' access right for
+ cloud object at \a 'user' access level.
+ 
+ @warning \a 'user' access level is low-layer of access tree. If one of upper layers will grant \a 'read' access rights,
+ then \b PubNub client will ignore the fact that low-layer forbid \a 'read' access rights and will allow read cloud object data
+ (including the one which has been specified).
+ 
+ @param objectIdentifier
+ Reference on unique cloud object identifier for which \b PubNub client should change access rights to \a 'read'.
+ 
+ @param accessPeriodDuration
+ Duration in minutes during which cloud object at \a 'user' access level is granted with \a 'read' access rights.
+ 
+ @param clientsAuthorizationKey
+ \a NSArray instance which identify set of clients which should be granted with \a 'read' access right on specific cloudn object.
+ 
+ @param handlerBlock
+ The block which will be called by \b PubNub client when one of success or error events will be received. The block takes two arguments:
+ \c collection - \b PNObjectAccessRightsCollection instance which hold set of \b PNObjectAccessRightsInformation instances to
+ describe new \a 'user' access rights for cloud object; \c error - error which describes what exactly went wrong
+ during access rights change. Always check \a error.code to find out what caused error (check PNErrorCodes header file
+ and use \a -localizedDescription / \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
++ (void)grantWriteAccessRightForObject:(NSString *)objectIdentifier forPeriod:(NSInteger)accessPeriodDuration
+                               clients:(NSArray *)clientsAuthorizationKey
+           withCompletionHandlingBlock:(PNClientObjectAccessRightsChangeBlock)handlerBlock;
+
 + (void)grantAllAccessRightsForChannel:(PNChannel *)channel forPeriod:(NSInteger)accessPeriodDuration;
 + (void)grantAllAccessRightsForChannel:(PNChannel *)channel forPeriod:(NSInteger)accessPeriodDuration
            withCompletionHandlingBlock:(PNClientChannelAccessRightsChangeBlock)handlerBlock;
@@ -8660,6 +9972,697 @@ andCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBlock
 + (void)grantAllAccessRightsForChannel:(PNChannel *)channel forPeriod:(NSInteger)accessPeriodDuration
                                clients:(NSArray *)clientsAuthorizationKeys
            withCompletionHandlingBlock:(PNClientChannelAccessRightsChangeBlock)handlerBlock;
+
+/**
+ Grant \a 'read' and \a 'write' access right on cloud \a 'object' object which will be valid for specified amount of time.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantAllAccessRightForObject:@"chessboard" forPeriod:10];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud 'object' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud 'object' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud 'object' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud 'object' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+ 
+ @param objectIdentifier
+ Reference on unique cloud object identifier for which \b PubNub client should change access rights to \a 'read' and \a 'write'.
+
+ @param accessPeriodDuration
+ Duration in minutes during which cloud \a 'object' access level is granted with \a 'read' and \a 'write' access rights.
+ */
++ (void)grantAllAccessRightForObject:(NSString *)objectIdentifier forPeriod:(NSInteger)accessPeriodDuration;
+
+/**
+ Grant \a 'read' and \a 'write' access right on cloud \a 'object' object which will be valid for specified amount of time.
+ 
+ @code
+ @endcode
+ This method extends \a +grantAllAccessRightForObject:forPeriod: and allow to specify access rights change handler block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantAllAccessRightForObject:@"chessboard" forPeriod:10 
+          withCompletionHandlingBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+        if (error == nil) {
+
+            // PubNub client successfully changed access rights for cloud 'object' level.
+        }
+        else {
+
+            // PubNub client did fail to changed access rights for cloud 'object' level.
+            //
+            // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+            // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+            // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+            // has been requested.
+        }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud 'object' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud 'object' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud 'object' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud 'object' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+ 
+ @param objectIdentifier
+ Reference on unique cloud object identifier for which \b PubNub client should change access rights to \a 'write'.
+
+ @param accessPeriodDuration
+ Duration in minutes during which cloud \a 'object' access level is granted with \a 'read' and \a 'write' access rights.
+ 
+ @param handlerBlock
+ The block which will be called by \b PubNub client when one of success or error events will be received. The block takes two arguments:
+ \c collection - \b PNObjectAccessRightsCollection instance which hold set of \b PNObjectAccessRightsInformation instances to
+ describe new \a 'object' access rights; \c error - error which describes what exactly went wrong
+ during access rights change. Always check \a error.code to find out what caused error (check PNErrorCodes header file
+ and use \a -localizedDescription / \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
++ (void)grantAllAccessRightForObject:(NSString *)objectIdentifier forPeriod:(NSInteger)accessPeriodDuration
+         withCompletionHandlingBlock:(PNClientObjectAccessRightsChangeBlock)handlerBlock;
+
+/**
+ Grant \a 'read' and \a 'write' access right on cloud object at \a 'user' level which will be valid for specified amount of time.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantAllAccessRightForObject:@"chessboard" forPeriod:10 client:@"Bob"];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+ 
+     // PubNub client successfully changed access rights for cloud object at 'user' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud object at 'user' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+ 
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud object at 'user' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud object at 'user' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+ 
+ @param objectIdentifier
+ Reference on unique cloud object identifier for which \b PubNub client should change access rights to \a 'read' and \a 'write'.
+
+ @param accessPeriodDuration
+ Duration in minutes during which cloud \a 'object' access level is granted with \a 'read' and \a 'write' access rights.
+ 
+ @param clientAuthorizationKey
+ \a NSString instances which identify client which should be granted with \a 'read' and \a 'write' access right on specific cloud \a 'object'.
+ */
++ (void)grantAllAccessRightForObject:(NSString *)objectIdentifier forPeriod:(NSInteger)accessPeriodDuration
+                              client:(NSString *)clientAuthorizationKey;
+
+/**
+ Grant \a 'read' and \a 'write' access right on cloud object at \a 'user' level which will be valid for specified amount of time.
+ 
+ @code
+ @endcode
+ This method extends \a +grantAllAccessRightForObject:forPeriod:client: and allow to specify access rights change handler block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantAllAccessRightForObject:@"chessboard" forPeriod:10 client:@"Bob"
+          withCompletionHandlingBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+ 
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud object at 'user' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud object at 'user' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud object at 'user' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud object at 'user' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+ 
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud object at 'user' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud object at 'user' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+ 
+ @param objectIdentifier
+ Reference on unique cloud object identifier for which \b PubNub client should change access rights to \a 'write'.
+
+ @param accessPeriodDuration
+ Duration in minutes during which cloud \a 'object' access level is granted with \a 'read' and \a 'write' access rights.
+ 
+ @param clientAuthorizationKey
+ \a NSString instances which identify client which should be granted with \a 'read' and \a 'write' access right on specific cloud \a 'object'.
+ 
+ @param handlerBlock
+ The block which will be called by \b PubNub client when one of success or error events will be received. The block takes two arguments:
+ \c collection - \b PNObjectAccessRightsCollection instance which hold set of \b PNObjectAccessRightsInformation instances to
+ describe new \a 'object' access rights; \c error - error which describes what exactly went wrong
+ during access rights change. Always check \a error.code to find out what caused error (check PNErrorCodes header file
+ and use \a -localizedDescription / \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
++ (void)grantAllAccessRightForObject:(NSString *)objectIdentifier forPeriod:(NSInteger)accessPeriodDuration
+                              client:(NSString *)clientAuthorizationKey
+         withCompletionHandlingBlock:(PNClientObjectAccessRightsChangeBlock)handlerBlock;
+
+/**
+ Grant \a 'read' and \a 'write' access right on cloud \a 'object' object which will be valid for specified amount of time.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantAllAccessRightForObjects:@[@"chessboard", @"go"] forPeriod:10];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud 'object' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud 'object' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud 'object' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud 'object' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+ 
+ @param objectsIdentifier
+ Reference on set of unique cloud object identifiers for which \b PubNub client should change access rights to \a 'read' and \a 'write'.
+
+ @param accessPeriodDuration
+ Duration in minutes during which cloud \a 'object' access level is granted with \a 'read' and \a 'write' access rights.
+ */
++ (void)grantAllAccessRightForObjects:(NSArray *)objectsIdentifier forPeriod:(NSInteger)accessPeriodDuration;
+
+/**
+ Grant \a 'read' and \a 'write' access right on cloud \a 'object' objects which will be valid for specified amount of time.
+ 
+ @code
+ @endcode
+ This method extends \a +grantAllAccessRightForObjects:forPeriod: and allow to specify access rights change handler block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantAllAccessRightForObject:s:@[@"chessboard", @"go"] forPeriod:10
+          withCompletionHandlingBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+        if (error == nil) {
+
+            // PubNub client successfully changed access rights for cloud 'object' level.
+        }
+        else {
+
+            // PubNub client did fail to changed access rights for cloud 'object' level.
+            //
+            // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+            // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+            // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+            // has been requested.
+        }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud 'object' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud 'object' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud 'object' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud 'object' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+ 
+ @param objectsIdentifier
+ Reference on set of unique cloud object identifiers for which \b PubNub client should change access rights to \a 'write'.
+
+ @param accessPeriodDuration
+ Duration in minutes during which cloud \a 'object' access level is granted with \a 'read' and \a 'write' access rights.
+ 
+ @param handlerBlock
+ The block which will be called by \b PubNub client when one of success or error events will be received. The block takes two arguments:
+ \c collection - \b PNObjectAccessRightsCollection instance which hold set of \b PNObjectAccessRightsInformation instances to
+ describe new \a 'object' access rights; \c error - error which describes what exactly went wrong
+ during access rights change. Always check \a error.code to find out what caused error (check PNErrorCodes header file
+ and use \a -localizedDescription / \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
++ (void)grantAllAccessRightForObjects:(NSArray *)objectsIdentifier forPeriod:(NSInteger)accessPeriodDuration
+          withCompletionHandlingBlock:(PNClientObjectAccessRightsChangeBlock)handlerBlock;
+
+/**
+ Grant \a 'read' and \a 'write' access right on cloud object at \a 'user' level which will be valid for specified amount of time.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantAllAccessRightForObject:@"chessboard" forPeriod:10 clients:@[@"Bob", @"Jay"]];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+ 
+     // PubNub client successfully changed access rights for cloud object at 'user' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud object at 'user' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+ 
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud object at 'user' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud object at 'user' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+ 
+ @param objectIdentifier
+ Reference on unique cloud object identifier for which \b PubNub client should change access rights to \a 'read' and \a 'write'.
+
+ @param accessPeriodDuration
+ Duration in minutes during which cloud \a 'object' access level is granted with \a 'read' and \a 'write' access rights.
+ 
+ @param clientAuthorizationKeys
+ \a NSString instances which identify client which should be granted with \a 'read' and \a 'write' access right on specific cloud \a 'object'.
+ */
++ (void)grantAllAccessRightForObject:(NSString *)objectIdentifier forPeriod:(NSInteger)accessPeriodDuration
+                             clients:(NSArray *)clientAuthorizationKeys;
+
+/**
+ Grant \a 'read' and \a 'write' access right on cloud object at \a 'user' level which will be valid for specified amount of time.
+ 
+ @code
+ @endcode
+ This method extends \a +grantAllAccessRightForObject:forPeriod:client: and allow to specify access rights change handler block.
+
+ @code
+ @endcode
+ \b Example:
+
+ @code
+ [PubNub setupWithConfiguration:[PNConfiguration configurationForOrigin:@"pubsub.pubnub.com" publishKey:@"demo"
+                                                           subscribeKey:@"demo" secretKey:@"my-secret-key"]
+                    andDelegate:self];
+ [PubNub connect];
+ [PubNub grantAllAccessRightForObject:@"chessboard" forPeriod:10 clients:@[@"Bob", @"Jay"]
+          withCompletionHandlingBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+ 
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud object at 'user' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud object at 'user' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ And handle it with delegates:
+ @code
+ - (void)pubnubClient:(PubNub *)client didChangeObjectAccessRights:(PNObjectAccessRightsCollection *)accessRightsCollection {
+
+     // PubNub client successfully changed access rights for cloud object at 'user' level.
+ }
+
+ - (void)pubnubClient:(PubNub *)client objectAccessRightsChangeDidFailWithError:(PNError *)error {
+
+     // PubNub client did fail to changed access rights for cloud object at 'user' level.
+     //
+     // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+     // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+     // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+     // has been requested.
+ }
+ @endcode
+
+ There is also way to observe access rights change process from any place in your application using \b PNObservationCenter:
+ @code
+ [[PNObservationCenter defaultCenter] addObjectAccessRightsChangeObserver:self withBlock:^(PNObjectAccessRightsCollection *collection, PNError *error) {
+ 
+     if (error == nil) {
+
+         // PubNub client successfully changed access rights for cloud object at 'user' level.
+     }
+     else {
+
+         // PubNub client did fail to changed access rights for cloud object at 'user' level.
+         //
+         // Always check 'error.code' to find out what caused error (check PNErrorCodes header file and use -localizedDescription /
+         // -localizedFailureReason and -localizedRecoverySuggestion to get human readable description for error).
+         // 'error.associatedObject' contains PNObjectAccessRightOptions instance which describes access level for which change
+         // has been requested.
+     }
+ }];
+ @endcode
+
+ Also observation can be done using \b NSNotificationCenter to observe this notifications: kPNClientObjectAccessRightsChangeDidCompleteNotification,
+ kPNClientObjectAccessRightsChangeDidFailNotification.
+
+ @note To be able use this API, you should provide \a 'secret' key which is used for signature generation.
+
+ @note Make sure that you enabled "Access Manager" on https://admin.pubnub.com.
+
+ @note You can pass a value less than \c 0 as \a 'accessPeriodDuration' argument to use default value (default value is \b 1440 minutes).
+ 
+ @param objectIdentifier
+ Reference on unique cloud object identifier for which \b PubNub client should change access rights to \a 'write'.
+
+ @param accessPeriodDuration
+ Duration in minutes during which cloud \a 'object' access level is granted with \a 'read' and \a 'write' access rights.
+ 
+ @param clientAuthorizationKeys
+ \a NSString instances which identify client which should be granted with \a 'read' and \a 'write' access right on specific cloud \a 'object'.
+ 
+ @param handlerBlock
+ The block which will be called by \b PubNub client when one of success or error events will be received. The block takes two arguments:
+ \c collection - \b PNObjectAccessRightsCollection instance which hold set of \b PNObjectAccessRightsInformation instances to
+ describe new \a 'object' access rights; \c error - error which describes what exactly went wrong
+ during access rights change. Always check \a error.code to find out what caused error (check PNErrorCodes header file
+ and use \a -localizedDescription / \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
++ (void)grantAllAccessRightForObject:(NSString *)objectIdentifier forPeriod:(NSInteger)accessPeriodDuration
+                             clients:(NSArray *)clientAuthorizationKeys
+         withCompletionHandlingBlock:(PNClientObjectAccessRightsChangeBlock)handlerBlock;
+
+
+
 
 + (void)revokeAccessRightsForChannel:(PNChannel *)channel;
 
@@ -8769,6 +10772,13 @@ andCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBlock
  */
 + (void)revokeAccessRightsForChannel:(PNChannel *)channel
          withCompletionHandlingBlock:(PNClientChannelAccessRightsChangeBlock)handlerBlock;
+
+
++ (void)revokeAccessRightsForObject:(NSString *)objectIdentifier;
++ (void)revokeAccessRightsForObject:(NSString *)objectIdentifier
+        withCompletionHandlingBlock:(PNClientObjectAccessRightsChangeBlock)handlerBlock;
+
+
 + (void)revokeAccessRightsForChannel:(PNChannel *)channel client:(NSString *)clientAuthorizationKey;
 
 /**
@@ -8876,6 +10886,12 @@ andCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBlock
  */
 + (void)revokeAccessRightsForChannel:(PNChannel *)channel client:(NSString *)clientAuthorizationKey
          withCompletionHandlingBlock:(PNClientChannelAccessRightsChangeBlock)handlerBlock;
+
++ (void)revokeAccessRightsForObject:(NSString *)objectIdentifier client:(NSString *)clientAuthorizationKey;
++ (void)revokeAccessRightsForObject:(NSString *)objectIdentifier client:(NSString *)clientAuthorizationKey
+        withCompletionHandlingBlock:(PNClientObjectAccessRightsChangeBlock)handlerBlock;
+
+
 + (void)revokeAccessRightsForChannels:(NSArray *)channels;
 
 /**
@@ -8985,9 +11001,19 @@ andCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBlock
  */
 + (void)revokeAccessRightsForChannels:(NSArray *)channels
           withCompletionHandlingBlock:(PNClientChannelAccessRightsChangeBlock)handlerBlock;
+
+
++ (void)revokeAccessRightsForObjects:(NSArray *)objectIdentifiers;
++ (void)revokeAccessRightsForObjects:(NSArray *)objectIdentifiers
+         withCompletionHandlingBlock:(PNClientObjectAccessRightsChangeBlock)handlerBlock;
+
 + (void)revokeAccessRightsForChannel:(PNChannel *)channel clients:(NSArray *)clientsAuthorizationKeys;
 + (void)revokeAccessRightsForChannel:(PNChannel *)channel clients:(NSArray *)clientsAuthorizationKeys
          withCompletionHandlingBlock:(PNClientChannelAccessRightsChangeBlock)handlerBlock;
+
++ (void)revokeAccessRightsForObject:(NSString *)objectIdentifier clients:(NSArray *)clientAuthorizationKeys;
++ (void)revokeAccessRightsForObject:(NSString *)objectIdentifier clients:(NSArray *)clientAuthorizationKeys
+        withCompletionHandlingBlock:(PNClientObjectAccessRightsChangeBlock)handlerBlock;
 
 /**
  Audit access rights for \a 'application' level. \a 'application' level is top-layer of access rights tree which will
@@ -9372,6 +11398,9 @@ andCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBlock
  */
 + (void)auditAccessRightsForChannel:(PNChannel *)channel withCompletionHandlingBlock:(PNClientChannelAccessRightsAuditBlock)handlerBlock;
 
++ (void)auditAccessRightsForObject:(NSString *)objectIdentifier;
++ (void)auditAccessRightsForObject:(NSString *)objectIdentifier withCompletionHandlingBlock:(PNClientObjectAccessRightsAuditBlock)handlerBlock;
+
 /**
  Audit access rights for \a 'user' level.
 
@@ -9576,6 +11605,10 @@ andCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBlock
 + (void)auditAccessRightsForChannel:(PNChannel *)channel client:(NSString *)clientAuthorizationKey
         withCompletionHandlingBlock:(PNClientChannelAccessRightsAuditBlock)handlerBlock;
 
++ (void)auditAccessRightsForObject:(NSString *)objectIdentifier client:(NSString *)clientAuthorizationKey;
++ (void)auditAccessRightsForObject:(NSString *)objectIdentifier client:(NSString *)clientAuthorizationKey
+       withCompletionHandlingBlock:(PNClientObjectAccessRightsAuditBlock)handlerBlock;
+
 /**
  Audit access rights for \a 'channel' level. \a 'channel' level is mid-layer of access rights tree,
  which will also provide information about it's child levels: \a 'user' level. This method allot to retrieve access
@@ -9773,6 +11806,9 @@ andCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBlock
  @see \a +grantWriteAccessRightsForChannels:forPeriod:
  */
 + (void)auditAccessRightsForChannels:(NSArray *)channels withCompletionHandlingBlock:(PNClientChannelAccessRightsAuditBlock)handlerBlock;
+
++ (void)auditAccessRightsForObjects:(NSArray *)objectIdentifiers;
++ (void)auditAccessRightsForObjects:(NSArray *)objectIdentifiers withCompletionHandlingBlock:(PNClientObjectAccessRightsAuditBlock)handlerBlock;
 
 /**
  Audit access rights for \a 'user' level. This method allow to audit access rights to specific \a channel set of
@@ -9978,6 +12014,10 @@ andCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBlock
  */
 + (void)auditAccessRightsForChannel:(PNChannel *)channel clients:(NSArray *)clientsAuthorizationKeys
         withCompletionHandlingBlock:(PNClientChannelAccessRightsAuditBlock)handlerBlock;
+
++ (void)auditAccessRightsForObject:(NSString *)objectIdentifier clients:(NSArray *)clientsAuthorizationKeys;
++ (void)auditAccessRightsForObject:(NSString *)objectIdentifier clients:(NSArray *)clientsAuthorizationKeys
+       withCompletionHandlingBlock:(PNClientObjectAccessRightsAuditBlock)handlerBlock;
 
 
 #pragma mark - Presence management

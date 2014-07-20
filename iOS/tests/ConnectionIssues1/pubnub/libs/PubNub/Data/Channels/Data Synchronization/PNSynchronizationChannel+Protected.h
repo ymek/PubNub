@@ -32,6 +32,26 @@
 #pragma mark - Class methods
 
 /**
+ Construct list of channels for real-time events observation on local object copy change from cloud.
+ 
+ @param objectIdentifiers
+ Set of \a NSString instances for which \b PNSynchronizationChannel should be created.
+ 
+ @return List of special channels which represent cloud object data channel.
+ */
++ (NSArray *)channelsForObjects:(NSArray *)objectIdentifiers;
+
+/**
+ Construct list of channels for real-time events observation on local object copy change from cloud.
+ 
+ @param objectIdentifier
+ Reference on identifier which represent remote object in \b PubNub cloud.
+ 
+ @return List of special channels which represent cloud object data channel.
+ */
++ (PNSynchronizationChannel *)channelForObject:(NSString *)objectIdentifier;
+
+/**
  Construct channel for real-time events observation on local object copy change from cloud.
 
  @param objectIdentifier
@@ -56,6 +76,16 @@
  @return Required set of channels for synchronization and synchronization transactions observation.
  */
 + (NSArray *)channelsForObject:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath;
+
+/**
+ Check whether specified name correspond to one of data synchronization channels or not.
+ 
+ @param channelName
+ Name of the channels against which check should be done.
+ 
+ @return \c YES in case if this channel is used for Data Synchronization feature.
+ */
++ (BOOL)isObjectSynchronizationChannel:(NSString *)channelName;
 
 #pragma mark -
 

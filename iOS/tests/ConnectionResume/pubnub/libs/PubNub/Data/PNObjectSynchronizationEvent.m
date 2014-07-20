@@ -68,6 +68,13 @@ struct PNObjectSynchronizationEventDataKeysStruct PNObjectSynchronizationEventDa
                                andData:[event objectForKey:PNObjectSynchronizationEventDataKeys.value]];
 }
 
++ (PNObjectSynchronizationEvent *)synchronizationCompletionFromEvent:(PNObjectSynchronizationEvent *)event {
+    
+    return [self synchronizationEvent:PNObjectCompleteEvent forObject:event.objectIdentifier
+                transactionIdentifier:event.eventTransactionIdentifier atLocation:event.changeLocation
+                           changeDate:event.changeDate andData:event.changedData];
+}
+
 + (BOOL)isSynchronizationEvent:(NSDictionary *)eventPayload {
 
     BOOL isSynchronizationEvent = ([eventPayload objectForKey:PNObjectSynchronizationEventDataKeys.action] != nil &&
@@ -83,6 +90,11 @@ struct PNObjectSynchronizationEventDataKeysStruct PNObjectSynchronizationEventDa
     return (isSynchronizationEvent || isTransactionNotificationEvent);
 }
 
++ (NSString *)initializationTransactionIdentifier {
+    
+    return @"init";
+}
+
 
 #pragma mark - Instance methods
 
@@ -95,7 +107,7 @@ transactionIdentifier:(NSString *)transactionIdentifier atLocation:(NSString *)c
 
         self.type = type;
         self.objectIdentifier = objectIdentifier;
-        self.eventTransactionIdentifier = (type == PNObjectInitEvent ? @"init" : transactionIdentifier);
+        self.eventTransactionIdentifier = (type == PNObjectInitEvent ? [[self class] initializationTransactionIdentifier] : transactionIdentifier);
         NSArray *pathComponents = [changeLocation componentsSeparatedByString:@"."];
         if ([pathComponents count] > 1) {
 
@@ -110,6 +122,27 @@ transactionIdentifier:(NSString *)transactionIdentifier atLocation:(NSString *)c
 
 
     return self;
+}
+
+- (NSString *)description {
+    
+    NSString *type = @"complete";
+    if (self.type == PNObjectInitEvent) {
+        
+        type = @"init";
+    }
+    else if (self.type == PNObjectUpdateEvent) {
+        
+        type = @"update";
+    }
+    else if (self.type == PNObjectDeleteEvent) {
+        
+        type = @"delete";
+    }
+    
+    
+    return [NSString stringWithFormat:@"%@(%p) <event: %@; object: %@; date: %@; transaction: %@; location: %@>", NSStringFromClass([self class]),
+            self, type, self.objectIdentifier, self.changeDate, self.eventTransactionIdentifier, self.changeLocation];
 }
 
 #pragma mark -

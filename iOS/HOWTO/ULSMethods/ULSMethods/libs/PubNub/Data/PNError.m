@@ -157,6 +157,61 @@
             errorCode = kPNAPIRateExceededError;
         }
     }
+    else if ([errorMessage rangeOfString:@"Failed"].location != NSNotFound){
+        
+        if ([errorMessage rangeOfString:@"path"].location != NSNotFound) {
+            
+            // Check whether developer specified correct cloud object path or not.
+            if ([errorMessage rangeOfString:@"get"].location != NSNotFound) {
+                
+                errorCode = kPNDataSyncWrongObjectPathError;
+            }
+            // Check whether service reported that path can't be updated or not.
+            else if ([errorMessage rangeOfString:@"update"].location != NSNotFound) {
+                
+                errorCode = kPNDataSyncUnableUpdateObjectAtPathError;
+            }
+            // Check whether service reported that path can't be used for data replacement.
+            else if ([errorMessage rangeOfString:@"set"].location != NSNotFound) {
+                
+                errorCode = kPNDataSyncUnableUpdateObjectAtPathError;
+            }
+            // Check whether service reported that path can't be deleted or not.
+            else if ([errorMessage rangeOfString:@"delete"].location != NSNotFound) {
+                
+                errorCode = kPNDataSyncUnableDeleteObjectAtPathError;
+            }
+        }
+        // Check whether service reported that it can decode payload which has been sent from client.
+        else if ([errorMessage rangeOfString:@"decode"].location != NSNotFound) {
+            
+            errorCode = kPNDataSyncMalformedObjectDataError;
+        }
+    }
+    else if ([errorMessage rangeOfString:@"Datasync"].location != NSNotFound){
+        
+        // Check whether developer enabled Data Sync feature for account or not.
+        if ([errorMessage rangeOfString:@"not enabled"].location != NSNotFound) {
+            
+            errorCode = kPNDataSyncNotEnabledError;
+        }
+    }
+    else if ([errorMessage rangeOfString:@"obj_at"].location != NSNotFound){
+        
+        // Check whether PubNub client sent wrong value as timetoken.
+        if ([errorMessage rangeOfString:@"timetoken"].location != NSNotFound) {
+            
+            errorCode = kPNDataSyncObjectIncompatibleTimeTokenError;
+        }
+    }
+    else if ([errorMessage rangeOfString:@"Root"].location != NSNotFound){
+        
+        // Check whether non-dictionary object has been passed as object payload.
+        if ([errorMessage rangeOfString:@"must be an object"].location != NSNotFound) {
+            
+            errorCode = kPNDataSyncWrongObjectPayloadError;
+        }
+    }
 
     PNError *error = nil;
     if (errorCode == kPNUnknownError || errorCode == kPNAPIRateExceededError) {
@@ -253,8 +308,13 @@
                 errorDescription = @"PubNub client can't use presence API";
                 break;
             case kPNInvalidJSONError:
-
+            case kPNDataSyncMalformedObjectDataError:
+                
                 errorDescription = @"PubNub service can't process JSON";
+                break;
+            case kPNDataSyncWrongObjectPayloadError:
+                
+                errorDescription = @"PubNub service can't use provided payload for cloud object";
                 break;
             case kPNInvalidSubscribeOrPublishKeyError:
 
@@ -264,6 +324,22 @@
 
                 errorDescription = @"PubNub service process request for channel";
                 break;
+            case kPNDataSyncWrongObjectPathError:
+                
+                errorDescription = @"PubNub service can't use specified path to cloud object data";
+                break;
+            case kPNDataSyncUnableUpdateObjectAtPathError:
+                
+                errorDescription = @"PubNub service can't update data at specified path on cloud object data";
+                break;
+            case kPNDataSyncUnableReplaceObjectAtPathError:
+                
+                errorDescription = @"PubNub service can't replace data at specified path on cloud object data";
+                break;
+            case kPNDataSyncUnableDeleteObjectAtPathError:
+                
+                errorDescription = @"PubNub service can't delete data at specified path on cloud object data";
+                break;
             case kPNAPIUnauthorizedAccessError:
             case kPNAPIAccessForbiddenError:
             case kPNAPIRateExceededError:
@@ -271,6 +347,7 @@
                 errorDescription = @"PubNub API access denied";
                 break;
             case kPNAPINotAvailableOrNotEnabledError:
+            case kPNDataSyncNotEnabledError:
 
                 errorDescription = @"PubNub API not available or not enabled";
                 break;
@@ -292,6 +369,10 @@
             case kPNDevicePushTokenIsEmptyError:
                 
                 errorDescription = @"PubNub client can't enable push notification";
+                break;
+            case kPNDataSyncObjectIncompatibleTimeTokenError:
+                
+                errorDescription = @"PubNub client can't fetch cloud object";
                 break;
             case kPNResponseEncodingError:
 
@@ -404,17 +485,41 @@
                              "http://admin.pubnub.com, and try again";
             break;
         case kPNInvalidJSONError:
-
+            
             failureReason = @"Looks like we sent malformed JSON or the message was changed after the signature was "
                              "generated";
+            break;
+        case kPNDataSyncMalformedObjectDataError:
+            
+            failureReason = @"Looks like we sent malformed JSON and it can't be used by service with cloud object";
+            break;
+        case kPNDataSyncWrongObjectPayloadError:
+            
+            failureReason = @"Looks like non-dictionary payload has been specified for cloud object";
             break;
         case kPNInvalidSubscribeOrPublishKeyError:
 
             failureReason = @"Looks like either the subscribe or publish key is wrong";
             break;
         case kPNRestrictedCharacterInChannelNameError:
-
+            
             failureReason = @"Looks like there are invalid characters in one of the channel names";
+            break;
+        case kPNDataSyncWrongObjectPathError:
+            
+            failureReason = @"Looks like specified path can't be used to fetch cloud object";
+            break;
+        case kPNDataSyncUnableUpdateObjectAtPathError:
+            
+            failureReason = @"Looks like specified path can't be user for cloud object data update";
+            break;
+        case kPNDataSyncUnableReplaceObjectAtPathError:
+            
+            failureReason = @"Looks like specified path can't be user for cloud object data replace";
+            break;
+        case kPNDataSyncUnableDeleteObjectAtPathError:
+            
+            failureReason = @"Looks like specified path can't be user for cloud object data delete";
             break;
         case kPNAPIUnauthorizedAccessError:
 
@@ -428,6 +533,7 @@
                              "this resource";
             break;
         case kPNAPINotAvailableOrNotEnabledError:
+        case kPNDataSyncNotEnabledError:
 
             failureReason = @"Looks like API which you try to used is not enabled or require for payment.";
             break;
@@ -473,6 +579,10 @@
         case kPNDevicePushTokenIsEmptyError:
             
             failureReason = @"Looks like device push notification token is nil";
+            break;
+        case kPNDataSyncObjectIncompatibleTimeTokenError:
+            
+            failureReason = @"Looks like client used wrong data type for time token during cloud object fetch";
             break;
         case kPNResponseEncodingError:
 
@@ -584,17 +694,33 @@
             fixSuggestion = @"Please visit https://admin.pubnub.com, enable Presence, and try again.";
             break;
         case kPNInvalidJSONError:
-
+            
             fixSuggestion = @"There was an error sending the data to the origin. Be sure you didn't try to send "
                              "non-object or non-JSON data.";
+            break;
+        case kPNDataSyncMalformedObjectDataError:
+            
+            fixSuggestion = @"There was an error sending the data to the origin. Be sure that you are sending correct JSON object";
+            break;
+        case kPNDataSyncWrongObjectPayloadError:
+            
+            fixSuggestion = @"Make sure that you specify dictionary for root cloud object data.";
             break;
         case kPNInvalidSubscribeOrPublishKeyError:
 
             fixSuggestion = @"Review the request and ensure that the correct keys are referenced.";
             break;
         case kPNRestrictedCharacterInChannelNameError:
-
+            
             fixSuggestion = @"Ensure that you don't use the comma char (,) in your channel names.";
+            break;
+        case kPNDataSyncWrongObjectPathError:
+        case kPNDataSyncUnableUpdateObjectAtPathError:
+        case kPNDataSyncUnableReplaceObjectAtPathError:
+        case kPNDataSyncUnableDeleteObjectAtPathError:
+            
+            fixSuggestion = @"Ensure that your path doesn't contain any restricted characters. If this issue persists, "
+                             "please contact support at support@pubnub.com and reference error code.";
             break;
         case kPNAPIUnauthorizedAccessError:
 
@@ -607,6 +733,7 @@
                              "access is currently denied for this key.";
             break;
         case kPNAPINotAvailableOrNotEnabledError:
+        case kPNDataSyncNotEnabledError:
 
             fixSuggestion = @"Please visit https://admin.pubnub.com and check whether your application has access "
                              "(API enabled) to the API which you tried to use.";
@@ -653,6 +780,10 @@
         case kPNDevicePushTokenIsEmptyError:
             
             fixSuggestion = @"Ensure that you provided the correct non-nil device push token.";
+            break;
+        case kPNDataSyncObjectIncompatibleTimeTokenError:
+            
+            fixSuggestion = @"Ensure that correct time token has been used (string).";
             break;
         case kPNMessageObjectError:
 

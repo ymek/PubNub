@@ -13,6 +13,9 @@
 #ifndef PNImports_h
 #define PNImports_h
 
+#import "PNObjectAccessRightsInformation.h"
+#import "PNObjectAccessRightsCollection.h"
+#import "PNObjectAccessRightOptions.h"
 #import "PNAccessRightsInformation.h"
 #import "PNAccessRightsCollection.h"
 #import "PNAccessRightOptions.h"

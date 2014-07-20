@@ -411,8 +411,28 @@ static NSString * const kPNClientAccessRightsChangeDidCompleteNotification = @"P
 static NSString * const kPNClientAccessRightsChangeDidFailNotification = @"PNClientAccessRightsChangeDidFailNotification";
 
 /**
- Sent when \b PubNub client did complete access rights audit process.
+ Sent when \b PubNub client did complete access rights change process.
+ 
+ \b userInfo contains reference on \b PNObjectAccessRightsCollection which aggregate in itself \b PNObjectAccessRightsInformation
+ instances to describe access rights at different levels (there is a three levels: application, channel and user).
+ */
+static NSString * const kPNClientObjectAccessRightsChangeDidCompleteNotification = @"PNClientObjectAccessRightsChangeDidCompleteNotification";
 
+/**
+ Sent when \b PubNub client did fail access rights change.
+ 
+ \b userInfo contains \b PNError instead of \a NSDictionary. \a 'error.associatedObject' stores reference on
+ \b PNObjectAccessRightOptions instance which describes what kind of access right change manipulation and at which
+ level failed.
+ 
+ @note Always check \a error.code to find out what caused error (check PNErrorCodes header file and use \a -localizedDescription /
+ \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
+static NSString * const kPNClientObjectAccessRightsChangeDidFailNotification = @"PNClientObjectAccessRightsChangeDidFailNotification";
+
+/**
+ Sent when \b PubNub client did complete access rights audit process.
+ 
  \b userInfo contains reference on \b PNAccessRightsCollection which aggregate in itself \b PNAccessRightsInformation
  instances to describe access rights at different levels (there is a three levels: application, channel and user).
  */
@@ -420,14 +440,33 @@ static NSString * const kPNClientAccessRightsAuditDidCompleteNotification = @"PN
 
 /**
  Sent when \b PubNub client did fail access rights audition.
-
+ 
  \b userInfo contains reference on \b PNError instead of \a NSDictionary. \a 'error.associatedObject' stores reference on
  \b PNAccessRightOptions instance which describes access level for which audition has been requested.
-
+ 
  @note Always check \a error.code to find out what caused error (check PNErrorCodes header file and use \a -localizedDescription /
  \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
  */
 static NSString * const kPNClientAccessRightsAuditDidFailNotification = @"PNClientAccessRightsAuditDidFailNotification";
+
+/**
+ Sent when \b PubNub client did complete access rights audit process.
+ 
+ \b userInfo contains reference on \b PNObjectAccessRightsCollection which aggregate in itself \b PNObjectAccessRightsInformation
+ instances to describe access rights at different levels (there is a three levels: application, channel and user).
+ */
+static NSString * const kPNClientObjectAccessRightsAuditDidCompleteNotification = @"PNClientObjectAccessRightsAuditDidCompleteNotification";
+
+/**
+ Sent when \b PubNub client did fail access rights audition.
+ 
+ \b userInfo contains reference on \b PNError instead of \a NSDictionary. \a 'error.associatedObject' stores reference on
+ \b PNObjectAccessRightOptions instance which describes access level for which audition has been requested.
+ 
+ @note Always check \a error.code to find out what caused error (check PNErrorCodes header file and use \a -localizedDescription /
+ \a -localizedFailureReason and \a -localizedRecoverySuggestion to get human readable description for error).
+ */
+static NSString * const kPNClientObjectAccessRightsAuditDidFailNotification = @"PNClientObjectAccessRightsAuditDidFailNotification";
 
 /**
  Sent when \b PubNub client did complete time token retrieval process.

@@ -21,8 +21,11 @@
 //
 
 #import "PNServiceChannel.h"
-#import "PNAccessRightsCollection+Protected.h"
+#import "PNObjectAccessRightsCollection+Protected.h"
 #import "PNObjectModificationRequest+Protected.h"
+#import "PNObjectAccessRightOptions+Protected.h"
+#import "PNAccessRightsCollection+Protected.h"
+#import "PNSynchronizationChannel+Protected.h"
 #import "PNMessageHistoryRequest+Protected.h"
 #import "PNObjectFetchRequest+Protected.h"
 #import "PNConnectionChannel+Protected.h"
@@ -578,21 +581,32 @@
         }
         else if ([request isKindOfClass:[PNChangeAccessRightsRequest class]]) {
 
-            PNAccessRightOptions *options = ((PNChangeAccessRightsRequest *)request).accessRightOptions;
+            id options = ((PNChangeAccessRightsRequest *)request).accessRightOptions;
+            NSString *anyChannelName = ((PNChannel *)[((PNAccessRightOptions *)options).channels lastObject]).name;
+            BOOL isObjectAccessRightsChange = [PNSynchronizationChannel isObjectSynchronizationChannel:anyChannelName];
             
             // Check whether there is no error while tried to change access rights.
             if (![parsedData isKindOfClass:[PNError class]]) {
+                
+                [(PNAccessRightsCollection *)parsedData correlateAccessRightsWithOptions:options];
+                if (isObjectAccessRightsChange) {
+                    
+                    parsedData = [PNObjectAccessRightsCollection objectAccessRightsFrom:parsedData];
+                }
 
                 [PNLogger logCommunicationChannelInfoMessageFrom:self message:^NSString * {
 
                     return [NSString stringWithFormat:@"[CHANNEL::%@] ACCESS RIGHTS SUCCESSFULLY CHANGED. SERVICE RESPONSE: %@",
                             self, parsedData];
                 }];
-
-                [(PNAccessRightsCollection *)parsedData correlateAccessRightsWithOptions:options];
                 [self.serviceDelegate serviceChannel:self didChangeAccessRights:parsedData];
             }
             else {
+                
+                if (isObjectAccessRightsChange) {
+                    
+                    options = [PNObjectAccessRightOptions accessRightOptionsFrom:options];
+                }
 
                 ((PNError *)parsedData).associatedObject = options;
                 [PNLogger logCommunicationChannelErrorMessageFrom:self message:^NSString * {
@@ -605,22 +619,33 @@
             }
         }
         else if ([request isKindOfClass:[PNAccessRightsAuditRequest class]]) {
-
-            PNAccessRightOptions *options = ((PNAccessRightsAuditRequest *)request).accessRightOptions;
+            
+            id options = ((PNAccessRightsAuditRequest *)request).accessRightOptions;
+            NSString *anyChannelName = ((PNChannel *)[((PNAccessRightOptions *)options).channels lastObject]).name;
+            BOOL isObjectAccessRightsChange = [PNSynchronizationChannel isObjectSynchronizationChannel:anyChannelName];
 
             // Check whether there is no error while tried to audit access rights.
             if (![parsedData isKindOfClass:[PNError class]]) {
+                
+                [(PNAccessRightsCollection *)parsedData correlateAccessRightsWithOptions:options];
+                if (isObjectAccessRightsChange) {
+                    
+                    parsedData = [PNObjectAccessRightsCollection objectAccessRightsFrom:parsedData];
+                }
 
                 [PNLogger logCommunicationChannelInfoMessageFrom:self message:^NSString * {
 
                     return [NSString stringWithFormat:@"[CHANNEL::%@] ACCESS RIGHTS SUCCESSFULLY AUDITED. SERVICE RESPONSE: %@",
                             self, parsedData];
                 }];
-
-                [(PNAccessRightsCollection *)parsedData correlateAccessRightsWithOptions:options];
                 [self.serviceDelegate serviceChannel:self didAuditAccessRights:parsedData];
             }
             else {
+                
+                if (isObjectAccessRightsChange) {
+                    
+                    options = [PNObjectAccessRightOptions accessRightOptionsFrom:options];
+                }
 
                 ((PNError *)parsedData).associatedObject = options;
                 [PNLogger logCommunicationChannelErrorMessageFrom:self message:^NSString * {
@@ -945,12 +970,12 @@
                                                      authorizationKeys:(NSArray *)authorizationKeys
                                                              forPeriod:(NSInteger)accessPeriod {
 
-    [self scheduleRequest:[PNChangeAccessRightsRequest changeAccessRightsRequestForChannels:channels
-                                                                               accessRights:accessRights
+    [self scheduleRequest:[PNChangeAccessRightsRequest changeAccessRightsRequestForChannels:channels accessRights:accessRights
                                                                                     clients:authorizationKeys
                                                                                   forPeriod:accessPeriod]
   shouldObserveProcessing:YES];
 }
+
 - (void)auditAccessRightsForChannels:(NSArray *)channels clients:(NSArray *)clientsAuthorizationKeys {
 
     [self scheduleRequest:[PNAccessRightsAuditRequest accessRightsAuditRequestForChannels:channels

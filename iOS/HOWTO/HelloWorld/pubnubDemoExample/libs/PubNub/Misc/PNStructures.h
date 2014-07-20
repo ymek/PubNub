@@ -11,8 +11,8 @@
 
 #pragma mark Class forward
 
-@class PNObjectModificationInformation, PNAccessRightsCollection, PNPresenceEvent, PNMessage, PNChannel, PNObject;
-@class PNClient, PNError, PNDate;
+@class PNObjectModificationInformation, PNObjectAccessRightsCollection, PNAccessRightsCollection, PNPresenceEvent;
+@class PNMessage, PNChannel, PNObject, PNClient, PNError, PNDate;
 
 
 #ifndef PNStructures_h
@@ -109,11 +109,16 @@ typedef NS_OPTIONS(NSInteger , PNAccessRightsLevel) {
      Access rights granted for particular channel.
      */
     PNChannelAccessRightsLevel,
+    
+    /**
+     Access rights granted for cloud object.
+     */
+    PNObjectAccessRightsLevel,
 
     /**
      Access rights granted for concrete user (users identified by \a 'authorization' key).
      */
-    PNUserAccessRightsLevel,
+    PNUserAccessRightsLevel
 };
 
 
@@ -137,6 +142,8 @@ typedef void (^PNClientParticipantsHandlingBlock)(NSArray *, PNChannel *, PNErro
 typedef void (^PNClientParticipantChannelsHandlingBlock)(NSString *, NSArray *, PNError *);
 typedef void (^PNClientChannelAccessRightsChangeBlock)(PNAccessRightsCollection *, PNError *);
 typedef void (^PNClientChannelAccessRightsAuditBlock)(PNAccessRightsCollection *, PNError *);
+typedef void (^PNClientObjectAccessRightsChangeBlock)(PNObjectAccessRightsCollection *, PNError *);
+typedef void (^PNClientObjectAccessRightsAuditBlock)(PNObjectAccessRightsCollection *, PNError *);
 typedef void (^PNClientPresenceEventHandlingBlock)(PNPresenceEvent *);
 typedef void (^PNClientPresenceEnableHandlingBlock)(NSArray *, PNError *);
 typedef void (^PNClientPresenceDisableHandlingBlock)(NSArray *, PNError *);

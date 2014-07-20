@@ -182,9 +182,13 @@ static NSUInteger const kPNResponseSynchronizationChannelsListElementIndex = 3;
 
                             NSArray *components = [channel.name componentsSeparatedByString:@"."];
                             if ([components count] > 1) {
+                                
+                                NSString *objectIdentifier = [components objectAtIndex:0];
+                                components = [components subarrayWithRange:(NSRange){.location = 1, .length = ([components count] - 1)}];
+                                NSString *changeLocation = [components componentsJoinedByString:@"."];
 
-                                channel = [PNSynchronizationChannel channelForObject:[components objectAtIndex:0]
-                                                dataPath:([components count] > 2 ? [components lastObject] : nil)];
+                                channel = [PNSynchronizationChannel channelForObject:objectIdentifier
+                                                dataPath:([components count] > 0 ? changeLocation : nil)];
                             }
                         }
                         if ([channel isObjectSynchronizationChannel]) {

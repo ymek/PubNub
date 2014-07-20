@@ -23,11 +23,17 @@ static NSString * const kPNApplicationIdentifierKey = @"subscribe_key";
 // Stores reference on key under which channel name is stored in response
 static NSString * const kPNAccessChannelKey = @"channel";
 
+// Stores reference on key under which object name is stored in response
+static NSString * const kPNAccessObjectKey = @"object";
+
 // Stores reference on key under which stored information about how long granted access rights will be valid.
 static NSString * const kPNAccessRightsPeriodKey = @"ttl";
 
 // Stores reference on key under which affected channels list is stored in response
 static NSString * const kPNAccessChannelsKey = @"channels";
+
+// Stores reference on key under which affected objects list is stored in response
+static NSString * const kPNAccessObjectsKey = @"objects";
 
 /**
  Stores reference on key under which stored list of authentication keys for which access rights has been

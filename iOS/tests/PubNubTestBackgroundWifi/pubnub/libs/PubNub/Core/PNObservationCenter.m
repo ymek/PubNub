@@ -58,6 +58,8 @@ struct PNObservationEventsStruct {
     __unsafe_unretained NSString *clientTimeTokenReceivingComplete;
     __unsafe_unretained NSString *clientAccessRightsChange;
     __unsafe_unretained NSString *clientAccessRightsAudit;
+    __unsafe_unretained NSString *objectAccessRightsChange;
+    __unsafe_unretained NSString *objectAccessRightsAudit;
     __unsafe_unretained NSString *clientMessageSendCompletion;
     __unsafe_unretained NSString *clientReceivedMessage;
     __unsafe_unretained NSString *clientReceivedPresenceEvent;
@@ -95,6 +97,8 @@ static struct PNObservationEventsStruct PNObservationEvents = {
     .clientPushNotificationRemovalForAllChannels = @"clientPushNotificationRemovalForAllChannels",
     .clientAccessRightsChange = @"clientAccessRightsChange",
     .clientAccessRightsAudit = @"clientAccessRightsAudit",
+    .objectAccessRightsChange = @"objectAccessRightsChange",
+    .objectAccessRightsAudit = @"objectAccessRightsAudit",
     .clientMessageSendCompletion = @"clientMessageSendCompletionEvent",
     .clientReceivedMessage = @"clientReceivedMessageEvent",
     .clientReceivedPresenceEvent = @"clientReceivedPresenceEvent",
@@ -169,6 +173,8 @@ static struct PNObservationObserverDataStruct PNObservationObserverData = {
 - (void)handleClientMessageHistoryProcess:(NSNotification *)notification;
 - (void)handleClientChannelAccessRightsChange:(NSNotification *)notification;
 - (void)handleClientChannelAccessRightsRequest:(NSNotification *)notification;
+- (void)handleClientObjectAccessRightsChange:(NSNotification *)notification;
+- (void)handleClientObjectAccessRightsRequest:(NSNotification *)notification;
 - (void)handleClientHereNowProcess:(NSNotification *)notification;
 - (void)handleClientWhereNowProcess:(NSNotification *)notification;
 - (void)handleClientCompletedTimeTokenProcessing:(NSNotification *)notification;
@@ -329,6 +335,10 @@ static struct PNObservationObserverDataStruct PNObservationObserverData = {
                                    name:kPNClientAccessRightsChangeDidCompleteNotification object:nil];
         [notificationCenter addObserver:self selector:@selector(handleClientChannelAccessRightsChange:)
                                    name:kPNClientAccessRightsChangeDidFailNotification object:nil];
+        [notificationCenter addObserver:self selector:@selector(handleClientObjectAccessRightsChange:)
+                                   name:kPNClientObjectAccessRightsChangeDidCompleteNotification object:nil];
+        [notificationCenter addObserver:self selector:@selector(handleClientObjectAccessRightsChange:)
+                                   name:kPNClientObjectAccessRightsChangeDidFailNotification object:nil];
 
 
         // Handle access rights audit events
@@ -336,6 +346,10 @@ static struct PNObservationObserverDataStruct PNObservationObserverData = {
                                    name:kPNClientAccessRightsAuditDidCompleteNotification object:nil];
         [notificationCenter addObserver:self selector:@selector(handleClientChannelAccessRightsRequest:)
                                    name:kPNClientAccessRightsAuditDidFailNotification object:nil];
+        [notificationCenter addObserver:self selector:@selector(handleClientObjectAccessRightsRequest:)
+                                   name:kPNClientObjectAccessRightsAuditDidCompleteNotification object:nil];
+        [notificationCenter addObserver:self selector:@selector(handleClientObjectAccessRightsRequest:)
+                                   name:kPNClientObjectAccessRightsAuditDidFailNotification object:nil];
 
 
         // Handle time token events
@@ -1089,62 +1103,67 @@ static struct PNObservationObserverDataStruct PNObservationObserverData = {
 
 - (void)addClientAsAccessRightsChangeObserverWithBlock:(PNClientChannelAccessRightsChangeBlock)handlerBlock {
     
-    [self addObserver:[PubNub sharedInstance]
-             forEvent:PNObservationEvents.clientAccessRightsChange
-         oneTimeEvent:YES
-            withBlock:handlerBlock];
+    [self addObserver:[PubNub sharedInstance] forEvent:PNObservationEvents.clientAccessRightsChange
+         oneTimeEvent:YES withBlock:handlerBlock];
 }
 
 - (void)removeClientAsAccessRightsChangeObserver {
     
-    [self removeObserver:[PubNub sharedInstance]
-                forEvent:PNObservationEvents.clientAccessRightsChange
+    [self removeObserver:[PubNub sharedInstance] forEvent:PNObservationEvents.clientAccessRightsChange
             oneTimeEvent:YES];
 }
 
 - (void)addAccessRightsChangeObserver:(id)observer withBlock:(PNClientChannelAccessRightsChangeBlock)handlerBlock {
     
-    [self addObserver:observer
-             forEvent:PNObservationEvents.clientAccessRightsChange
-         oneTimeEvent:NO
+    [self addObserver:observer forEvent:PNObservationEvents.clientAccessRightsChange oneTimeEvent:NO
             withBlock:handlerBlock];
 }
 - (void)removeAccessRightsObserver:(id)observer {
     
-    [self removeObserver:observer
-                forEvent:PNObservationEvents.clientAccessRightsChange
-            oneTimeEvent:NO];
+    [self removeObserver:observer forEvent:PNObservationEvents.clientAccessRightsChange oneTimeEvent:NO];
 }
 
 - (void)addClientAsAccessRightsAuditObserverWithBlock:(PNClientChannelAccessRightsAuditBlock)handlerBlock {
     
-    [self addObserver:[PubNub sharedInstance]
-             forEvent:PNObservationEvents.clientAccessRightsAudit
-         oneTimeEvent:YES
-            withBlock:handlerBlock];
+    [self addObserver:[PubNub sharedInstance] forEvent:PNObservationEvents.clientAccessRightsAudit
+         oneTimeEvent:YES withBlock:handlerBlock];
     
 }
 
 - (void)removeClientAsAccessRightsAuditObserver {
     
-    [self removeObserver:[PubNub sharedInstance]
-                forEvent:PNObservationEvents.clientAccessRightsAudit
+    [self removeObserver:[PubNub sharedInstance] forEvent:PNObservationEvents.clientAccessRightsAudit
             oneTimeEvent:YES];
 }
 
 - (void)addAccessRightsAuditObserver:(id)observer withBlock:(PNClientChannelAccessRightsAuditBlock)handlerBlock {
     
-    [self addObserver:observer
-             forEvent:PNObservationEvents.clientAccessRightsAudit
-         oneTimeEvent:NO
-            withBlock:handlerBlock];
+    [self addObserver:observer forEvent:PNObservationEvents.clientAccessRightsAudit oneTimeEvent:NO withBlock:handlerBlock];
 }
 
 - (void)removeAccessRightsAuditObserver:(id)observer {
     
-    [self removeObserver:observer
-                forEvent:PNObservationEvents.clientAccessRightsAudit
-            oneTimeEvent:NO];
+    [self removeObserver:observer forEvent:PNObservationEvents.clientAccessRightsAudit oneTimeEvent:NO];
+}
+
+- (void)addObjectAccessRightsChangeObserver:(id)observer withBlock:(PNClientObjectAccessRightsChangeBlock)handlerBlock {
+    
+    [self addObserver:observer forEvent:PNObservationEvents.objectAccessRightsChange oneTimeEvent:NO withBlock:handlerBlock];
+}
+
+- (void)removeObjectAccessRightsObserver:(id)observer {
+    
+    [self removeObserver:observer forEvent:PNObservationEvents.objectAccessRightsChange oneTimeEvent:NO];
+}
+
+- (void)addObjectAccessRightsAuditObserver:(id)observer withBlock:(PNClientObjectAccessRightsAuditBlock)handlerBlock {
+    
+    [self addObserver:observer forEvent:PNObservationEvents.objectAccessRightsAudit oneTimeEvent:NO withBlock:handlerBlock];
+}
+
+- (void)removeObjectAccessRightsAuditObserver:(id)observer {
+    
+    [self removeObserver:observer forEvent:PNObservationEvents.objectAccessRightsAudit oneTimeEvent:NO];
 }
 
 
@@ -1969,6 +1988,68 @@ static struct PNObservationObserverDataStruct PNObservationObserverData = {
     }];
 }
 
+- (void)handleClientObjectAccessRightsChange:(NSNotification *)notification {
+    
+    PNObjectAccessRightsCollection *collection = nil;
+    PNError *error = nil;
+    if ([notification.name isEqualToString:kPNClientObjectAccessRightsChangeDidCompleteNotification]) {
+        
+        collection = (PNObjectAccessRightsCollection *)notification.userInfo;
+    }
+    else {
+        
+        error = (PNError *)notification.userInfo;
+    }
+    
+    // Retrieving list of observers (including one time and persistent observers)
+    NSArray *observers = [self observersForEvent:PNObservationEvents.objectAccessRightsChange];
+    
+    // Clean one time observers for specific event
+    [self removeOneTimeObserversForEvent:PNObservationEvents.objectAccessRightsChange];
+    
+    [observers enumerateObjectsUsingBlock:^(NSMutableDictionary *observerData, NSUInteger observerDataIdx,
+                                            BOOL *observerDataEnumeratorStop) {
+        
+        // Call handling blocks
+        PNClientObjectAccessRightsChangeBlock block = [observerData valueForKey:PNObservationObserverData.observerCallbackBlock];
+        if (block) {
+            
+            block(collection, error);
+        }
+    }];
+}
+
+- (void)handleClientObjectAccessRightsRequest:(NSNotification *)notification {
+    
+    PNObjectAccessRightsCollection *collection = nil;
+    PNError *error = nil;
+    if ([notification.name isEqualToString:kPNClientObjectAccessRightsAuditDidCompleteNotification]) {
+        
+        collection = (PNObjectAccessRightsCollection *)notification.userInfo;
+    }
+    else {
+        
+        error = (PNError *)notification.userInfo;
+    }
+    
+    // Retrieving list of observers (including one time and persistent observers)
+    NSArray *observers = [self observersForEvent:PNObservationEvents.objectAccessRightsAudit];
+    
+    // Clean one time observers for specific event
+    [self removeOneTimeObserversForEvent:PNObservationEvents.objectAccessRightsAudit];
+    
+    [observers enumerateObjectsUsingBlock:^(NSMutableDictionary *observerData, NSUInteger observerDataIdx,
+                                            BOOL *observerDataEnumeratorStop) {
+        
+        // Call handling blocks
+        PNClientObjectAccessRightsAuditBlock block = [observerData valueForKey:PNObservationObserverData.observerCallbackBlock];
+        if (block) {
+            
+            block(collection, error);
+        }
+    }];
+}
+
 - (void)handleClientHereNowProcess:(NSNotification *)notification {
 
     // Retrieve reference on participants object
@@ -2175,12 +2256,15 @@ static struct PNObservationObserverDataStruct PNObservationObserverData = {
     [notificationCenter removeObserver:self name:kPNClientPushNotificationRemoveDidFailNotification object:nil];
     [notificationCenter removeObserver:self name:kPNClientPushNotificationChannelsRetrieveDidCompleteNotification object:nil];
     [notificationCenter removeObserver:self name:kPNClientPushNotificationChannelsRetrieveDidFailNotification object:nil];
-
+    
     [notificationCenter removeObserver:self name:kPNClientAccessRightsChangeDidCompleteNotification object:nil];
     [notificationCenter removeObserver:self name:kPNClientAccessRightsChangeDidFailNotification object:nil];
     [notificationCenter removeObserver:self name:kPNClientAccessRightsAuditDidCompleteNotification object:nil];
     [notificationCenter removeObserver:self name:kPNClientAccessRightsAuditDidFailNotification object:nil];
-
+    [notificationCenter removeObserver:self name:kPNClientObjectAccessRightsChangeDidCompleteNotification object:nil];
+    [notificationCenter removeObserver:self name:kPNClientObjectAccessRightsChangeDidFailNotification object:nil];
+    [notificationCenter removeObserver:self name:kPNClientObjectAccessRightsAuditDidCompleteNotification object:nil];
+    [notificationCenter removeObserver:self name:kPNClientObjectAccessRightsAuditDidFailNotification object:nil];
 
     [notificationCenter removeObserver:self name:kPNClientDidReceiveTimeTokenNotification object:nil];
     [notificationCenter removeObserver:self name:kPNClientDidFailTimeTokenReceiveNotification object:nil];

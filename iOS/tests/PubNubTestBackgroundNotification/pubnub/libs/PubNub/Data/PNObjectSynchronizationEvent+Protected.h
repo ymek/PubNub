@@ -111,6 +111,16 @@ extern struct PNObjectSynchronizationEventDataKeysStruct PNObjectSynchronization
                                                  dromDictionary:(NSDictionary *)event;
 
 /**
+ Create "completion" eevent basing on last event information.
+ 
+ @param event
+ Event from which required information should be pulled out.
+ 
+ @return Ready to use completion event.
+ */
++ (PNObjectSynchronizationEvent *)synchronizationCompletionFromEvent:(PNObjectSynchronizationEvent *)event;
+
+/**
  Verify whether provided payload should be treated as synchronization event or not.
 
  @param eventPayload
@@ -119,6 +129,13 @@ extern struct PNObjectSynchronizationEventDataKeysStruct PNObjectSynchronization
  @return \c YES in case if this is payload for remote object synchronization.
  */
 + (BOOL)isSynchronizationEvent:(NSDictionary *)eventPayload;
+
+/**
+ Retrieve reference on \b 'initialization' transaction which is issued when object is fetched from \b PubNub cloud.
+ 
+ @return Transaction identifier.
+ */
++ (NSString *)initializationTransactionIdentifier;
 
 
 #pragma mark - Instance methods

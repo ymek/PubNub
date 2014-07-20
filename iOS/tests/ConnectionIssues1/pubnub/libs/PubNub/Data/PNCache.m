@@ -226,49 +226,101 @@
 
     PNObject *object = [self.objects valueForKey:event.objectIdentifier];
     if ([self.objectUpdates objectForKey:event.objectIdentifier]) {
-
-        NSArray *events = [[self.objectUpdates valueForKey:event.objectIdentifier] valueForKey:event.eventTransactionIdentifier];
-        NSMutableDictionary *objectData = (object.data ? object.data : [NSMutableDictionary dictionary]);
-        [events enumerateObjectsUsingBlock:^(PNObjectSynchronizationEvent *event, NSUInteger eventIdx,
-                                             BOOL *eventEnumeratorStop) {
-
+        
+        NSMutableDictionary *storedObjectData = (object.data ? object.data : [NSMutableDictionary dictionary]);
+        
+        void(^processEventsBlock)(NSMutableDictionary *, PNObjectSynchronizationEvent *) = ^(NSMutableDictionary *objectData,
+                                                                                             PNObjectSynchronizationEvent *event) {
+            
             PNObjectSynchronizationEventType eventType = event.type;
-
+            
             // Checking whether changed/retrieved only piece of information
             if (event.changeLocation != nil) {
-
+                
                 if (eventType == PNObjectInitEvent || eventType == PNObjectUpdateEvent) {
-
+                    
                     [objectData setValue:event.changedData forKeyPath:event.changeLocation createIntermediateEntries:YES];
                 }
                 else {
-
+                    
                     [objectData removeObjectForKeyPath:event.changeLocation];
                 }
             }
             else {
-
+                
                 if (eventType == PNObjectInitEvent || eventType == PNObjectUpdateEvent) {
-
+                    
                     [objectData mergeWithDictionary:event.changedData];
                 }
-                else {
-
+                else if (eventType == PNObjectDeleteEvent) {
+                    
                     [objectData removeAllObjects];
                 }
             }
-        }];
+        };
+        
+        __block NSString *changeDate = nil;
+        // Check whether initialization transaction complete event arrived.
+        if ([event.eventTransactionIdentifier isEqualToString:[PNObjectSynchronizationEvent initializationTransactionIdentifier]]) {
+            
+            NSArray *events = [[self.objectUpdates valueForKey:event.objectIdentifier] valueForKey:event.eventTransactionIdentifier];
+            [events enumerateObjectsUsingBlock:^(PNObjectSynchronizationEvent *event, NSUInteger eventIdx,
+                                                 BOOL *eventEnumeratorStop) {
+                
+                processEventsBlock(storedObjectData, event);
+            }];
+            changeDate = ((PNObjectSynchronizationEvent *)[events lastObject]).changeDate;
+            [[self.objectUpdates valueForKey:event.objectIdentifier] removeObjectForKey:event.eventTransactionIdentifier];
+        }
+        
+        // Checking whether additional transaction information available or not.
+        if ([[self.objectUpdates valueForKey:event.objectIdentifier] count]) {
+            
+            NSMutableDictionary *transactions = [self.objectUpdates valueForKey:event.objectIdentifier];
+            NSMutableDictionary *completedTransactions = [NSMutableDictionary dictionaryWithCapacity:[transactions count]];
+            [transactions enumerateKeysAndObjectsUsingBlock:^(NSString *transactionIdentifier, NSMutableArray *transactionsList,
+                                                              BOOL *transactionsEnumeratorStop) {
+                
+                PNObjectSynchronizationEvent *lastEvent = [transactionsList lastObject];
+                if (lastEvent && lastEvent.type == PNObjectCompleteEvent) {
+                    
+                    [completedTransactions setValue:lastEvent.changeDate forKeyPath:lastEvent.eventTransactionIdentifier];
+                }
+            }];
+            
+            NSArray *sortedTransactions = [completedTransactions keysSortedByValueUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+                
+                return [obj1 compare:obj2];
+            }];
+            
+            if ([sortedTransactions count]) {
+                
+                [sortedTransactions enumerateObjectsUsingBlock:^(NSString *transactionIdentifier, NSUInteger transactionIdentifierIdx,
+                                                                 BOOL *transactionIdentifierEnumeratorStop) {
+                    
+                    NSArray *events = [[self.objectUpdates valueForKey:event.objectIdentifier] valueForKey:transactionIdentifier];
+                    [events enumerateObjectsUsingBlock:^(PNObjectSynchronizationEvent *storedEvent, NSUInteger eventIdx,
+                                                         BOOL *eventEnumeratorStop) {
+                        
+                        processEventsBlock(storedObjectData, storedEvent);
+                    }];
+                    changeDate = ((PNObjectSynchronizationEvent *)[events lastObject]).changeDate;
+                    [[self.objectUpdates valueForKey:event.objectIdentifier] removeObjectForKey:transactionIdentifier];
+                }];
+            }
+        }
 
 
         if (!object) {
 
-            NSString *changeDate = ((PNObjectSynchronizationEvent *)[events lastObject]).changeDate;
-            object = [PNObject objectWithIdentifier:event.objectIdentifier andData:objectData];
+            object = [PNObject objectWithIdentifier:event.objectIdentifier andData:storedObjectData];
             object.updateDate = [PNDate dateWithToken:PNNumberFromUnsignedLongLongString(changeDate)];
             [self.objects setValue:object forKey:event.objectIdentifier];
         }
-        [(NSMutableArray *)[(NSMutableDictionary *)[self.objectUpdates valueForKey:event.objectIdentifier]
-                        valueForKey:event.eventTransactionIdentifier] removeAllObjects];
+        if ([[self.objectUpdates valueForKey:event.objectIdentifier] count] == 0) {
+            
+            [self.objectUpdates removeObjectForKey:event.objectIdentifier];
+        }
     }
 
 
