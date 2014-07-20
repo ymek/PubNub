@@ -82,7 +82,7 @@
 
     NSString *partialObjectDataPath = [self.information.partialObjectDataPath stringByReplacingOccurrencesOfString:@"." withString:@"/"];
 
-    return [NSString stringWithFormat:@"/v1/datasync/sub-key/%@/obj-id/%@%@%@%@&method=GET&pnsdk=%@",
+    return [NSString stringWithFormat:@"/v1/datasync/sub-key/%@/obj-id/%@%@%@%@&method=GET&pnsdk=%@&page_max_bytes=1024",
                     [[PubNub sharedInstance].configuration.subscriptionKey percentEscapedString],
                     [self.information.objectIdentifier percentEscapedString],
                     (partialObjectDataPath ? [NSString stringWithFormat:@"/%@", partialObjectDataPath] : @""),

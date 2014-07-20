@@ -147,10 +147,6 @@
     }
     
     [self initializePubNubClient];
-    [PubNub setConfiguration:[PNConfiguration configurationForOrigin:@"pubsub-beta.pubnub.com"
-                                                          publishKey:@"demo" subscribeKey:@"demo" secretKey:@"demo"]];
-    [PubNub connect];
-    [PubNub startObjectSynchronization:@"moonlight2_ios_test_db"];
 
     
     UIRemoteNotificationType type = (UIRemoteNotificationTypeAlert|UIRemoteNotificationTypeBadge|UIRemoteNotificationTypeSound);
