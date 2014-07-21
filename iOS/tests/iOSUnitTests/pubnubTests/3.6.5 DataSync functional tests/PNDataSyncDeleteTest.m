@@ -112,12 +112,13 @@ andCompletionHandlingBlock:^(PNObjectModificationInformation *modificationInform
     
     [[PNObservationCenter defaultCenter] addObjectDeleteObserver:self
                                                        withBlock:^(PNObjectModificationInformation *objectInformation, PNError *error) {
+                                                           
                                                            if (!error) {
                                                                STAssertTrue(objectInformation.type == PNObjectDeleteType , @"Modification type is not appropriate.");
                                                            } else {
                                                                STFail(@"Error during observation of delete.");
+                                                               
                                                            }
-                                                           
                                                            dispatch_group_leave(_testDeleteWithObserver);
                                                        }];
     
@@ -128,6 +129,8 @@ andCompletionHandlingBlock:^(PNObjectModificationInformation *modificationInform
                     timeoutFiredValue:kTestStandardTimeout], @"Simple delete Object with observer - failed.");
     
     _testDeleteWithObserver = NULL;
+    
+    [[PNObservationCenter defaultCenter] removeObjectDeleteObserver:self];
 }
 
 - (void)testSimpleDeleteObjectWithCompletionHandler
