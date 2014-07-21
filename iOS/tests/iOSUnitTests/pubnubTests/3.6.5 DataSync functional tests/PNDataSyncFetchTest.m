@@ -10,7 +10,7 @@
 
 static NSString * const kTestFetchObject = @"ios_test_db";
 static NSString * const kTestFetchPathFirst = @"test";
-static NSString * const kTestFetchPathSecond = @"test/second";
+static NSString * const kTestFetchPathSecond = @"test.second";
 static const NSUInteger kTestStandardTimeout = 10;
 
 @interface PNDataSyncFetchTest : SenTestCase
