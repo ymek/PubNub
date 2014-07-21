@@ -17,7 +17,7 @@ static NSString * const kTestPathFirst = @"test";
 static NSString * const kTestPathComplex = @"test.second";
 static const NSUInteger kTestStandardTimeout = 10;
 
-@interface PNPubNubDataSyncSetTest : SenTestCase
+@interface PNDataSyncSetTest : SenTestCase
 
 <
 PNDelegate
@@ -25,7 +25,7 @@ PNDelegate
 
 @end
 
-@implementation PNPubNubDataSyncSetTest {
+@implementation PNDataSyncSetTest {
     dispatch_group_t _testReplace;
     dispatch_group_t _testReplaceWithObserver;
     dispatch_group_t _testReplaceWithCompletionHandler;

@@ -13,14 +13,14 @@ static NSString * const kTestFetchPathFirst = @"test";
 static NSString * const kTestFetchPathSecond = @"test/second";
 static const NSUInteger kTestStandardTimeout = 10;
 
-@interface PNPubNubDataSyncFetchTest : SenTestCase
+@interface PNDataSyncFetchTest : SenTestCase
 <
 PNDelegate
 >
 
 @end
 
-@implementation PNPubNubDataSyncFetchTest {
+@implementation PNDataSyncFetchTest {
     dispatch_group_t _testFetch;
     dispatch_group_t _testFetchObserver;
     dispatch_group_t _testFetchNotification;
