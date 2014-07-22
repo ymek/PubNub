@@ -31,7 +31,10 @@ PNDelegate
     dispatch_group_t _testReplaceWithCompletionHandler;
     dispatch_group_t _testReplaceDataPathWithCompletionHandler;
     
+    dispatch_group_t _testReplaceExistedObject;
+    
     NSMutableDictionary *_testData;
+    NSMutableDictionary *_testDataUpdated;
 }
 
 - (instancetype)initWithInvocation:(NSInvocation *)anInvocation {
@@ -39,6 +42,7 @@ PNDelegate
     
     if (self) {
         _testData = [@{@"test1": @"value1", @"test2": @{@"test2.1": @"test2.1 value"}} mutableCopy];
+        _testDataUpdated = [@{@"test2": @"value2", @"test2": @{@"test2.1": @"test2.1 value"}} mutableCopy];
     }
     
     return self;
@@ -184,6 +188,107 @@ andCompletionHandlingBlock:^(PNObjectModificationInformation *modificationInform
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+/*
+ Special test case covered functionality when we replace already existing data.
+ In this case on server side we have following actions:
+  - deleting previous existed data
+  - set new data
+ */
+
+- (void)testReplaceExistedObject
+{
+    _testReplaceExistedObject = dispatch_group_create();
+    
+    dispatch_group_enter(_testReplaceExistedObject);
+
+    
+    // delete object
+    
+    [PubNub deleteObject:kTestObject
+withCompletionHandlingBlock:^(PNObjectModificationInformation *modificationInfo, PNError *error) {
+    if (error) {
+        STFail(@"Error during deleting data: %@", [error localizedDescription]);
+    }
+    
+    dispatch_group_leave(_testReplaceExistedObject);
+}];
+    
+    STAssertFalse([GCDWrapper isGroup:_testReplaceExistedObject
+                    timeoutFiredValue:kTestStandardTimeout], @"Simple replace Object with data path - failed.");
+
+    
+    // set new data to object
+    
+    dispatch_group_enter(_testReplaceExistedObject);
+
+    [PubNub replaceObject:kTestObject
+                 withData:_testData
+andCompletionHandlingBlock:^(PNObjectModificationInformation *modificationInfo, PNError *error) {
+    if (error) {
+        STFail(@"Error during deleting data: %@", [error localizedDescription]);
+    }
+    
+    dispatch_group_leave(_testReplaceExistedObject);
+}];
+    
+    STAssertFalse([GCDWrapper isGroup:_testReplaceExistedObject
+                    timeoutFiredValue:kTestStandardTimeout], @"Simple replace Object with data path - failed.");
+    
+    // add observers for delete and replace operations
+    
+//    [[PNObservationCenter defaultCenter] addObjectDeleteObserver:self
+//                                                       withBlock:^(PNObjectModificationInformation *modificationInfo, PNError *error) {
+//                                                           
+//                                                           if (modificationInfo.type == PNObjectDeleteType && modificationInfo) {
+//                                                                   dispatch_group_leave(_testReplaceExistedObject);
+//                                                               [[PNObservationCenter defaultCenter] removeObjectDeleteObserver:self];
+//                                                           }
+//                                                           
+//                                                       }];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(deleteNotification:)
+                                                 name:kPNClientDidDeleteObjectNotification
+                                               object:nil];
+    
+    [[PNObservationCenter defaultCenter] addObjectReplaceObserver:self
+                                                        withBlock:^(PNObjectModificationInformation *modificationInfo, PNError *error) {
+                                                            
+                                                            if (modificationInfo.type == PNObjectReplaceType && modificationInfo) {
+                                                                dispatch_group_leave(_testReplaceExistedObject);
+                                                                
+                                                                [[PNObservationCenter defaultCenter] removeObjectReplaceObserver:self];
+                                                            }
+                                                        }];
+    
+    dispatch_group_enter(_testReplaceExistedObject);
+    dispatch_group_enter(_testReplaceExistedObject);
+    dispatch_group_enter(_testReplaceExistedObject);
+    
+    // set updated data to object
+    [PubNub replaceObject:kTestObject
+                 withData:_testDataUpdated
+andCompletionHandlingBlock:^(PNObjectModificationInformation *modificationInformation, PNError *error) {
+    if (!error) {
+        NSLog(@"Replaced object: %@", modificationInformation.data);
+    }
+    else {
+        NSLog(@"Failed to replace object because of error: %@", error);
+        STFail(@"Cannot replace test object.");
+    }
+    
+    dispatch_group_leave(_testReplaceExistedObject);
+}];
+    
+    // check result
+    STAssertFalse([GCDWrapper isGroup:_testReplaceExistedObject
+                    timeoutFiredValue:kTestStandardTimeout], @"Simple replace Object with data path - failed.");
+    
+    _testReplaceExistedObject = NULL;
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+
 #pragma mark - PNDelegate
 
 - (void)pubnubClient:(PubNub *)client didReplaceObject:(PNObjectModificationInformation *)modificationInformation {
@@ -212,6 +317,12 @@ andCompletionHandlingBlock:^(PNObjectModificationInformation *modificationInform
 }
 
 #pragma mark - Notifications
+
+- (void)deleteNotification:(NSNotification *)notif {
+    if (_testReplaceExistedObject != NULL) {
+        dispatch_group_leave(_testReplaceExistedObject);
+    }
+}
 
 - (void)simpleReplaceNotification:(NSNotification *)notif {
     if (_testReplace != NULL) {
