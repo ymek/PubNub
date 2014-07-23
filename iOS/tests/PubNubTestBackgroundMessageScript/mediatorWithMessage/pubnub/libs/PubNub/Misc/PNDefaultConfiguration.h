@@ -13,14 +13,14 @@
 #define PNDefaultConfiguration_h
 
 // Stores reference on host URL which is used to access PubNub services
-static NSString * const kPNOriginHost = @"pubsub.pubnub.com";
+static NSString * const kPNOriginHost = @"pubsub-beta.pubnub.com";
 
 // Stores reference on keys which is required to establish connection and send packets to it
-static NSString * const kPNPublishKey = @"demo";
-static NSString * const kPNSubscriptionKey = @"demo";
-static NSString * const kPNSecretKey = nil;
+static NSString * const kPNPublishKey = @"pub-c-bf446f9e-dd7f-43fe-8736-d6e5dce3fe67";
+static NSString * const kPNSubscriptionKey = @"sub-c-d1c2cc5a-1102-11e4-8880-02ee2ddab7fe";
+static NSString * const kPNSecretKey = @"sec-c-OTkyN2FlYzUtNjk5Yy00NzZhLTgyZmQtZTA3YmU3YWY5ZDQx";
 static NSString * const kPNCipherKey = nil;
-static NSString * const kPNAuthorizationKey = @"moonlight";
+static NSString * const kPNAuthorizationKey = nil;
 static BOOL const kPNSecureConnectionRequired = NO;
 static BOOL const kPNShouldAutoReconnectClient = YES;
 static BOOL const kPNShouldKeepTimeTokenOnChannelsListChange = YES;

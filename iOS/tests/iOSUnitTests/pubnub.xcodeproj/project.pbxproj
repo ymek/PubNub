@@ -243,6 +243,7 @@
 		96D23C9B19336F6800717966 /* GCDWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 96D23C9619336F6800717966 /* GCDWrapper.m */; };
 		96D23C9C19336F6800717966 /* PNBaseTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 96D23C9819336F6800717966 /* PNBaseTestCase.m */; };
 		96D23C9D19336F6800717966 /* PNTestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 96D23C9A19336F6800717966 /* PNTestManager.m */; };
+		96E661CB197F9741001D56D9 /* PNDataSyncSyncTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 96E661CA197F9741001D56D9 /* PNDataSyncSyncTest.m */; };
 		DD71B29E58A35A3AFEE4034D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD71BF43E328EDCD6FF8F254 /* Security.framework */; };
 		DD71B50871A8083F6E609816 /* libz.1.2.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DD71B1E2DB5B835A0C695908 /* libz.1.2.5.dylib */; };
 		DD71B861D60C2DB2E44D1B6C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD71B83AEEA2DBCDE169F068 /* QuartzCore.framework */; };
@@ -621,6 +622,7 @@
 		96D23C9819336F6800717966 /* PNBaseTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNBaseTestCase.m; sourceTree = "<group>"; };
 		96D23C9919336F6800717966 /* PNTestManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PNTestManager.h; sourceTree = "<group>"; };
 		96D23C9A19336F6800717966 /* PNTestManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNTestManager.m; sourceTree = "<group>"; };
+		96E661CA197F9741001D56D9 /* PNDataSyncSyncTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNDataSyncSyncTest.m; sourceTree = "<group>"; };
 		DD71B1E2DB5B835A0C695908 /* libz.1.2.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.1.2.5.dylib; path = usr/lib/libz.1.2.5.dylib; sourceTree = SDKROOT; };
 		DD71B83AEEA2DBCDE169F068 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		DD71BF43E328EDCD6FF8F254 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
@@ -1370,6 +1372,7 @@
 				96AA178D197B0D9600F81523 /* PNDataSyncSetTest.m */,
 				96AA18D8197C606600F81523 /* PNDataSyncDeleteTest.m */,
 				96AA18DA197C608800F81523 /* PNDataSyncUpdateTest.m */,
+				96E661CA197F9741001D56D9 /* PNDataSyncSyncTest.m */,
 			);
 			path = "3.6.5 DataSync functional tests";
 			sourceTree = "<group>";
@@ -1755,6 +1758,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				960D7936196459DF00F8A89F /* PNAccessRightsAuditRequestTest.m in Sources */,
+				96E661CB197F9741001D56D9 /* PNDataSyncSyncTest.m in Sources */,
 				960D7944196459DF00F8A89F /* PNChannelHistoryParserTest.m in Sources */,
 				960D794E196459DF00F8A89F /* PNCryptoHelperTest.m in Sources */,
 				960D793A196459DF00F8A89F /* PNAccessRightsInformationTest.m in Sources */,

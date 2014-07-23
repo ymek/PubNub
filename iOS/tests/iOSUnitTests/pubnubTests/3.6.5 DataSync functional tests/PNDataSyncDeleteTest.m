@@ -49,8 +49,7 @@ PNDelegate
     
     [PubNub setDelegate:self];
     
-    [PubNub setConfiguration:[PNConfiguration configurationForOrigin:@"pubsub-beta.pubnub.com"
-                                                          publishKey:@"demo" subscribeKey:@"demo" secretKey:@"demo"]];
+    [PubNub setConfiguration:[PNConfiguration defaultConfiguration]];
     
     [PubNub connect];
     
