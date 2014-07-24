@@ -14,7 +14,7 @@
 static NSString * const kTestObject = @"ios_test_db_sync";
 static NSString * const kTestPathFirst = @"test_first_level";
 static NSString * const kTestPathComplex = @"test.second_level";
-static const NSUInteger kTestStandardTimeout = 60;
+static const NSUInteger kTestStandardTimeout = 10;
 
 @interface PNDataSyncSyncTest : SenTestCase
 
@@ -29,6 +29,8 @@ PNDelegate
     dispatch_group_t _testSyncWithObserver;
     dispatch_group_t _testSyncWithHandlerBlock;
     dispatch_group_t _testSyncWithDataPathAndHandlerBlock;
+    
+    dispatch_group_t _testSyncChange;
     
     NSMutableDictionary *_testData;
     NSMutableDictionary *_testUpdateData;
@@ -66,6 +68,8 @@ PNDelegate
     
     [PubNub disconnect];
 }
+
+#pragma mark - Tests
 
 - (void)testSimpleSync
 {
@@ -114,6 +118,7 @@ PNDelegate
                     timeoutFiredValue:kTestStandardTimeout], @"Simple sync Object - failed.");
     
     _testSyncWithObserver = NULL;
+    [[PNObservationCenter defaultCenter] removeObjectSynchronizationStartObserver:self];
 }
 
 - (void)testSimpleSyncWithHandlerBlock
@@ -166,6 +171,79 @@ PNDelegate
     _testSyncWithDataPathAndHandlerBlock = NULL;
 }
 
+/*
+ It is cover standard flow when we start
+ sync wait for changes and stop sync then.
+ */
+
+- (void)testSimpleSyncСhange
+{
+    __weak PNObject *testedObject = nil;
+    
+    _testSyncChange = dispatch_group_create();
+    
+    dispatch_group_enter(_testSyncChange);
+    
+    [PubNub startObjectSynchronization:kTestObject
+           withCompletionHandlingBlock:^(PNObject *object, PNError *error) {
+               if (!error) {
+                   NSLog(@"Start sync for object: %@", object);
+               } else {
+                   
+                   NSLog(@"Failed to start sync because of error: %@", error);
+                   
+                   STFail(@"Cannot start observe test data");                                                                         }
+               dispatch_group_leave(_testSyncChange);
+           }];
+    
+    STAssertFalse([GCDWrapper isGroup:_testSyncChange
+                    timeoutFiredValue:kTestStandardTimeout], @"Simple sync Object - failed.");
+    
+    _testSyncChange = NULL;
+    
+    // change value outside of test
+    
+    _testSyncChange = dispatch_group_create();
+    
+    dispatch_group_enter(_testSyncChange);
+    dispatch_group_enter(_testSyncChange);
+    dispatch_group_enter(_testSyncChange);
+    
+    [[PNObservationCenter defaultCenter] addObjectChangeObserver:self
+                                                       withBlock:^(PNObject *object) {
+                                                           if ([object.identifier isEqualToString:kTestObject]) {
+                                                               dispatch_group_leave(_testSyncChange);
+                                                               [[PNObservationCenter defaultCenter] removeObjectChangeObserver:self];
+                                                           }
+                                                       }];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(simpleObjectChangeNotif:)
+                                                 name:kPNClientDidReceiveObjectChangesNotification object:nil];
+    
+    NSLog(@"\n\n\t\t change value of object: %@ from external source.", kTestObject);
+    
+    STAssertFalse([GCDWrapper isGroup:_testSyncChange
+                    timeoutFiredValue:120], @"Simple sync Object - failed.");
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+
+    // stop object sync
+    dispatch_group_enter(_testSyncChange);
+    
+    [PubNub stopObjectSynchronization:kTestObject
+          withCompletionHandlingBlock:^(PNObject *object, PNError *error) {
+              if (error) {
+                  STFail(@"Fail to stop sync from object.");
+              }
+              
+              dispatch_group_leave(_testSyncChange);
+          }];
+    
+    STAssertFalse([GCDWrapper isGroup:_testSyncChange
+                    timeoutFiredValue:kTestStandardTimeout], @"Simple sync Object - failed.");
+}
+
 #pragma mark - PNDelegate
 
 - (void)pubnubClient:(PubNub *)client didStartObjectSynchronization:(PNObject *)object {
@@ -190,11 +268,24 @@ PNDelegate
     }
 }
 
+- (void)pubnubClient:(PubNub *)client didReceiveObjectChangeEvent:(PNObject *)
+object {
+    if ([object.identifier isEqualToString:kTestObject]) {
+        dispatch_group_leave(_testSyncChange);
+    }
+}
+
 #pragma mark - Notifications
 
 - (void)simpleSyncNotif:(NSNotification *)notif {
     if (_testSync != NULL) {
         dispatch_group_leave(_testSync);
+    }
+}
+
+- (void)simpleObjectChangeNotif:(NSNotification *)notif {
+    if (_testSyncChange != NULL) {
+        dispatch_group_leave(_testSyncChange);
     }
 }
 
