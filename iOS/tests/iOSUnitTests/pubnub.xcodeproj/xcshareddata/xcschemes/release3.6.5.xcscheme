@@ -140,6 +140,9 @@
                   Identifier = "PNDataSyncSetTest">
                </Test>
                <Test
+                  Identifier = "PNDataSyncSyncTest">
+               </Test>
+               <Test
                   Identifier = "PNDataSyncUpdateTest">
                </Test>
                <Test
