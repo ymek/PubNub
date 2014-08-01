@@ -240,6 +240,7 @@
 		96CE1BAE190A570E00F163F8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79C3222E166DF847006DB535 /* Foundation.framework */; };
 		96CE1BAF190A570E00F163F8 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79C32230166DF847006DB535 /* CoreGraphics.framework */; };
 		96CE1BB0190A570E00F163F8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79C3222C166DF847006DB535 /* UIKit.framework */; };
+		96CE4998198BD2700047DC83 /* PNDataSyncGrantAccessRight.m in Sources */ = {isa = PBXBuildFile; fileRef = 96CE4997198BD2700047DC83 /* PNDataSyncGrantAccessRight.m */; };
 		96D23C9B19336F6800717966 /* GCDWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 96D23C9619336F6800717966 /* GCDWrapper.m */; };
 		96D23C9C19336F6800717966 /* PNBaseTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 96D23C9819336F6800717966 /* PNBaseTestCase.m */; };
 		96D23C9D19336F6800717966 /* PNTestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 96D23C9A19336F6800717966 /* PNTestManager.m */; };
@@ -617,6 +618,7 @@
 		96C5EBDC1977F16D0084AB0A /* PNDataSyncFetchTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNDataSyncFetchTest.m; sourceTree = "<group>"; };
 		96CE1B67190A557500F163F8 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		96CE1BAD190A570E00F163F8 /* pnSubUnsubTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = pnSubUnsubTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		96CE4997198BD2700047DC83 /* PNDataSyncGrantAccessRight.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNDataSyncGrantAccessRight.m; sourceTree = "<group>"; };
 		96D23C9519336F6800717966 /* GCDWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDWrapper.h; sourceTree = "<group>"; };
 		96D23C9619336F6800717966 /* GCDWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDWrapper.m; sourceTree = "<group>"; };
 		96D23C9719336F6800717966 /* PNBaseTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PNBaseTestCase.h; sourceTree = "<group>"; };
@@ -1376,6 +1378,7 @@
 				96AA18DA197C608800F81523 /* PNDataSyncUpdateTest.m */,
 				96E661CA197F9741001D56D9 /* PNDataSyncSyncTest.m */,
 				96EE6F4C1987F1B1009731D9 /* PNDataSyncBigData.m */,
+				96CE4997198BD2700047DC83 /* PNDataSyncGrantAccessRight.m */,
 			);
 			path = "3.6.5 DataSync functional tests";
 			sourceTree = "<group>";
@@ -1778,6 +1781,7 @@
 				960D7952196459DF00F8A89F /* PNDateTest.m in Sources */,
 				960D792A196459DF00F8A89F /* Configuration.m in Sources */,
 				960D795A196459DF00F8A89F /* PNHereNowResponseParserTest.m in Sources */,
+				96CE4998198BD2700047DC83 /* PNDataSyncGrantAccessRight.m in Sources */,
 				960D795E196459DF00F8A89F /* PNLeaveRequestTest.m in Sources */,
 				960D7968196459DF00F8A89F /* PNMessagingChannelTest.m in Sources */,
 				960D7978196459DF00F8A89F /* PNSubscribeUnsubscribeTest.m in Sources */,

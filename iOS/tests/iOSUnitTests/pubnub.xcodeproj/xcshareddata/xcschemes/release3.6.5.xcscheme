@@ -131,6 +131,9 @@
                   Identifier = "PNCryptoTest">
                </Test>
                <Test
+                  Identifier = "PNDataSyncBigData">
+               </Test>
+               <Test
                   Identifier = "PNDataSyncDeleteTest">
                </Test>
                <Test
