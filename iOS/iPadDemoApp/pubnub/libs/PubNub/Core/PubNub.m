@@ -12,6 +12,7 @@
 #if __IPHONE_OS_VERSION_MIN_REQUIRED
 #import "UIApplication+PNAdditions.h"
 #endif
+#import "PNObjectAccessRightsCollection+Protected.h"
 #import "PNObjectAccessRightOptions+Protected.h"
 #import "PNSynchronizationChannel+Protected.h"
 #import "PNAccessRightOptions+Protected.h"
@@ -155,16 +156,16 @@ static NSMutableArray *pendingInvocations = nil;
 
 + (void)fetchObject:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath snapshotDate:(NSString *)snapshotDate
       nextPageToken:(NSString *)objectDataNextPageToken byUserRequest:(BOOL)byUserRequest
-withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
+withCompletionHandlingBlock:(id)handlerBlock;
 
 + (void)postponeFetchObject:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath snapshotDate:(NSString *)snapshotDate
               nextPageToken:(NSString *)objectDataNextPageToken byUserRequest:(BOOL)byUserRequest
-withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock;
+withCompletionHandlingBlock:(id)handlerBlock;
 
 + (void)modifyObject:(PNObjectModificationInformation *)objectInformation
-        withCompletionHandlingBlock:(PNClientObjectModificationHandlerBlock)handlerBlock;
+        withCompletionHandlingBlock:(id)handlerBlock;
 + (void)postponeModifyObject:(PNObjectModificationInformation *)objectInformation
- withCompletionHandlingBlock:(PNClientObjectModificationHandlerBlock)handlerBlock;
+ withCompletionHandlingBlock:(id)handlerBlock;
 
 
 #pragma mark - Channels subscription management
@@ -1799,7 +1800,7 @@ withCompletionHandlingBlock:nil];
                                   forObject:self
                              withParameters:@[[PNHelper nilifyIfNotSet:objectIdentifier], [PNHelper nilifyIfNotSet:partialObjectDataPath],
                                               [PNHelper nilifyIfNotSet:handlerBlock]]
-                                 outOfOrder:NO];
+                                 outOfOrder:[handlerBlock isKindOfClass:[NSString class]]];
 }
 
 + (void)stopObjectSynchronization:(NSString *)objectIdentifier {
@@ -1929,7 +1930,7 @@ withCompletionHandlingBlock:handlerBlock];
 
 + (void)fetchObject:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath snapshotDate:(NSString *)snapshotDate
               nextPageToken:(NSString *)objectDataNextPageToken byUserRequest:(BOOL)byUserRequest
-withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock {
+withCompletionHandlingBlock:(id)handlerBlock {
 
     [PNLogger logGeneralMessageFrom:[self sharedInstance] message:^NSString * {
 
@@ -2013,7 +2014,7 @@ withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock {
 
             if (handlerBlock && ![handlerBlock isKindOfClass:[NSString class]]) {
 
-                handlerBlock(nil, requestError);
+                ((PNClientObjectRetrieveHandlerBlock)handlerBlock)(nil, requestError);
             }
         }
     }
@@ -2040,14 +2041,14 @@ withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock {
 
 + (void)postponeFetchObject:(NSString *)objectIdentifier dataPath:(NSString *)partialObjectDataPath snapshotDate:(NSString *)snapshotDate
               nextPageToken:(NSString *)objectDataNextPageToken byUserRequest:(BOOL)byUserRequest
-withCompletionHandlingBlock:(PNClientObjectRetrieveHandlerBlock)handlerBlock {
+withCompletionHandlingBlock:(id)handlerBlock {
 
     [[self sharedInstance] postponeSelector:@selector(fetchObject:dataPath:snapshotDate:nextPageToken:byUserRequest:withCompletionHandlingBlock:)
                                   forObject:self
                              withParameters:@[[PNHelper nilifyIfNotSet:objectIdentifier], [PNHelper nilifyIfNotSet:partialObjectDataPath],
                                               [PNHelper nilifyIfNotSet:snapshotDate], [PNHelper nilifyIfNotSet:objectDataNextPageToken],
                                               @(byUserRequest), [PNHelper nilifyIfNotSet:handlerBlock]]
-                                 outOfOrder:(objectDataNextPageToken != nil)];
+                                 outOfOrder:((objectDataNextPageToken != nil) || [handlerBlock isKindOfClass:[NSString class]])];
 }
 
 
@@ -2125,7 +2126,7 @@ withCompletionHandlingBlock:(PNClientObjectModificationHandlerBlock)handlerBlock
 }
 
 + (void)modifyObject:(PNObjectModificationInformation *)objectInformation
-        withCompletionHandlingBlock:(PNClientObjectModificationHandlerBlock)handlerBlock {
+        withCompletionHandlingBlock:(id)handlerBlock {
 
     [PNLogger logGeneralMessageFrom:[self sharedInstance] message:^NSString * {
 
@@ -2181,7 +2182,7 @@ withCompletionHandlingBlock:(PNClientObjectModificationHandlerBlock)handlerBlock
 
             if (handlerBlock && ![handlerBlock isKindOfClass:[NSString class]]) {
 
-                handlerBlock(nil, error);
+                ((PNClientObjectModificationHandlerBlock)handlerBlock)(nil, error);
             }
 
         };
@@ -2281,11 +2282,11 @@ withCompletionHandlingBlock:(PNClientObjectModificationHandlerBlock)handlerBlock
 }
 
 + (void)postponeModifyObject:(PNObjectModificationInformation *)objectInformation
- withCompletionHandlingBlock:(PNClientObjectModificationHandlerBlock)handlerBlock {
+ withCompletionHandlingBlock:(id)handlerBlock {
 
     [[self sharedInstance] postponeSelector:@selector(modifyObject:withCompletionHandlingBlock:) forObject:self
                              withParameters:@[[PNHelper nilifyIfNotSet:objectInformation], [PNHelper nilifyIfNotSet:handlerBlock]]
-                                 outOfOrder:NO];
+                                 outOfOrder:[handlerBlock isKindOfClass:[NSString class]]];
 }
 
 
