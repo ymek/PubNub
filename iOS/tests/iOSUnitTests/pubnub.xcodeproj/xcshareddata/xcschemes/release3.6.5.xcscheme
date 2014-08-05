@@ -140,6 +140,21 @@
                   Identifier = "PNDataSyncFetchTest">
                </Test>
                <Test
+                  Identifier = "PNDataSyncGrantAccessRight/testAccessRightsReadForObject">
+               </Test>
+               <Test
+                  Identifier = "PNDataSyncGrantAccessRight/testAccessRightsWriteForObject">
+               </Test>
+               <Test
+                  Identifier = "PNDataSyncGrantAccessRight/testReadAccessRightForObjects">
+               </Test>
+               <Test
+                  Identifier = "PNDataSyncGrantAccessRight/testReadAccessRightForObjectsAndClientsWithCompletionBlock">
+               </Test>
+               <Test
+                  Identifier = "PNDataSyncGrantAccessRight/testReadAccessRightForObjectsWithCompletionHandlingBlock">
+               </Test>
+               <Test
                   Identifier = "PNDataSyncSetTest">
                </Test>
                <Test
