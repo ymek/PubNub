@@ -13,12 +13,19 @@
 #define PNDefaultConfiguration_h
 
 // Stores reference on host URL which is used to access PubNub services
-static NSString * const kPNOriginHost = @"pubsub-beta.pubnub.com";
+//static NSString * const kPNOriginHost = @"pubsub-beta.pubnub.com";
+static NSString * const kPNOriginHost = @"pubsub.pubnub.com";
 
 // Stores reference on keys which is required to establish connection and send packets to it
-static NSString * const kPNPublishKey = @"pub-c-bf446f9e-dd7f-43fe-8736-d6e5dce3fe67";
-static NSString * const kPNSubscriptionKey = @"sub-c-d1c2cc5a-1102-11e4-8880-02ee2ddab7fe";
-static NSString * const kPNSecretKey = @"sec-c-OTkyN2FlYzUtNjk5Yy00NzZhLTgyZmQtZTA3YmU3YWY5ZDQx";
+//static NSString * const kPNPublishKey = @"pub-c-bf446f9e-dd7f-43fe-8736-d6e5dce3fe67";
+static NSString * const kPNPublishKey = @"pub-c-12b1444d-4535-4c42-a003-d509cc071e09";
+
+//static NSString * const kPNSubscriptionKey = @"sub-c-d1c2cc5a-1102-11e4-8880-02ee2ddab7fe";
+static NSString * const kPNSubscriptionKey = @"sub-c-6dc508c0-bff0-11e3-a219-02ee2ddab7fe";
+
+//static NSString * const kPNSecretKey = @"sec-c-OTkyN2FlYzUtNjk5Yy00NzZhLTgyZmQtZTA3YmU3YWY5ZDQx";
+static NSString * const kPNSecretKey = nil;
+
 static NSString * const kPNCipherKey = nil;
 static NSString * const kPNAuthorizationKey = nil;
 static BOOL const kPNSecureConnectionRequired = NO;
