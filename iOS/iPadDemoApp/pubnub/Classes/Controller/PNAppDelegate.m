@@ -147,7 +147,6 @@
     }
     
     [self initializePubNubClient];
-
     
     UIRemoteNotificationType type = (UIRemoteNotificationTypeAlert|UIRemoteNotificationTypeBadge|UIRemoteNotificationTypeSound);
     [[UIApplication sharedApplication] registerForRemoteNotificationTypes:type];

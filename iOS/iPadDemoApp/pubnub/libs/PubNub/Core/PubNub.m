@@ -3467,7 +3467,7 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
                         [self humanReadableStateFrom:[self sharedInstance].state]];
             }];
             
-            BOOL isObjectAccessRightsChangeRequest = [(PNChannel *)[channels lastObject] isObjectSynchronizationChannel];
+            BOOL isObjectAccessRightsChangeRequest = [PNSynchronizationChannel isObjectSynchronizationChannel:((PNChannel *)[channels lastObject]).name];
             id options = [PNAccessRightOptions accessRightOptionsForApplication:[self sharedInstance].configuration.subscriptionKey
                                                                      withRights:accessRights channels:channels
                                                                         clients:clientsAuthorizationKeys
@@ -3488,7 +3488,7 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
             
             if (handlerBlock && ![handlerBlock isKindOfClass:[NSString class]]) {
                 
-                if ([(PNChannel *)[channels lastObject] isObjectSynchronizationChannel]) {
+                if (![PNSynchronizationChannel isObjectSynchronizationChannel:((PNChannel *)[channels lastObject]).name]) {
                 
                     ((PNClientChannelAccessRightsChangeBlock)handlerBlock)(nil, accessRightChangeError);
                 }
@@ -3697,13 +3697,14 @@ withCompletionHandlingBlock:(PNClientChannelSubscriptionHandlerBlock)handlerBloc
 
 
             if (handlerBlock && ![handlerBlock isKindOfClass:[NSString class]]) {
-
-                if ([(PNChannel *)[channels lastObject] isObjectSynchronizationChannel]) {
+                
+                if (![PNSynchronizationChannel isObjectSynchronizationChannel:((PNChannel *)[channels lastObject]).name]) {
                     
                     ((PNClientChannelAccessRightsAuditBlock)handlerBlock)(nil, accessRightAuditError);
                 }
                 else {
                     
+                    ((PNClientObjectAccessRightsAuditBlock)handlerBlock)(nil, accessRightAuditError);
                 }
             }
 
