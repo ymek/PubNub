@@ -80,8 +80,11 @@
     [channels enumerateObjectsUsingBlock:^(PNChannel *channel, NSUInteger channelIdx, BOOL *channelEnumeratorStop) {
         
         if ([self isObjectSynchronizationChannel:channel.name]) {
+            
+            NSString *partialObjectDataPath = ((PNSynchronizationChannel *)channel).partialObjectDataPath;
+            NSString *targetSuffix = ([partialObjectDataPath length] <= 1 ? @"*" : @".*");
 
-            if ([channel.name hasPrefix:@"pn_ds_"] && ![((PNSynchronizationChannel *)channel).partialObjectDataPath hasSuffix:@".*"]) {
+            if ([channel.name hasPrefix:@"pn_ds_"] && ![partialObjectDataPath hasSuffix:targetSuffix]) {
                 
                 nonWildcardChannel = (PNSynchronizationChannel *)channel;
             }
@@ -110,7 +113,10 @@
 
             name = [name stringByReplacingOccurrencesOfString:@".*" withString:@""];
         }
-        name = [name stringByAppendingFormat:@".%@", self.partialObjectDataPath];
+        if ([self.partialObjectDataPath length]) {
+            
+            name = [name stringByAppendingFormat:@".%@", self.partialObjectDataPath];
+        }
     }
 
 
