@@ -8,16 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController <UITextFieldDelegate>
-@property (weak, nonatomic) IBOutlet UITextView *textView;
-- (IBAction)clearAll:(id)sender;
-@property(nonatomic, strong) PNConfiguration *config;
-@property (weak, nonatomic) IBOutlet UITextField *filterField;
-@property (weak, nonatomic) IBOutlet UITextField *originField;
-@property (weak, nonatomic) IBOutlet UITextField *publishFilter;
-@property (weak, nonatomic) IBOutlet UITextField *publishMessage;
 
-@property(nonatomic, weak) NSString *currentOrigin;
-@property(nonatomic, weak) PNChannel *channel;
+#pragma mark Public interface declaration
+
+@interface ViewController : UIViewController
+
+
+#pragma mark -
+
 
 @end
