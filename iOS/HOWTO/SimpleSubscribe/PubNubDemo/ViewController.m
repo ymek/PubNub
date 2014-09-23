@@ -14,96 +14,36 @@
 @end
 
 @implementation ViewController
-@synthesize textView, presenceView, uuidView;
+@synthesize textView, config, filterField, originField, currentOrigin;
 
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
+- (void)applyNewSettings {
 
-    [PubNub setClientIdentifier:@"SimpleSubscribe"];
-    //[uuidView setText:[NSString stringWithFormat:@"%@", [PubNub clientIdentifier]]];
+    if (![currentOrigin isEqualToString:originField.text]) {
+        [PubNub disconnect];
+    }
 
-    [[PNObservationCenter defaultCenter] addMessageReceiveObserver:self
-                                                         withBlock:^(PNMessage *message) {
+    self.config = [PNConfiguration configurationForOrigin:self.originField.text publishKey:@"demo" subscribeKey:@"demo" secretKey:@"demo"];
+    self.config.filter = self.filterField.text;
+    [PubNub setConfiguration:self.config];
 
-                                                             NSString *messageString = @"";
-                                                             id messageData = message.message;
-
-                                                             if ([messageData isKindOfClass:[NSDictionary class]]) {
-
-                                                                 messageString = [NSString stringWithFormat:@"tag: %@, message: <%@>",
-                                                                                                                      [(NSDictionary *)messageData valueForKey:@"tags"],
-                                                                                                                      [(NSDictionary *)messageData valueForKey:@"msg"]];
-                                                             } else if ([messageData isKindOfClass:[NSString class]]) {
-                                                                 messageString = messageData;
-                                                             }
-
-                                                             NSLog(@"Text Length: %i", textView.text.length);
-
-                                                             if (textView.text.length > 200) {
-                                                                 [textView setText:@""];
-                                                             }
-
-                                                             [textView setText:[messageString stringByAppendingFormat:@"\n%@\n", textView.text]];
-
-                                                         }];
-
-    [[PNObservationCenter defaultCenter] addPresenceEventObserver:self withBlock:^(PNPresenceEvent *event) {
-
-        NSString *eventString;
-        if (event.type == PNPresenceEventJoin) {
-            eventString = @"Join";
-        } else
-        if (event.type == PNPresenceEventLeave) {
-            eventString = @"Leave";
-        } else
-        if (event.type == PNPresenceEventTimeout) {
-            eventString = @"Timeout";
-        }
-
-        eventString = [NSString stringWithFormat:@"%@ : %@", event.client.identifier, eventString];
-
-        [presenceView setText:[eventString stringByAppendingFormat:@"\n%@\n", presenceView.text]];
-
-
-
-    }];
-
-
-    PNConfiguration *myConfig = [PNConfiguration configurationForOrigin:@"registry.devbuild.pubnub.com" publishKey:@"demo" subscribeKey:@"demo" secretKey:@"demo"];
-
-    // Set the presence heartbeat to 5s
-    //myConfig.presenceHeartbeatTimeout = 5;
-    myConfig.filter = @"X,Y,HAHAH";
-
-    [PubNub setConfiguration:myConfig];
+    if ([[PubNub sharedInstance] isConnected]) {
+        [self resetConnection];
+        return;
+    }
 
     [PubNub connectWithSuccessBlock:^(NSString *origin) {
 
-        PNLog(PNLogGeneralLevel, self, @"{BLOCK} PubNub client connected to: %@", origin);
+                self.currentOrigin = origin;
+                PNLog(PNLogGeneralLevel, self, @"{BLOCK} PubNub client connected to: %@", origin);
 
-        // wait 1 second
-        int64_t delayInSeconds = 1.0;
-        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC); dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+                // wait 1 second
+                int64_t delayInSeconds = 1.0;
+                dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC); dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
 
-            NSMutableDictionary *currentState = [[NSMutableDictionary alloc] init];
-            NSMutableDictionary *zzState = [[NSMutableDictionary alloc] init];
-
-            // then subscribe on channel zz
-            PNChannel *myChannel = [PNChannel channelWithName:@"hello" shouldObservePresence:NO];
+                [self resetConnection];
 
 
-
-            [PubNub subscribeOnChannel:myChannel];
-
-//            int64_t delayInSeconds = 5.0;
-//            dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC); dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-//                // grab global occupancy list 5s later
-//                [PubNub requestParticipantsListWithClientIdentifiers:NO clientState:YES];
-//
-//            });
-
-        }); }
+            }); }
             // In case of error you always can pull out error code and identify what happened and what you can do // additional information is stored inside error's localizedDescription, localizedFailureReason and
             // localizedRecoverySuggestion)
                          errorBlock:^(PNError *connectionError) {
@@ -122,7 +62,58 @@
                              [connectionErrorAlert show];
                          }];
 
+}
 
+- (void)resetConnection {
+    PNChannel *myChannel = [PNChannel channelWithName:@"hello" shouldObservePresence:NO];
+    [PubNub unsubscribeFromChannel:myChannel];
+    [PubNub subscribeOnChannel:myChannel];
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    [PubNub setClientIdentifier:@"SimpleSubscribe"];
+
+    [[PNObservationCenter defaultCenter] addMessageReceiveObserver:self
+                                                         withBlock:^(PNMessage *message) {
+
+                                                             NSString *messageString = @"";
+                                                             id messageData = message.message;
+
+                                                             if ([messageData isKindOfClass:[NSDictionary class]]) {
+
+                                                                 messageString = [NSString stringWithFormat:@"tag: %@, message: <%@>",
+                                                                                                                      [(NSDictionary *)messageData valueForKey:@"tags"],
+                                                                                                                      [(NSDictionary *)messageData valueForKey:@"msg"]];
+                                                             } else if ([messageData isKindOfClass:[NSString class]]) {
+                                                                 messageString = messageData;
+                                                             }
+
+                                                             NSLog(@"Text Length: %i", textView.text.length);
+
+                                                             if (textView.text.length > 150) {
+                                                                 [textView setText:@""];
+                                                             }
+
+                                                             [textView setText:[messageString stringByAppendingFormat:@"\n%@\n", textView.text]];
+
+                                                         }];
+
+    [self applyNewSettings];
+
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    NSLog(@"tag entered %@",self.filterField.text);
+    NSLog(@"origin entered %@",self.originField.text);
+
+    self.config.filter = self.filterField.text;
+    [self.filterField resignFirstResponder];
+    [self applyNewSettings];
+
+    return YES;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -133,6 +124,7 @@
 
 - (IBAction)clearAll:(id)sender {
     textView.text = @"";
-    presenceView.text = @"";
 }
+
+
 @end

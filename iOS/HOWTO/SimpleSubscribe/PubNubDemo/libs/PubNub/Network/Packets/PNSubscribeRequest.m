@@ -276,13 +276,9 @@
                 } else {
                     [tempFilter appendString:[NSString stringWithFormat:@",\"%@\"", s]];
                 }
-
-
             }
 
             filter = [NSString stringWithFormat:@"tags IN (%@)", tempFilter];
-
-
         }
     }
 
