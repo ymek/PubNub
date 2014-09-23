@@ -14,6 +14,10 @@
 @property(nonatomic, strong) PNConfiguration *config;
 @property (weak, nonatomic) IBOutlet UITextField *filterField;
 @property (weak, nonatomic) IBOutlet UITextField *originField;
+@property (weak, nonatomic) IBOutlet UITextField *publishFilter;
+@property (weak, nonatomic) IBOutlet UITextField *publishMessage;
 
 @property(nonatomic, weak) NSString *currentOrigin;
+@property(nonatomic, weak) PNChannel *channel;
+
 @end

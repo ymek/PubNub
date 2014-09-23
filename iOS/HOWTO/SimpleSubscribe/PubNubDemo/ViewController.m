@@ -14,7 +14,7 @@
 @end
 
 @implementation ViewController
-@synthesize textView, config, filterField, originField, currentOrigin;
+@synthesize channel, textView, config, filterField, originField, currentOrigin, publishFilter, publishMessage;
 
 - (void)applyNewSettings {
 
@@ -65,9 +65,9 @@
 }
 
 - (void)resetConnection {
-    PNChannel *myChannel = [PNChannel channelWithName:@"hello" shouldObservePresence:NO];
-    [PubNub unsubscribeFromChannel:myChannel];
-    [PubNub subscribeOnChannel:myChannel];
+    self.channel = [PNChannel channelWithName:@"hello" shouldObservePresence:NO];
+    [PubNub unsubscribeFromChannel:self.channel];
+    [PubNub subscribeOnChannel:self.channel];
 }
 
 - (void)viewDidLoad
@@ -92,7 +92,7 @@
 
                                                              NSLog(@"Text Length: %i", textView.text.length);
 
-                                                             if (textView.text.length > 150) {
+                                                             if (textView.text.length > 96) {
                                                                  [textView setText:@""];
                                                              }
 
@@ -123,7 +123,12 @@
 }
 
 - (IBAction)clearAll:(id)sender {
-    textView.text = @"";
+
+    NSMutableDictionary *payload = [NSMutableDictionary dictionary];
+    NSArray *tagsArray = [publishFilter.text componentsSeparatedByString:@","];
+    [payload setValue:tagsArray forKey:@"tags"];
+    [payload setValue:publishMessage.text forKey:@"msg"];
+    [PubNub sendMessage:payload toChannel:self.channel];
 }
 
 
