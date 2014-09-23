@@ -16,8 +16,11 @@
 
 #pragma mark - Properties
 
+@property (weak, nonatomic) IBOutlet UITextField *subscriptionChannels;
 @property (nonatomic, weak) IBOutlet UIScrollView *scrollableView;
+@property (nonatomic, weak) IBOutlet UIButton *sendMessageButton;
 @property (weak, nonatomic) IBOutlet UITextField *publishMessage;
+@property (nonatomic, weak) IBOutlet UITextField *publishChannel;
 @property (weak, nonatomic) IBOutlet UITextField *publishFilter;
 @property (weak, nonatomic) IBOutlet UITextField *filterField;
 @property (weak, nonatomic) IBOutlet UITextField *originField;
@@ -26,7 +29,7 @@
 @property (nonatomic, assign) CGRect selectedTextFieldFrame;
 @property (nonatomic, strong) PNConfiguration *config;
 @property (nonatomic, copy) NSString *currentOrigin;
-@property (nonatomic, strong) PNChannel *channel;
+@property (nonatomic, assign) CGFloat topOffset;
 
 
 #pragma mark - Instance methods
@@ -40,6 +43,7 @@
 
 - (void)handleKeyboardWillShow:(NSNotification *)notification;
 - (void)handleKeyboardWillHide:(NSNotification *)notification;
+- (void)handleKeyboardWasHidden:(NSNotification *)notification;
 
 
 #pragma mark - Misc methods
@@ -74,14 +78,30 @@
 
 - (void)completeUserInterfaceInitialization {
     
-    self.scrollableView.contentSize = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height * 1.5f);
+    self.scrollableView.contentSize = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height);
+    self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"background"]];
+    
+    // Configure title view
+    UIImageView *logoView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"cloud-pubnub-logo.png"]];
+    logoView.contentMode = UIViewContentModeScaleAspectFit;
+    CGRect logoViewFrame = logoView.frame;
+    CGRect navigationBarFrame = self.navigationController.navigationBar.frame;
+    if (logoViewFrame.size.height > navigationBarFrame.size.height) {
+        
+        CGFloat resizeRatio = logoViewFrame.size.width/logoViewFrame.size.height;
+        CGSize targetLogoSize = CGSizeMake(resizeRatio * (navigationBarFrame.size.height - 10.0f), (navigationBarFrame.size.height - 10.0f));
+        logoViewFrame.size = targetLogoSize;
+        logoView.frame = logoViewFrame;
+    }
+    self.navigationItem.titleView = logoView;
+    
+    self.topOffset = navigationBarFrame.size.height + [UIApplication sharedApplication].statusBarFrame.size.height;
 }
 
 - (void)resetSubscription {
 
-    self.channel = [PNChannel channelWithName:@"hello" shouldObservePresence:NO];
-    [PubNub unsubscribeFromChannel:self.channel];
-    [PubNub subscribeOnChannel:self.channel];
+    [PubNub unsubscribeFromChannels:[PubNub subscribedChannels]];
+    [PubNub subscribeOnChannels:[PNChannel channelsWithNames:[self.subscriptionChannels.text componentsSeparatedByString:@","]]];
 }
 
 #pragma mark - Handler methods
@@ -89,13 +109,16 @@
 - (IBAction)sendMessage:(id)sender {
 
     NSArray *tagsArray = [self.publishFilter.text componentsSeparatedByString:@","];
-    [PubNub sendMessage:@{@"tags":tagsArray,@"msg":self.publishMessage.text} toChannel:self.channel];
+    [PubNub sendMessage:@{@"tags":tagsArray,@"msg":self.publishMessage.text}
+              toChannel:[PNChannel channelWithName:self.publishChannel.text]];
 }
 
 - (void)handleKeyboardWillShow:(NSNotification *)notification {
     
     // Retrieve keyboard size
     CGSize keyboardSize = [[[notification userInfo] objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
+    
+    self.scrollableView.contentSize = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height + keyboardSize.height - self.topOffset);
     CGRect visibleFrame = CGRectMake(0.0, 0.0, self.view.frame.size.width, self.view.frame.size.height - keyboardSize.height);
     
     // Checking whether visible frame encloses selected text field frame or not
@@ -108,13 +131,18 @@
     }
     else if (self.scrollableView.contentOffset.y > 0.0f || self.scrollableView.contentOffset.y < 0.0) {
         
-        [self.scrollableView setContentOffset:CGPointMake(0.0f, 0.0f) animated:YES];
+        [self.scrollableView setContentOffset:CGPointMake(0.0f, -self.topOffset) animated:YES];
     }
 }
 
 - (void)handleKeyboardWillHide:(NSNotification *)notification {
     
-    [self.scrollableView setContentOffset:CGPointMake(0.0f, 0.0f) animated:YES];
+    [self.scrollableView setContentOffset:CGPointMake(0.0f, -self.topOffset) animated:YES];
+}
+
+- (void)handleKeyboardWasHidden:(NSNotification *)notification {
+    
+    self.scrollableView.contentSize = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height - self.topOffset);
 }
 
 
@@ -208,6 +236,7 @@
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
     [notificationCenter addObserver:self selector:@selector(handleKeyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     [notificationCenter addObserver:self selector:@selector(handleKeyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+    [notificationCenter addObserver:self selector:@selector(handleKeyboardWasHidden:) name:UIKeyboardDidHideNotification object:nil];
 }
 
 
@@ -248,6 +277,27 @@
         
         [self sendMessage:textField];
     }
+    else if ([textField isEqual:self.subscriptionChannels]) {
+        
+        if ([self.subscriptionChannels.text length]) {
+            
+            NSMutableArray *channels = [[PNChannel channelsWithNames:[self.subscriptionChannels.text componentsSeparatedByString:@","]] mutableCopy];
+            [[PubNub subscribedChannels] enumerateObjectsUsingBlock:^(PNChannel *channel, NSUInteger channelIdx, BOOL *channelEnumeratorStop) {
+                
+                [channels removeObject:channel];
+            }];
+            
+            shouldUpdateConfiguration = ([channels count] > 0);
+        }
+    }
+    else if ([textField isEqual:self.publishChannel]) {
+        
+        self.sendMessageButton.enabled = ([self.subscriptionChannels.text length] > 0);
+    }
+    else if ([textField isEqual:self.publishMessage]) {
+        
+        self.sendMessageButton.enabled = ([self.publishMessage.text length] > 0);
+    }
     
     [self.view endEditing:YES];
     
@@ -255,6 +305,7 @@
         
         [self updatePubNubClientConfiguration];
     }
+    
     
     return YES;
 }
