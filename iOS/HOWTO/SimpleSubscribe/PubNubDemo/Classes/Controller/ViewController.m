@@ -168,7 +168,7 @@
         }
 
         // Checking whether there is too much information shown in console output field.
-        if (self.textView.text.length > 96) {
+        if (self.textView.text.length > 70) {
 
             NSLog(@"Text field show too much data (%d). Clearing...", self.textView.text.length);
             [self.textView setText:@""];
