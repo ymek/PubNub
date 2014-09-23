@@ -245,27 +245,57 @@
 }
 
 - (NSString *)resourcePath {
-    
+
     NSString *heartbeatValue = @"";
     if ([PubNub sharedInstance].configuration.presenceHeartbeatTimeout > 0.0f) {
-        
+
         heartbeatValue = [NSString stringWithFormat:@"&heartbeat=%d",
-                          (int)[PubNub sharedInstance].configuration.presenceHeartbeatTimeout];
+                                                    (int) [PubNub sharedInstance].configuration.presenceHeartbeatTimeout];
     }
     NSString *state = @"";
     if (self.state) {
-        
+
         state = [NSString stringWithFormat:@"&state=%@",
                                            [[PNJSONSerialization stringFromJSONObject:self.state] pn_percentEscapedString]];
     }
-    return [NSString stringWithFormat:@"/subscribe/%@/%@/%@_%@/%@?uuid=%@%@%@%@&pnsdk=%@",
+
+    NSString *filter = @"";
+    NSMutableString *tempFilter = [NSMutableString string];
+
+    NSString *configFilter = [PubNub sharedInstance].configuration.filter;
+
+    if (configFilter) {
+        if ([configFilter rangeOfString:@","].location == NSNotFound) {
+            tempFilter = [NSString stringWithFormat:@"\"%@\"", configFilter];
+            filter = [NSString stringWithFormat:@"tags IN (%@)", tempFilter];
+        } else {
+            NSArray *tempArray = [configFilter componentsSeparatedByString:@","];
+            for (NSString *s in tempArray) {
+                if (tempFilter.length == 0) {
+                    [tempFilter appendString:[NSString stringWithFormat:@"\"%@\"", s]];
+                } else {
+                    [tempFilter appendString:[NSString stringWithFormat:@",\"%@\"", s]];
+                }
+
+
+            }
+
+            filter = [NSString stringWithFormat:@"tags IN (%@)", tempFilter];
+
+
+        }
+    }
+
+    NSString *resourcePath = [NSString stringWithFormat:@"/subscribe/%@/%@/%@_%@/%@?uuid=%@%@%@%@&pnsdk=%@%@",
                                       [[PubNub sharedInstance].configuration.subscriptionKey pn_percentEscapedString],
                                       [[self.channels valueForKey:@"escapedName"] componentsJoinedByString:@","],
                                       [self callbackMethodName], self.shortIdentifier, self.updateTimeToken,
                                       self.clientIdentifier, heartbeatValue, state,
-                                      ([self authorizationField] ? [NSString stringWithFormat:@"&%@",
-                                                                                              [self authorizationField]] : @""),
-                                      [self clientInformationField]];
+                                      ([self authorizationField] ? [NSString stringWithFormat:@"&%@", [self authorizationField]] : @""),
+                                      [self clientInformationField],
+                                      (filter.length > 0 ? [NSString stringWithFormat:@"&filter-expr=%@", [filter pn_percentEscapedString] ] : @"")
+    ];
+    return resourcePath;
 }
 
 - (NSString *)debugResourcePath {

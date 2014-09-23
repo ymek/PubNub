@@ -26,13 +26,25 @@
     [[PNObservationCenter defaultCenter] addMessageReceiveObserver:self
                                                          withBlock:^(PNMessage *message) {
 
+                                                             NSString *messageString = @"";
+                                                             id messageData = message.message;
+
+                                                             if ([messageData isKindOfClass:[NSDictionary class]]) {
+
+                                                                 messageString = [NSString stringWithFormat:@"tag: %@, message: <%@>",
+                                                                                                                      [(NSDictionary *)messageData valueForKey:@"tags"],
+                                                                                                                      [(NSDictionary *)messageData valueForKey:@"msg"]];
+                                                             } else if ([messageData isKindOfClass:[NSString class]]) {
+                                                                 messageString = messageData;
+                                                             }
+
                                                              NSLog(@"Text Length: %i", textView.text.length);
 
-                                                             if (textView.text.length > 2000) {
+                                                             if (textView.text.length > 200) {
                                                                  [textView setText:@""];
                                                              }
 
-                                                             [textView setText:[message.message stringByAppendingFormat:@"\n%@\n", textView.text]];
+                                                             [textView setText:[messageString stringByAppendingFormat:@"\n%@\n", textView.text]];
 
                                                          }];
 
@@ -58,10 +70,11 @@
     }];
 
 
-    PNConfiguration *myConfig = [PNConfiguration configurationForOrigin:@"pubsub.pubnub.com"  publishKey:@"demo" subscribeKey:@"demo" secretKey:@"demo"];
+    PNConfiguration *myConfig = [PNConfiguration configurationForOrigin:@"registry.devbuild.pubnub.com" publishKey:@"demo" subscribeKey:@"demo" secretKey:@"demo"];
 
     // Set the presence heartbeat to 5s
-    myConfig.presenceHeartbeatTimeout = 5;
+    //myConfig.presenceHeartbeatTimeout = 5;
+    myConfig.filter = @"X,Y,HAHAH";
 
     [PubNub setConfiguration:myConfig];
 
@@ -77,21 +90,18 @@
             NSMutableDictionary *zzState = [[NSMutableDictionary alloc] init];
 
             // then subscribe on channel zz
-            PNChannel *myChannel = [PNChannel channelWithName:@"a" shouldObservePresence:YES];
+            PNChannel *myChannel = [PNChannel channelWithName:@"hello" shouldObservePresence:NO];
 
 
-            [zzState setObject:@"demo app started" forKey:@"appEvent"];
-            [currentState setObject:zzState forKey:@"a"];
 
+            [PubNub subscribeOnChannel:myChannel];
 
-            [PubNub subscribeOnChannel:myChannel withClientState:currentState];
-
-            int64_t delayInSeconds = 5.0;
-            dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC); dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-                // grab global occupancy list 5s later
-                [PubNub requestParticipantsListWithClientIdentifiers:NO clientState:YES];
-
-            });
+//            int64_t delayInSeconds = 5.0;
+//            dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC); dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+//                // grab global occupancy list 5s later
+//                [PubNub requestParticipantsListWithClientIdentifiers:NO clientState:YES];
+//
+//            });
 
         }); }
             // In case of error you always can pull out error code and identify what happened and what you can do // additional information is stored inside error's localizedDescription, localizedFailureReason and

@@ -27,6 +27,7 @@
 @property (nonatomic, readonly, copy) NSString *subscriptionKey;
 @property (nonatomic, readonly, copy) NSString *secretKey;
 @property (nonatomic, copy) NSString *cipherKey;
+@property (nonatomic, copy) NSString *filter;
 
 // Stores reference on authorization key which is used for
 // request authorization
@@ -114,14 +115,17 @@
 + (PNConfiguration *)configurationWithPublishKey:(NSString *)publishKey
                                     subscribeKey:(NSString *)subscribeKey
                                        secretKey:(NSString *)secretKey;
+
 + (PNConfiguration *)configurationWithPublishKey:(NSString *)publishKey
                                     subscribeKey:(NSString *)subscribeKey
                                        secretKey:(NSString *)secretKey
                                 authorizationKey:(NSString *)authorizationKey;
+
 + (PNConfiguration *)configurationForOrigin:(NSString *)originHostName
                                  publishKey:(NSString *)publishKey 
                                subscribeKey:(NSString *)subscribeKey
                                   secretKey:(NSString *)secretKey;
+
 + (PNConfiguration *)configurationForOrigin:(NSString *)originHostName
                                  publishKey:(NSString *)publishKey
                                subscribeKey:(NSString *)subscribeKey
@@ -136,6 +140,7 @@
                                subscribeKey:(NSString *)subscribeKey
                                   secretKey:(NSString *)secretKey
                                   cipherKey:(NSString *)cipherKey;
+
 + (PNConfiguration *)configurationForOrigin:(NSString *)originHostName
                                  publishKey:(NSString *)publishKey
                                subscribeKey:(NSString *)subscribeKey
@@ -155,6 +160,7 @@
         subscribeKey:(NSString *)subscribeKey
            secretKey:(NSString *)secretKey
            cipherKey:(NSString *)cipherKey;
+
 - (id)initWithOrigin:(NSString *)originHostName
           publishKey:(NSString *)publishKey
         subscribeKey:(NSString *)subscribeKey
