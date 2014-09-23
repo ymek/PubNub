@@ -275,10 +275,15 @@
 
         isEqual = [self.secretKey isEqualToString:configuration.secretKey];
     }
-
+    
     if (isEqual) {
-
+        
         isEqual = [self.cipherKey isEqualToString:configuration.cipherKey];
+    }
+    
+    if (isEqual) {
+        
+        isEqual = [self.filter isEqualToString:configuration.filter];
     }
 
     if (isEqual) {
