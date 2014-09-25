@@ -25,6 +25,7 @@
 @property (weak, nonatomic) IBOutlet UITextField *filterField;
 @property (weak, nonatomic) IBOutlet UITextField *originField;
 @property (weak, nonatomic) IBOutlet UITextView *textView;
+@property (nonatomic, weak) IBOutlet UIView *contentView;
 
 @property (nonatomic, assign) CGRect selectedTextFieldFrame;
 @property (nonatomic, strong) PNConfiguration *config;
@@ -78,7 +79,7 @@
 
 - (void)completeUserInterfaceInitialization {
     
-    self.scrollableView.contentSize = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height);
+    self.scrollableView.contentSize = CGSizeMake(self.contentView.frame.size.width, self.contentView.frame.size.height);
     self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"background"]];
     
     // Configure title view
@@ -117,15 +118,18 @@
     
     // Retrieve keyboard size
     CGSize keyboardSize = [[[notification userInfo] objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
+    CGRect visibleFrame = CGRectMake(0.0, 0.0, self.contentView.frame.size.width, self.contentView.frame.size.height - keyboardSize.height);
     
-    self.scrollableView.contentSize = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height + keyboardSize.height - self.topOffset);
-    CGRect visibleFrame = CGRectMake(0.0, 0.0, self.view.frame.size.width, self.view.frame.size.height - keyboardSize.height);
+    self.scrollableView.scrollEnabled = YES;
+    self.scrollableView.contentSize = CGSizeMake(self.contentView.frame.size.width, self.contentView.frame.size.height + keyboardSize.height);
     
     // Checking whether visible frame encloses selected text field frame or not
     if (!CGRectContainsRect(visibleFrame, self.selectedTextFieldFrame)) {
         
+        CGFloat contentViewHeightDiff = self.contentView.frame.size.height - self.view.frame.size.height;
+        
         // Calculating on how much we should move text field to make it appear above keyboard
-        CGFloat overlappedTextFieldVerticlaPosition = visibleFrame.size.height - (CGRectGetMaxY(self.selectedTextFieldFrame) + 10.0f);
+        CGFloat overlappedTextFieldVerticlaPosition = visibleFrame.size.height - (CGRectGetMaxY(self.selectedTextFieldFrame) + contentViewHeightDiff + 10.0);
         
         [self.scrollableView setContentOffset:CGPointMake(0.0f, -overlappedTextFieldVerticlaPosition) animated:YES];
     }
@@ -142,7 +146,8 @@
 
 - (void)handleKeyboardWasHidden:(NSNotification *)notification {
     
-    self.scrollableView.contentSize = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height - self.topOffset);
+    self.scrollableView.scrollEnabled = (self.contentView.frame.size.height > self.view.frame.size.height);
+    self.scrollableView.contentSize = CGSizeMake(self.contentView.frame.size.width, self.contentView.frame.size.height);
 }
 
 
@@ -170,7 +175,7 @@
         // Checking whether there is too much information shown in console output field.
         if (self.textView.text.length > 96) {
 
-            NSLog(@"Text field show too much data (%d). Clearing...", self.textView.text.length);
+            NSLog(@"Text field show too much data (%lu). Clearing...", (unsigned long)self.textView.text.length);
             [self.textView setText:@""];
         }
 
