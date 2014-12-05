@@ -7,7 +7,7 @@ SCRIPT_FOLDER_PATH=$( cd "$( dirname "$0" )" && pwd )
 LIBRARY_SOURCE_FOLDER_NAME="PubNub"
 
 # Specify PubNub library source from which source code should be copied to demo and test projects.
-LIBRARY_SOURCE_PATH="$SCRIPT_FOLDER_PATH/../iOS/iPadDemoApp/pubnub/libs/$LIBRARY_SOURCE_FOLDER_NAME"
+LIBRARY_SOURCE_PATH="$SCRIPT_FOLDER_PATH/../PubNub/PubNub/$LIBRARY_SOURCE_FOLDER_NAME"
 
 # Retrieve current commit SHA 
 PRE_COMMIT_SHA=$( git rev-parse HEAD )

@@ -8,10 +8,6 @@
 
 
 #import "PNDataManager.h"
-#import "PNPresenceEvent+Protected.h"
-#import "PNMessage+Protected.h"
-#import "PNChannel+Protected.h"
-#import "PNClient.h"
 
 
 #pragma mark Structures

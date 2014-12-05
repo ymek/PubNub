@@ -20,7 +20,6 @@
 #import "UIView+PNAddition.h"
 #import "PNDataManager.h"
 #import "PNAlertView.h"
-#import "PNMacro.h"
 
 
 #pragma mark Private interface methods
