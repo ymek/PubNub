@@ -73,9 +73,6 @@ static PNDataManager *_sharedInstance = nil;
         self.events = [NSMutableDictionary dictionary];
         self.messages = [NSMutableDictionary dictionary];
         self.configuration = [PNConfiguration defaultConfiguration];
-        self.configuration = [PNConfiguration configurationWithPublishKey:@"pub-9c4a1e5c-33bf-497b-bae7-9e643b8710cc"
-                                                             subscribeKey:@"sub-c673492b-3e47-11e2-adf4-77ab52641c9b"
-                                                                secretKey:@"sec-M2FjYTkzMzEtOTQzYi00ZWE3LTk3OGItZWFlMDAyZjExNDc4"];
         self.subscribedChannelsList = [NSMutableArray array];
 
         __pn_desired_weak __typeof__(self) weakSelf = self;
