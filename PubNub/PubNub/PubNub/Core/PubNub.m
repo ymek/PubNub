@@ -907,6 +907,7 @@ shouldObserveProcessing:(BOOL)shouldObserveProcessing;
 
 - (void)rescheduleMethodCall:(void(^)(void))methodBlock {
 
+    void(^methodBlockCopy)(void) = (methodBlock ? [methodBlock copy] : nil);
     void(^checkCompletionBlock)(BOOL) = ^(BOOL willRestore) {
 
         [self pn_dispatchBlock:^{
@@ -923,9 +924,9 @@ shouldObserveProcessing:(BOOL)shouldObserveProcessing;
 
             self.methodCallRescheduleDate = [NSDate new];
 
-            if (methodBlock) {
+            if (methodBlockCopy) {
 
-                methodBlock();
+                methodBlockCopy();
             }
         }];
     };
@@ -1095,8 +1096,11 @@ shouldObserveProcessing:(BOOL)shouldObserveProcessing;
 }
 
 - (void)setDelegate:(id<PNDelegate>)delegate {
-
-    self.clientDelegate = delegate;
+    
+    [self pn_dispatchBlock:^{
+    
+        self.clientDelegate = delegate;
+    }];
 }
 
 
@@ -4206,6 +4210,7 @@ shouldObserveProcessing:(BOOL)shouldObserveProcessing;
     
     [self pn_destroyPrivateDispatchQueue];
     
+    [self unsubscribeFromNotifications];
     [self.cache purgeAllState];
     self.cache = nil;
 

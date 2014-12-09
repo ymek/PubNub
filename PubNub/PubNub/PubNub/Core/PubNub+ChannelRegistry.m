@@ -474,7 +474,10 @@
                 
                 if (handlerBlock && !isMethodCallRescheduled) {
                     
-                    handlerBlock(nspace, nil, requestError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handlerBlock(nspace, nil, requestError);
+                    });
                 }
             }
         }
@@ -562,7 +565,10 @@
                 
                 if (handlerBlock && !isMethodCallRescheduled) {
                     
-                    handlerBlock(nil, requestError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handlerBlock(nil, requestError);
+                    });
                 }
             }
         }
@@ -649,7 +655,10 @@
                 
                 if (handlerBlock && !isMethodCallRescheduled) {
                     
-                    handlerBlock(nspace, requestError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handlerBlock(nspace, requestError);
+                    });
                 }
             }
         }
@@ -736,7 +745,10 @@
                 
                 if (handlerBlock && !isMethodCallRescheduled) {
                     
-                    handlerBlock(group, requestError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handlerBlock(group, requestError);
+                    });
                 }
             }
         }
@@ -829,7 +841,10 @@
                 
                 if (handlerBlock && !isMethodCallRescheduled) {
                     
-                    handlerBlock(group, requestError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handlerBlock(group, requestError);
+                    });
                 }
             }
         }
@@ -923,7 +938,10 @@
                 
                 if (handlerBlock && !isMethodCallRescheduled) {
                     
-                    handlerBlock(group, channels, requestError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handlerBlock(group, channels, requestError);
+                    });
                 }
             }
         }
@@ -1016,7 +1034,10 @@
                 
                 if (handlerBlock && !isMethodCallRescheduled) {
                     
-                    handlerBlock(group, channels, requestError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handlerBlock(group, channels, requestError);
+                    });
                 }
             }
         }

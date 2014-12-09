@@ -1119,11 +1119,11 @@ typedef NS_OPTIONS(NSUInteger, PNLoggerConfiguration) {
 
             if(![packetData writeToFile:packetStorePath atomically:YES]){
                 
-                NSLog(@"CAN'T SAVE DUMP: %@", packetData);
+                NSLog(@"CAN'T SAVE DUMP: %@\nTO: %@", packetData, packetStorePath);
             }
             if(![packetDescription writeToFile:detailsStorePath atomically:YES]){
                 
-                NSLog(@"CAN'T SAVE DUMP: %@", packetData);
+                NSLog(@"CAN'T SAVE DUMP INFORMATION: %@\nTO: %@", packetDescription, detailsStorePath);
             }
         });
     }

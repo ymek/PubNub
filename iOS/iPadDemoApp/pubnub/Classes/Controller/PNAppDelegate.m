@@ -121,6 +121,7 @@
     
     [self initializePubNubClient];
     
+    
     #if !TARGET_IPHONE_SIMULATOR
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
         

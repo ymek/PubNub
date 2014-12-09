@@ -81,6 +81,7 @@
                 nspace = ([[channelGroupNameComponents objectAtIndex:0] length] ?
                           [channelGroupNameComponents objectAtIndex:0] : nil);
                 name = ([[channelGroupNameComponents lastObject] length] ? [channelGroupNameComponents lastObject] : nil);
+                nspace = ([nspace length] ? nspace : nil);
                 if (!name && nspace) {
                     
                     channelName = [nspace stringByAppendingString:@":"];
@@ -90,6 +91,8 @@
     }
     else {
         
+        nspace = ([nspace length] ? nspace : nil);
+        channelName = ([channelName length] ? channelName : nil);
         if (channelName && nspace) {
             
             channelName = [NSString stringWithFormat:@"%@:%@", nspace, channelName];
@@ -123,8 +126,8 @@
             channel = channelCreateBlock();
         }
         channel.channelGroup = YES;
-        channel.groupName = name;
-        channel.nspace = nspace;
+        channel.groupName = ([name length] ? name : nil);
+        channel.nspace = ([nspace length] ? nspace : nil);
     }
     
     

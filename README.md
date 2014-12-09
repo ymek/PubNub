@@ -40,6 +40,7 @@ Table of Contents
   - [PNClient](#pnclient-object)
   - [PNHereNow](#pnherenow-object)
   - [PNWhereNow](#pnwherenow-object)
+  - [PNPresenceEvent](#pnpresenceevent-object)
   - [PNChannelGroupChange](#pnchannelgroupchange-object)
   - [PNAccessRightOptions](#pnaccessrightoptions-object)
   - [PNAccessRightsCollection](#pnaccessrightscollection-object)
@@ -1935,6 +1936,12 @@ Also it provide few constructor methods:
 + (id)channelWithName:(NSString *)channelName shouldObservePresence:(BOOL)observePresence;
 ```
 First method from list above allow to create set of channels from list of names in single call. Last method allow to specify whether created channel should try to enable presence observation after subscription or not.  
+As for the channel name, you can use any characters you want except `,`, `/` and `:`, as they are reserved.  
+  
+For example, to receive a reference on a list of channel instances:  
+```objc
+NSArray *channels = [PNChannel channelsWithNames:@[@"iosdev",@"andoirddev",@"wpdev",@"ubuntudev"]];
+```  
 
 <a name="pnchannelgroup-object" />
 ### PNChannelGroup object
@@ -1956,6 +1963,12 @@ Also it provide few constructor methods:
                    shouldObservePresence:(BOOL)observePresence;
 ```
 First group of methods can accept simple channel group name ("group") or composed with namespace ("namespace:group"), but if you don't want to pre-compose string there is second group of methods which accept group and namespace names separately. Both groups of methods has designated method which allow to specify whether created group should try to enable presence observation after subscription or not.  
+As for the group and namespace names, you can use any characters you want except `,`, `/` and `:`, as they are reserved. `:` can be used with two methods from first group as delimiter between namespace and channel group names.  
+  
+For example, to receive a reference on _development_ channel group inside of _news-feed_ namespace:  
+```objc
+PNChannelGroup *group = [PNChannelGroup channelGroupWithName:@"news-feed:development"];
+```  
 
 <a name="pnchannelgroupnamespace-object" />
 ### PNChannelGroupNamespace object
@@ -2025,6 +2038,18 @@ Object which is used to represent presence information of single subscriber by h
 This object provide next information:  
 - `identifier` - reference on unique subscriber identifier for which presence information has been received  
 - `channels` - list of [**PNChannel**](#pnchannel-object) objects where requested subscriber has been found  
+
+<a name="pnpresenceevent-object" />
+### PNPresenceEvent object
+Object which allow to describe what exact action just happened on channel or group for which presence observation has been enabled during subscription or on run-time.  
+
+This object provide next information:  
+- `type` - one of `PNPresenceEventType` fields declared in [**PNStructures.h**](PubNub/PubNub/PubNub/Misc/PNStructures.h). Using this value we can find out whether there is: **state change**, **subscribers count change**, **join**, **leave** or **timeout** event  
+- `date` - [**PNDate**](#pndate-object) instance which allow to find date when this presence event occur  
+- `client` - [**PNClient**](#pnclient-object) object which hold information about subscriber/client for which this event has been generated  
+- `occupancy` - in case of **subscribers count change** event it will store current number of subscribers on `channel`  
+- `channel` - reference on [**PNChannel**](#pnchannel-object) which describe target channel on which this presence event has been generated  
+- `channelGroup` - in case if event has been generated on [**PNChannel**](#pnchannel-object) inside of channel group on which client subscribed at this moment this value will contain reference on [**PNChannelGroup**](#pnchannelgroup-object)  
 
 <a name="pnchannelgroupchange-object" />
 ### PNChannelGroupChange object

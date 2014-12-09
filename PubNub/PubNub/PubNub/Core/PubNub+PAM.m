@@ -927,7 +927,10 @@
                 
                 if (handlerBlock && !isMethodCallRescheduled) {
                     
-                    handlerBlock(nil, accessRightChangeError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handlerBlock(nil, accessRightChangeError);
+                    });
                 }
             }
         }
@@ -1099,10 +1102,12 @@
                 
                 [self notifyDelegateAboutAccessRightsAuditFailedWithError:accessRightAuditError];
                 
-                
                 if (handlerBlock && !isMethodCallRescheduled) {
                     
-                    handlerBlock(nil, accessRightAuditError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handlerBlock(nil, accessRightAuditError);
+                    });
                 }
             }
         }

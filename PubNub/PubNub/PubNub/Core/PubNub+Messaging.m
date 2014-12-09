@@ -574,8 +574,11 @@ withCompletionBlock:(PNClientMessageProcessingBlock)success {
 
 
             if (success && !isMethodCallRescheduled) {
-
-                success(PNMessageSendingError, sendingError);
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    success(PNMessageSendingError, sendingError);
+                });
             }
         }
     }

@@ -320,10 +320,12 @@ withCompletionHandlingBlock:handlerBlock];
                 
                 [self notifyDelegateAboutStateRetrievalDidFailWithError:requestError];
                 
-                
                 if (handlerBlock && !isMethodCallRescheduled) {
                     
-                    handlerBlock(requestError.associatedObject, requestError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handlerBlock(requestError.associatedObject, requestError);
+                    });
                 }
             }
         }
@@ -445,10 +447,12 @@ withCompletionHandlingBlock:handlerBlock];
                     
                     [self notifyDelegateAboutStateUpdateDidFailWithError:requestError];
                     
-                    
                     if (handlerBlock && !isMethodCallRescheduled) {
                         
-                        handlerBlock(requestError.associatedObject, requestError);
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            
+                            handlerBlock(requestError.associatedObject, requestError);
+                        });
                     }
                 }
             };

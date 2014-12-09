@@ -411,7 +411,10 @@
                 
                 if (handlerBlock && !isMethodCallRescheduled) {
                     
-                    handlerBlock(channels, stateChangeError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handlerBlock(channels, stateChangeError);
+                    });
                 }
             }
         }
@@ -526,10 +529,12 @@
                 
                 [self notifyDelegateAboutPushNotificationsDisableFailedWithError:stateChangeError];
                 
-                
                 if (handlerBlock && !isMethodCallRescheduled) {
                     
-                    handlerBlock(channels, stateChangeError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handlerBlock(channels, stateChangeError);
+                    });
                 }
             }
         }
@@ -618,10 +623,12 @@
                 PNError *removalError = [PNError errorWithCode:statusCode];
                 [self notifyDelegateAboutPushNotificationsRemoveFailedWithError:removalError];
                 
-                
                 if (handlerBlock && !isMethodCallRescheduled) {
                     
-                    handlerBlock(removalError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handlerBlock(removalError);
+                    });
                 }
             }
         }
@@ -708,11 +715,13 @@
                 
                 [self notifyDelegateAboutPushNotificationsEnabledChannelsFailedWithError:listRetrieveError];
                 
-                
                 if (handlerBlock && !isMethodCallRescheduled) {
                     
-                    handlerBlock(nil, listRetrieveError);
-                }
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handlerBlock(nil, listRetrieveError);
+                    });
+                }           
             }
         }
                postponedExecutionBlock:^{

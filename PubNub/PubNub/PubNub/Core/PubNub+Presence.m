@@ -453,7 +453,10 @@
                 
                 if (handleBlock && !isMethodCallRescheduled) {
                     
-                    handleBlock(nil, channelObjects, sendingError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handleBlock(nil, channelObjects, sendingError);
+                    });
                 }
             }
         }
@@ -548,7 +551,10 @@
                 
                 if (handleBlock && !isMethodCallRescheduled) {
                     
-                    handleBlock(clientIdentifier, nil, sendingError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handleBlock(clientIdentifier, nil, sendingError);
+                    });
                 }
             }
         }
