@@ -515,103 +515,78 @@
 - (void)requestHistoryForChannel:(PNChannel *)channel from:(PNDate *)startDate to:(PNDate *)endDate limit:(NSUInteger)limit
                   reverseHistory:(BOOL)shouldReverseMessageHistory includingTimeToken:(BOOL)shouldIncludeTimeToken
           reschedulingMethodCall:(BOOL)isMethodCallRescheduled withCompletionBlock:(PNClientHistoryLoadHandlingBlock)handleBlock {
-
-    if (!isMethodCallRescheduled) {
+    
+    [self pn_dispatchBlock:^{
         
-        dispatch_async(dispatch_get_main_queue(), ^{
-           
-            PNError *error = [PNError errorWithCode:kPNRequestCantBeProcessedWithOutRescheduleError];
-                
-            NSMutableDictionary *options = [NSMutableDictionary dictionaryWithDictionary:@{
-                                                                                           @"limit":@(limit), @"revertMessages":@(shouldReverseMessageHistory),
-                                                                                           @"includeTimeToken":@(shouldIncludeTimeToken)}];
-            if (startDate) {
-                
-                [options setValue:startDate forKey:@"startDate"];
-            }
+        [PNLogger logGeneralMessageFrom:self withParametersFromBlock:^NSArray *{
             
-            if (endDate) {
-                
-                [options setValue:endDate forKey:@"endDate"];
-            }
-            [error replaceAssociatedObject:options];
-            [self serviceChannel:nil didFailHisoryDownloadForChannel:channel withError:error];
-        });
-    }
-    else {
-        
-        [self pn_dispatchBlock:^{
-            
-            [PNLogger logGeneralMessageFrom:self withParametersFromBlock:^NSArray *{
-                
-                return @[PNLoggerSymbols.api.historyFetchAttempt, (channel ? channel : [NSNull null]),
-                         (startDate ? startDate : [NSNull null]), (endDate ? endDate : [NSNull null]),
-                         @(limit), @(shouldReverseMessageHistory), @(shouldIncludeTimeToken),
-                         [self humanReadableStateFrom:self.state]];
-            }];
-            
-            [self performAsyncLockingBlock:^{
-                
-                if (!isMethodCallRescheduled) {
-                    
-                    [self.observationCenter removeClientAsHistoryDownloadObserver];
-                }
-                
-                // Check whether client is able to send request or not
-                NSInteger statusCode = [self requestExecutionPossibilityStatusCode];
-                if (statusCode == 0) {
-                    
-                    [PNLogger logGeneralMessageFrom:self withParametersFromBlock:^NSArray * {
-                        
-                        return @[PNLoggerSymbols.api.fetchingHistory, [self humanReadableStateFrom:self.state]];
-                    }];
-                    
-                    if (handleBlock && !isMethodCallRescheduled) {
-                        
-                        [self.observationCenter addClientAsHistoryDownloadObserverWithBlock:handleBlock];
-                    }
-                    
-                    PNMessageHistoryRequest *request = [PNMessageHistoryRequest messageHistoryRequestForChannel:channel
-                                                                                                           from:startDate to:endDate limit:limit
-                                                                                                 reverseHistory:shouldReverseMessageHistory
-                                                                                             includingTimeToken:shouldIncludeTimeToken];
-                    [self sendRequest:request shouldObserveProcessing:YES];
-                }
-                // Looks like client can't send request because of some reasons
-                else {
-                    
-                    [PNLogger logGeneralMessageFrom:self withParametersFromBlock:^NSArray * {
-                        
-                        return @[PNLoggerSymbols.api.historyFetchImpossible, [self humanReadableStateFrom:self.state]];
-                    }];
-                    
-                    PNError *historyFetchError = [PNError errorWithCode:statusCode];
-                    historyFetchError.associatedObject = channel;
-                    
-                    [self notifyDelegateAboutHistoryDownloadFailedWithError:historyFetchError];
-                    
-                    if (handleBlock && !isMethodCallRescheduled) {
-                        
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            
-                            handleBlock(nil, channel, startDate, endDate, historyFetchError);
-                        });
-                    }
-                }
-            }
-                   postponedExecutionBlock:^{
-                       
-                       [PNLogger logGeneralMessageFrom:self withParametersFromBlock:^NSArray *{
-                           
-                           return @[PNLoggerSymbols.api.postponeHistoryFetching, [self humanReadableStateFrom:self.state]];
-                       }];
-                       
-                       [self postponeRequestHistoryForChannel:channel from:startDate to:endDate limit:limit
-                                               reverseHistory:shouldReverseMessageHistory includingTimeToken:shouldIncludeTimeToken
-                                       reschedulingMethodCall:isMethodCallRescheduled withCompletionBlock:handleBlock];
-                   }];
+            return @[PNLoggerSymbols.api.historyFetchAttempt, (channel ? channel : [NSNull null]),
+                     (startDate ? startDate : [NSNull null]), (endDate ? endDate : [NSNull null]),
+                     @(limit), @(shouldReverseMessageHistory), @(shouldIncludeTimeToken),
+                     [self humanReadableStateFrom:self.state]];
         }];
-    }
+        
+        [self performAsyncLockingBlock:^{
+            
+            if (!isMethodCallRescheduled) {
+                
+                [self.observationCenter removeClientAsHistoryDownloadObserver];
+            }
+            
+            // Check whether client is able to send request or not
+            NSInteger statusCode = [self requestExecutionPossibilityStatusCode];
+            if (statusCode == 0) {
+                
+                [PNLogger logGeneralMessageFrom:self withParametersFromBlock:^NSArray * {
+                    
+                    return @[PNLoggerSymbols.api.fetchingHistory, [self humanReadableStateFrom:self.state]];
+                }];
+                
+                if (handleBlock && !isMethodCallRescheduled) {
+                    
+                    [self.observationCenter addClientAsHistoryDownloadObserverWithBlock:handleBlock];
+                }
+                
+                PNMessageHistoryRequest *request = [PNMessageHistoryRequest messageHistoryRequestForChannel:channel
+                                                                                                       from:startDate to:endDate limit:limit
+                                                                                             reverseHistory:shouldReverseMessageHistory
+                                                                                         includingTimeToken:shouldIncludeTimeToken];
+                [self sendRequest:request shouldObserveProcessing:YES];
+            }
+            // Looks like client can't send request because of some reasons
+            else {
+                
+                [PNLogger logGeneralMessageFrom:self withParametersFromBlock:^NSArray * {
+                    
+                    return @[PNLoggerSymbols.api.historyFetchImpossible, [self humanReadableStateFrom:self.state]];
+                }];
+                
+                PNError *historyFetchError = [PNError errorWithCode:statusCode];
+                historyFetchError.associatedObject = channel;
+                
+                [self notifyDelegateAboutHistoryDownloadFailedWithError:historyFetchError];
+                
+                if (handleBlock && !isMethodCallRescheduled) {
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handleBlock(nil, channel, startDate, endDate, historyFetchError);
+                    });
+                }
+            }
+        }
+               postponedExecutionBlock:^{
+                   
+                   [PNLogger logGeneralMessageFrom:self withParametersFromBlock:^NSArray *{
+                       
+                       return @[PNLoggerSymbols.api.postponeHistoryFetching, [self humanReadableStateFrom:self.state]];
+                   }];
+                   
+                   [self postponeRequestHistoryForChannel:channel from:startDate to:endDate limit:limit
+                                           reverseHistory:shouldReverseMessageHistory includingTimeToken:shouldIncludeTimeToken
+                                   reschedulingMethodCall:isMethodCallRescheduled withCompletionBlock:handleBlock];
+               }];
+    }];
 }
 
 - (void)postponeRequestHistoryForChannel:(PNChannel *)channel from:(PNDate *)startDate to:(PNDate *)endDate limit:(NSUInteger)limit
