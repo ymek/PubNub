@@ -1906,8 +1906,6 @@ struct PNStoredRequestKeysStruct PNStoredRequestKeys = {
         BOOL isRequestSentByUser = request != nil && request.isSendingByUserRequest;
         BOOL shouldHandleResponse = [self shouldHandleResponse:response];
 
-        [self stopTimeoutTimerForRequest:request];
-
         dispatch_block_t responseProcessingCompletionBlock = ^{
 
             [self pn_dispatchBlock:^{
@@ -1967,6 +1965,11 @@ struct PNStoredRequestKeysStruct PNStoredRequestKeys = {
                     return response.content;
                 }];
 
+                if (shouldHandleResponse && isRequestSentByUser) {
+
+                    [self stopTimeoutTimerForRequest:request];
+                }
+
                 if ([request canRetry]) {
 
                     [request increaseRetryCount];
@@ -1993,6 +1996,11 @@ struct PNStoredRequestKeysStruct PNStoredRequestKeys = {
                     return @[PNLoggerSymbols.connectionChannel.receivedResponse, (self.name ? self.name : self),
                             (response ? response : [NSNull null]), @(self.state)];
                 }];
+                
+                if (request) {
+                    
+                    [self stopTimeoutTimerForRequest:request];
+                }
             }
 
             [self destroyRequest:request];
