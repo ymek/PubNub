@@ -646,7 +646,8 @@
     
     [PNLogger logGeneralMessageFrom:self withParametersFromBlock:^NSArray *{
         
-        return @[PNLoggerSymbols.api.didReceiveEvent, (event ? event : [NSNull null]), (event.channel ? event.channel : [NSNull null]),
+        return @[PNLoggerSymbols.api.didReceiveEvent, (event ? event : [NSNull null]),
+                 (event.channel ? event.channel : [NSNull null]),
                  [self humanReadableStateFrom:self.state]];
     }];
     
