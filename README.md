@@ -53,6 +53,7 @@ Table of Contents
   - [Observation center](#event-handling-with-observatino-center)
   - [Notifications](#event-handling-with-notifications)
 - [Logging](#logger)
+- [Important Changes](#important-changes)
 - [Tests](#tests)
 
 <a name="use_in_project" />
@@ -3184,6 +3185,15 @@ Sometimes there is situations when dump of HTTP packets maybe required to resolv
 **Keep in mind, this file size is only checked/rotated at application start. If it rises above the max size during application run-time, it will not rotate until after the application has been restarted.**  
 
 You can use a utility such as [iExplorer](http://www.macroplant.com/iexplorer/) to easily pull the _pubnub-console-dump.txt_ file off your device for later review.  
+
+<a name="important-changes" />
+## Important Changes from Earlier Versions
+
+### 3.7.4
+
+#### PNMessage
+
+`message` property now store reference on same object which has been sent. In previous versions this field stored reference on JSON which has been sent to PubNub service.
 
 <a name="tests" />
 ## Tests with OCUnit and OCMock

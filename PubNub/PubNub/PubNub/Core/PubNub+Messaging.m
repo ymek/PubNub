@@ -507,40 +507,67 @@ withCompletionBlock:(PNClientMessageProcessingBlock)success {
                  [self humanReadableStateFrom:self.state]];
     }];
 
-    // Create object instance
-    PNError *error = nil;
-    NSString *messageForSending = message;
-    BOOL encrypted = NO;
-    if (self.cryptoHelper.ready && !alreadyEncrypted) {
-        
-        if ([messageForSending isKindOfClass:[NSNumber class]]) {
-            
-            messageForSending = [(NSNumber *)message stringValue];
-        }
-        
-        PNError *encryptionError;
-        messageForSending = [self AESEncrypt:messageForSending error:&encryptionError];
-        
-        if (encryptionError != nil) {
-            
-            [PNLogger logCommunicationChannelErrorMessageFrom:self withParametersFromBlock:^NSArray *{
-                
-                return @[PNLoggerSymbols.requests.messagePost.messageBodyEncryptionError,
-                         (encryptionError ? encryptionError : [NSNull null])];
-            }];
-            messageForSending = message;
-        }
-        encrypted = YES;
-    }
-    PNMessage *messageObject = [PNMessage messageWithObject:messageForSending forChannel:channel compressed:shouldCompressMessage
+    __block PNError *error = nil;
+    PNMessage *messageObject = [PNMessage messageWithObject:message forChannel:channel compressed:shouldCompressMessage
                                              storeInHistory:shouldStoreInHistory error:&error];
-    messageObject.contentEncrypted = encrypted;
 
     [self performAsyncLockingBlock:^{
 
         if (!isMethodCallRescheduled) {
 
             [self.observationCenter removeClientAsMessageProcessingObserver];
+        }
+
+        if (self.cryptoHelper.ready) {
+
+            // Try apply message encoding if required and possible
+            id messageForSending = message;
+            BOOL encrypted = NO;
+
+            if (!alreadyEncrypted) {
+
+                #ifndef CRYPTO_BACKWARD_COMPATIBILITY_MODE
+                if ([messageForSending isKindOfClass:[NSNumber class]]) {
+
+                    messageForSending = [(NSNumber *)message stringValue];
+                }
+                #endif
+
+                PNError *encryptionError;
+                #ifndef CRYPTO_BACKWARD_COMPATIBILITY_MODE
+                messageForSending = [PNJSONSerialization stringFromJSONObject:messageForSending];
+                #endif
+                messageForSending = [self AESEncrypt:messageForSending error:&encryptionError];
+
+                if (encryptionError != nil) {
+
+                    [PNLogger logCommunicationChannelErrorMessageFrom:self withParametersFromBlock:^NSArray *{
+
+                        return @[PNLoggerSymbols.requests.messagePost.messageBodyEncryptionError,
+                                (encryptionError ? encryptionError : [NSNull null])];
+                    }];
+                    messageForSending = message;
+                    error = encryptionError;
+                }
+                encrypted = (encryptionError == nil);
+                if (encrypted) {
+
+                    messageObject.encryptedMessage = messageForSending;
+                }
+            }
+            else {
+
+                encrypted = alreadyEncrypted;
+            }
+            messageObject.contentEncrypted = encrypted;
+        }
+        // Even w/o encryption message should be translated to string for further processinf with
+        // PubNub API.
+        else {
+
+            #ifndef CRYPTO_BACKWARD_COMPATIBILITY_MODE
+            messageObject.encryptedMessage = [PNJSONSerialization stringFromJSONObject:message];
+            #endif
         }
 
         // Check whether client is able to send request or not
@@ -559,7 +586,7 @@ withCompletionBlock:(PNClientMessageProcessingBlock)success {
 
             [self.serviceChannel sendMessage:messageObject];
         }
-            // Looks like client can't send request because of some reasons
+        // Looks like client can't send request because of some reasons
         else {
 
             [PNLogger logGeneralMessageFrom:self withParametersFromBlock:^NSArray * {

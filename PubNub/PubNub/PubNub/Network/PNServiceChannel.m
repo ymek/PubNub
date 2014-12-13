@@ -1156,38 +1156,11 @@
 
 #pragma mark - Messages processing methods
 
-- (PNMessage *)sendMessage:(id)object toChannel:(PNChannel *)channel compressed:(BOOL)shouldCompressMessage
-            storeInHistory:(BOOL)shouldStoreInHistory {
-
-    // Create object instance
-    PNError *error = nil;
-    PNMessage *messageObject = [PNMessage messageWithObject:object forChannel:channel compressed:shouldCompressMessage
-                                             storeInHistory:shouldStoreInHistory error:&error];
-
-    // Checking whether
-    if (messageObject) {
-
-        // Schedule object sending request
-        [self scheduleRequest:[PNMessagePostRequest postMessageRequestWithMessage:messageObject]
-      shouldObserveProcessing:YES];
-    }
-    else {
-
-        // Notify delegate about object sending error
-        [self.serviceDelegate serviceChannel:self didFailMessageSend:messageObject withError:error];
-    }
-
-    return messageObject;
-}
-
 - (void)sendMessage:(PNMessage *)message {
 
-    if (message) {
-
-        // Schedule message sending request
-        [self sendMessage:message.message toChannel:message.channel compressed:message.shouldCompressMessage
-           storeInHistory:message.shouldStoreInHistory];
-    }
+    // Schedule object sending request
+    [self scheduleRequest:[PNMessagePostRequest postMessageRequestWithMessage:message]
+  shouldObserveProcessing:YES];
 }
 
 
