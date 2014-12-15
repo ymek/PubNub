@@ -80,8 +80,13 @@
 		96CB6AA019D19A6B0093D64E /* PubNubInvocationStorageTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 96CB6A6B19D19A6B0093D64E /* PubNubInvocationStorageTest.m */; };
 		96CB6AA119D19A6B0093D64E /* PNConfigurationChangeTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 96CB6A6D19D19A6B0093D64E /* PNConfigurationChangeTest.m */; };
 		96CB6AA519D19BAD0093D64E /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96CB6AA419D19BAD0093D64E /* XCTest.framework */; };
+		96CC960A1A3F3C4E0080CDD8 /* dump files.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 96CC96081A3F3C4E0080CDD8 /* dump files.bundle */; };
+		96CC960B1A3F3C4E0080CDD8 /* dump files complex.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 96CC96091A3F3C4E0080CDD8 /* dump files complex.bundle */; };
+		96CC960C1A3F3C510080CDD8 /* dump files.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 96CC96081A3F3C4E0080CDD8 /* dump files.bundle */; };
+		96CC960D1A3F3C540080CDD8 /* dump files complex.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 96CC96091A3F3C4E0080CDD8 /* dump files complex.bundle */; };
 		96E0446719EC064500A4C18A /* ChannelGroupPAMTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 96E0446619EC064500A4C18A /* ChannelGroupPAMTest.m */; };
 		96E0446919EC3A1B00A4C18A /* ChannelGroupSubscriptionInstanceTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 96E0446819EC3A1B00A4C18A /* ChannelGroupSubscriptionInstanceTest.m */; };
+		96E28B9D1A3EEDD800DC39F4 /* PNDeserializeResponseTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 96E28B9C1A3EEDD800DC39F4 /* PNDeserializeResponseTest.m */; };
 		96E9B30B19E8380500362A9D /* ChannelGroupSubscriptionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 96E9B30A19E8380500362A9D /* ChannelGroupSubscriptionTest.m */; };
 		96FA82951A15027B005D6A33 /* PNConnectSuccessBlockTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 96FA82931A15027B005D6A33 /* PNConnectSuccessBlockTest.m */; };
 		96FA82961A15027B005D6A33 /* PNConnectClientWithConfigTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 96FA82941A15027B005D6A33 /* PNConnectClientWithConfigTest.m */; };
@@ -310,8 +315,11 @@
 		96CB6A6B19D19A6B0093D64E /* PubNubInvocationStorageTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PubNubInvocationStorageTest.m; sourceTree = "<group>"; };
 		96CB6A6D19D19A6B0093D64E /* PNConfigurationChangeTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNConfigurationChangeTest.m; sourceTree = "<group>"; };
 		96CB6AA419D19BAD0093D64E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		96CC96081A3F3C4E0080CDD8 /* dump files.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = "dump files.bundle"; sourceTree = "<group>"; };
+		96CC96091A3F3C4E0080CDD8 /* dump files complex.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = "dump files complex.bundle"; sourceTree = "<group>"; };
 		96E0446619EC064500A4C18A /* ChannelGroupPAMTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChannelGroupPAMTest.m; sourceTree = "<group>"; };
 		96E0446819EC3A1B00A4C18A /* ChannelGroupSubscriptionInstanceTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChannelGroupSubscriptionInstanceTest.m; sourceTree = "<group>"; };
+		96E28B9C1A3EEDD800DC39F4 /* PNDeserializeResponseTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNDeserializeResponseTest.m; sourceTree = "<group>"; };
 		96E9B30A19E8380500362A9D /* ChannelGroupSubscriptionTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChannelGroupSubscriptionTest.m; sourceTree = "<group>"; };
 		96FA82931A15027B005D6A33 /* PNConnectSuccessBlockTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNConnectSuccessBlockTest.m; sourceTree = "<group>"; };
 		96FA82941A15027B005D6A33 /* PNConnectClientWithConfigTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PNConnectClientWithConfigTest.m; sourceTree = "<group>"; };
@@ -707,6 +715,7 @@
 		96CB66E819CFE75D0093D64E /* UnitTestsTests */ = {
 			isa = PBXGroup;
 			children = (
+				96E28B9B1A3EEBF800DC39F4 /* 3.7.4 Regression tests */,
 				96A5F8A91A07D0DF004C92AA /* 3.7.3 Regression tests */,
 				960063271A027770002063CF /* 3.7.2 Regression tests */,
 				A519BB9219E2DA8A0095FD54 /* 3.6.8 Channel Group tests */,
@@ -858,6 +867,16 @@
 				96CB6A6D19D19A6B0093D64E /* PNConfigurationChangeTest.m */,
 			);
 			path = "3.6.7 Regression tests";
+			sourceTree = "<group>";
+		};
+		96E28B9B1A3EEBF800DC39F4 /* 3.7.4 Regression tests */ = {
+			isa = PBXGroup;
+			children = (
+				96CC96081A3F3C4E0080CDD8 /* dump files.bundle */,
+				96CC96091A3F3C4E0080CDD8 /* dump files complex.bundle */,
+				96E28B9C1A3EEDD800DC39F4 /* PNDeserializeResponseTest.m */,
+			);
+			path = "3.7.4 Regression tests";
 			sourceTree = "<group>";
 		};
 		A519BA1119E2DA4C0095FD54 /* libs */ = {
@@ -1344,6 +1363,8 @@
 			files = (
 				96CB66D419CFE75D0093D64E /* InfoPlist.strings in Resources */,
 				A519BB9119E2DA4D0095FD54 /* PNLoggerSymbols.plist in Resources */,
+				96CC960C1A3F3C510080CDD8 /* dump files.bundle in Resources */,
+				96CC960D1A3F3C540080CDD8 /* dump files complex.bundle in Resources */,
 				96CB66DC19CFE75D0093D64E /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1352,7 +1373,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96CC960A1A3F3C4E0080CDD8 /* dump files.bundle in Resources */,
 				964F68351A13B5D5002AE069 /* testdata.plist in Resources */,
+				96CC960B1A3F3C4E0080CDD8 /* dump files complex.bundle in Resources */,
 				96CB66ED19CFE75D0093D64E /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1488,6 +1511,7 @@
 				96CB6AA119D19A6B0093D64E /* PNConfigurationChangeTest.m in Sources */,
 				965236821A09126600E6BF32 /* PNChannelGroupTest.m in Sources */,
 				96CB6A9519D19A6B0093D64E /* PNPushNotificationsEnabledChannelsParserTest.m in Sources */,
+				96E28B9D1A3EEDD800DC39F4 /* PNDeserializeResponseTest.m in Sources */,
 				96E9B30B19E8380500362A9D /* ChannelGroupSubscriptionTest.m in Sources */,
 				96CB6A0A19D01F210093D64E /* PNBaseTestCase.m in Sources */,
 				96CB6A7019D19A6B0093D64E /* ChangingChannels.m in Sources */,
