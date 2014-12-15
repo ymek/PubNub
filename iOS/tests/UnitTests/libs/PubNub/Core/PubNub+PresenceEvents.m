@@ -290,7 +290,10 @@
                 
                 if (handlerBlock != nil) {
                     
-                    handlerBlock(channelObjects, presenceEnableError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handlerBlock(channelObjects, presenceEnableError);
+                    });
                 }
             }
             
@@ -390,7 +393,10 @@
                 
                 if (handlerBlock != nil) {
                     
-                    handlerBlock(channelObjects, presencedisableError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handlerBlock(channelObjects, presencedisableError);
+                    });
                 }
             }
         }
@@ -640,7 +646,8 @@
     
     [PNLogger logGeneralMessageFrom:self withParametersFromBlock:^NSArray *{
         
-        return @[PNLoggerSymbols.api.didReceiveEvent, (event ? event : [NSNull null]), (event.channel ? event.channel : [NSNull null]),
+        return @[PNLoggerSymbols.api.didReceiveEvent, (event ? event : [NSNull null]),
+                 (event.channel ? event.channel : [NSNull null]),
                  [self humanReadableStateFrom:self.state]];
     }];
     

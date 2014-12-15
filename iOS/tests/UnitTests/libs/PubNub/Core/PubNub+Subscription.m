@@ -397,7 +397,10 @@ andCompletionHandlingBlock:handlerBlock];
                 
                 if (handlerBlock) {
                     
-                    handlerBlock(PNSubscriptionProcessNotSubscribedState, channelObjects, subscriptionError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handlerBlock(PNSubscriptionProcessNotSubscribedState, channelObjects, subscriptionError);
+                    });
                 }
             }
         }
@@ -502,7 +505,10 @@ withCompletionHandlingBlock:(PNClientChannelUnsubscriptionHandlerBlock)handlerBl
                 
                 if (handlerBlock) {
                     
-                    handlerBlock(channelObjects, unsubscriptionError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handlerBlock(channelObjects, unsubscriptionError);
+                    });
                 }
             }
         }

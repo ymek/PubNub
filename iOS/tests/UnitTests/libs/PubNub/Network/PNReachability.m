@@ -15,6 +15,7 @@
 #import "PNReachability.h"
 #import <SystemConfiguration/SystemConfiguration.h>
 #import "NSObject+PNAdditions.h"
+#import "PNLogger+Protected.h"
 #import "PNResponseParser.h"
 #import "PubNub+Protected.h"
 #import "PNNetworkHelper.h"
@@ -576,6 +577,19 @@ void PNReachabilityCallback(SCNetworkReachabilityRef reachability __unused, SCNe
                                                                        cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
                                                                    timeoutInterval:kPNReachabilityOriginLookupTimeout];
                 NSData *downloadedTimeTokenData = [NSURLConnection sendSynchronousRequest:timeTokenRequest returningResponse:&response error:&requestError];
+                #if __IPHONE_OS_VERSION_MIN_REQUIRED
+                BOOL hasPlaceForCache = [[NSURLCache sharedURLCache] memoryCapacity] > 0;
+                #else
+                BOOL hasPlaceForCache = ([[NSURLCache sharedURLCache] memoryCapacity] > 0 ||
+                                         [[NSURLCache sharedURLCache] diskCapacity] > 0);
+                #endif
+                if (hasPlaceForCache) {
+                    
+                    if ([[NSURLCache sharedURLCache] cachedResponseForRequest:timeTokenRequest]) {
+                        
+                        [[NSURLCache sharedURLCache] removeCachedResponseForRequest:timeTokenRequest];
+                    }
+                }
 
                 dispatch_async([strongSelf pn_privateQueue], ^{
 

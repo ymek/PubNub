@@ -515,7 +515,7 @@
 - (void)requestHistoryForChannel:(PNChannel *)channel from:(PNDate *)startDate to:(PNDate *)endDate limit:(NSUInteger)limit
                   reverseHistory:(BOOL)shouldReverseMessageHistory includingTimeToken:(BOOL)shouldIncludeTimeToken
           reschedulingMethodCall:(BOOL)isMethodCallRescheduled withCompletionBlock:(PNClientHistoryLoadHandlingBlock)handleBlock {
-
+    
     [self pn_dispatchBlock:^{
         
         [PNLogger logGeneralMessageFrom:self withParametersFromBlock:^NSArray *{
@@ -568,7 +568,10 @@
                 
                 if (handleBlock && !isMethodCallRescheduled) {
                     
-                    handleBlock(nil, channel, startDate, endDate, historyFetchError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        handleBlock(nil, channel, startDate, endDate, historyFetchError);
+                    });
                 }
             }
         }

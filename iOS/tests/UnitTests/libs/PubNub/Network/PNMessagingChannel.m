@@ -25,6 +25,7 @@
 #import "NSObject+PNAdditions.h"
 #import "PNMessage+Protected.h"
 #import "PNChannel+Protected.h"
+#import "PNLogger+Protected.h"
 #import "PNOperationStatus.h"
 #import "PNRequestsImport.h"
 #import "PNRequestsQueue.h"
@@ -1035,6 +1036,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
         // Stores whether method is used to enable presence on channels (there is no regular channels, only presence observation).
         __block BOOL isOnlyEnablingPresence = NO;
         __block BOOL isDisablingPresenceOnAllChannels = NO;
+        __block BOOL alreadySubscribedOnProvidedChannels = NO;
         BOOL isChangingPresenceOnSubscribedChannels = NO;
         BOOL indirectionalPresenceModification = NO;
         NSSet *channelsForPresenceEnabling = nil;
@@ -1128,6 +1130,7 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
             channelsSet = [NSMutableSet setWithArray:[self channelsWithOutPresenceFromList:channels]];
             NSUInteger channelsSetCount = [channelsSet count];
             [channelsSet minusSet:self.subscribedChannelsSet];
+            alreadySubscribedOnProvidedChannels = [channelsSet count] == 0;
 
             // Set to \c YES in case if user tried to update presence observation with PNChannel constructor on channel for
             // which client already subscribed.
@@ -1138,36 +1141,42 @@ typedef NS_OPTIONS(NSUInteger, PNMessagingConnectionStateFlag)  {
         __block BOOL isAbleToSendRequest = [channelsSet count] || [channelsForPresenceEnabling count] || [channelsForPresenceDisabling count];
         dispatch_block_t completionBlock = ^{
 
-            if ([channelsSet count] == 0 && ((isPresenceModification && indirectionalPresenceModification) || isChangingPresenceOnSubscribedChannels) &&
-                !isOnlyEnablingPresence && !isDisablingPresenceOnAllChannels) {
-
-                [PNLogger logCommunicationChannelInfoMessageFrom:self withParametersFromBlock:^NSArray * {
-
-                    return @[PNLoggerSymbols.connectionChannel.subscribe.subscribedOnSetOfChannelsEarlier,
-                            (self.name ? self.name : self), @(self.messagingState)];
-                }];
-                [self.messagingDelegate clientStateInformation:^(NSDictionary *fullClientState) {
-
-                    [self pn_dispatchBlock:^{
-
-                        // Checking whether provided client state changed or not.
-                        if ([clientStateForRequest count] && ![clientStateForRequest isEqualToDictionary:fullClientState]) {
-
-                            // Looks like client try to subscribed on channels on which it already subscribed, and mean time changed
-                            // client state values, so we should force state storage and client re-subscription.
-                            [self.messagingDelegate updateClientStateInformationWith:clientStateForRequest
-                                                                         forChannels:[self.subscribedChannelsSet allObjects]
-                                                                           withBlock:^{
-
-                               [self updateSubscriptionForChannels:[self.subscribedChannelsSet allObjects] withPresence:0
-                                                        forRequest:nil forcibly:YES];
-                            }];
-                        }
-
-                        [self.messagingDelegate messagingChannel:self didSubscribeOn:channels sequenced:isPresenceModification
-                                                 withClientState:clientStateForRequest];
+            // Check whether there is a list of channels on which client can subscribe or not.
+            // In case if list is emty, client may try to modify only presence or subscribe on same
+            // channels.
+            if ([channelsSet count] == 0 && !isOnlyEnablingPresence && !isDisablingPresenceOnAllChannels) {
+                
+                if ((isPresenceModification && indirectionalPresenceModification) || isChangingPresenceOnSubscribedChannels ||
+                    alreadySubscribedOnProvidedChannels || [channels count] == 0) {
+                    
+                    [PNLogger logCommunicationChannelInfoMessageFrom:self withParametersFromBlock:^NSArray * {
+                        
+                        return @[PNLoggerSymbols.connectionChannel.subscribe.subscribedOnSetOfChannelsEarlier,
+                                 (self.name ? self.name : self), @(self.messagingState)];
                     }];
-                }];
+                    [self.messagingDelegate clientStateInformation:^(NSDictionary *fullClientState) {
+                        
+                        [self pn_dispatchBlock:^{
+                            
+                            // Checking whether provided client state changed or not.
+                            if ([clientStateForRequest count] && ![clientStateForRequest isEqualToDictionary:fullClientState]) {
+                                
+                                // Looks like client try to subscribed on channels on which it already subscribed, and mean time changed
+                                // client state values, so we should force state storage and client re-subscription.
+                                [self.messagingDelegate updateClientStateInformationWith:clientStateForRequest
+                                                                             forChannels:[self.subscribedChannelsSet allObjects]
+                                                                               withBlock:^{
+                                                                                   
+                                    [self updateSubscriptionForChannels:[self.subscribedChannelsSet allObjects] withPresence:0
+                                                             forRequest:nil forcibly:YES];
+                                }];
+                            }
+                            
+                            [self.messagingDelegate messagingChannel:self didSubscribeOn:channels sequenced:isPresenceModification
+                                                     withClientState:clientStateForRequest];
+                        }];
+                    }];
+                }
             }
 
             if (isPresenceModification && !isAbleToSendRequest) {

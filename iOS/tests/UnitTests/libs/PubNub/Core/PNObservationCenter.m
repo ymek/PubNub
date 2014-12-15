@@ -16,6 +16,7 @@
 #import "PNChannelGroupChange.h"
 #import "NSObject+PNAdditions.h"
 #import "PNHereNow+Protected.h"
+#import "PNLogger+Protected.h"
 #import "PNError+Protected.h"
 #import "PNNotifications.h"
 #import "PNLoggerSymbols.h"

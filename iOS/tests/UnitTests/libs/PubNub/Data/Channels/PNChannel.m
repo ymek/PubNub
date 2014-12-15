@@ -16,6 +16,7 @@
 #import "NSString+PNAddition.h"
 #import "PNHereNow+Protected.h"
 #import "PNClient+Protected.h"
+#import "PNLogger+Protected.h"
 #import "PNPrivateImports.h"
 #import "PNPresenceEvent.h"
 #import "PNLoggerSymbols.h"

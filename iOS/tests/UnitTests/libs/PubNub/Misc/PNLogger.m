@@ -1119,11 +1119,11 @@ typedef NS_OPTIONS(NSUInteger, PNLoggerConfiguration) {
 
             if(![packetData writeToFile:packetStorePath atomically:YES]){
                 
-                NSLog(@"CAN'T SAVE DUMP: %@", packetData);
+                NSLog(@"CAN'T SAVE DUMP: %@\nTO: %@", packetData, packetStorePath);
             }
             if(![packetDescription writeToFile:detailsStorePath atomically:YES]){
                 
-                NSLog(@"CAN'T SAVE DUMP: %@", packetData);
+                NSLog(@"CAN'T SAVE DUMP INFORMATION: %@\nTO: %@", packetDescription, detailsStorePath);
             }
         });
     }
@@ -1330,8 +1330,14 @@ typedef NS_OPTIONS(NSUInteger, PNLoggerConfiguration) {
 
 - (void)prepareSymbols {
     
-    NSDictionary *symbolsTree = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"PNLoggerSymbols"
-                                                                                                           ofType:@"plist"]];
+    NSString *symbolsPath = [[NSBundle mainBundle] pathForResource:@"PNLoggerSymbols" ofType:@"plist"];
+    if (!symbolsPath) {
+        
+        NSBundle *frameworkResources = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"PubNub"
+                                                                                                ofType:@"bundle"]];
+        symbolsPath = [frameworkResources pathForResource:@"PNLoggerSymbols" ofType:@"plist"];;
+    }
+    NSDictionary *symbolsTree = [NSDictionary dictionaryWithContentsOfFile:symbolsPath];
     if (symbolsTree) {
 
         NSMutableDictionary *flattenedTree = [NSMutableDictionary dictionary];

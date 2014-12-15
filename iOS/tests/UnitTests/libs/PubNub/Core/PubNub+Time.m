@@ -147,10 +147,12 @@
                 
                 [self notifyDelegateAboutTimeTokenRetrievalFailWithError:timeTokenError];
                 
-                
                 if (success && !isMethodCallRescheduled) {
                     
-                    success(nil, timeTokenError);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        success(nil, timeTokenError);
+                    });
                 }
             }
         }

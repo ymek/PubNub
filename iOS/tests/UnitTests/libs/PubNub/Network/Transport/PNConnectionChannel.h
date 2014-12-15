@@ -13,6 +13,7 @@
 #import "PNConnectionChannelDelegate.h"
 #import "PNRequestsQueueDelegate.h"
 #import "PNConnectionDelegate.h"
+#import "PNMacro.h"
 
 
 #pragma mark Class forward

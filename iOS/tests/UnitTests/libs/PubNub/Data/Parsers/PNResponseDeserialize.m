@@ -525,7 +525,7 @@ static NSString * const kPNCloseConnectionTypeFieldValue = @"close";
         
         NSRange searchRange = [self nextResponseStartSearchRangeInRange:responseRange];
         
-        if (searchRange.location != NSNotFound && searchRange.location + searchRange.length < [data length]) {
+        if (searchRange.location != NSNotFound && searchRange.location + searchRange.length <= [data length]) {
             
             range = [data rangeOfData:self.httpHeaderStartData options:(NSDataSearchOptions)0
                                 range:searchRange];
