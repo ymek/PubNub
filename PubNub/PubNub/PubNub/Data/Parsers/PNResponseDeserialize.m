@@ -128,44 +128,47 @@ static NSString * const kPNCloseConnectionTypeFieldValue = @"close";
 - (void)parseResponseData:(NSMutableData *)data withBlock:(void (^)(NSArray *responses))parseCompletionBlock {
     
     [self pn_dispatchBlock:^{
-
-        NSMutableArray *parsedData = [NSMutableArray array];
-        
-        self.deserializing = YES;
-        
-        BOOL incompleteBody = NO;
-        NSRange responseRange = NSMakeRange(0, [data length]);
-        NSRange contentRange = NSMakeRange(0, [data length]);
-        
-        
-        void(^malformedResponseParseErrorHandler)(NSData *, NSRange) = ^(NSData *responseData, NSRange subrange) {
-            
-            [PNLogger logDeserializerErrorMessageFrom:self withParametersFromBlock:^NSArray *{
-                
-                NSData *failedResponseData = [responseData subdataWithRange:subrange];
-                NSString *encodedContent = [[NSString alloc] initWithData:failedResponseData encoding:NSUTF8StringEncoding];
-                if (!encodedContent) {
-                    
-                    encodedContent = [[NSString alloc] initWithData:failedResponseData encoding:NSASCIIStringEncoding];
-                    
-                    if (!encodedContent) {
-                        
-                        encodedContent = @"Binary data (can't be stringified)";
-                    }
-                }
-                
-                return @[PNLoggerSymbols.deserializer.unableToEncodeResponseData, @([failedResponseData length]),
-                         (encodedContent ? encodedContent : [NSNull null])];
-            }];
-        };
         
         @autoreleasepool {
             
-            NSUInteger nextResponseIndex = [self nextResponseStartIndexForData:data inRange:responseRange];
+            NSMutableData *dataForParsing = [NSMutableData dataWithData:data];
+            NSMutableArray *parsedData = [NSMutableArray array];
+            
+            self.deserializing = YES;
+            
+            BOOL incompleteBody = NO;
+            NSRange responseRange = NSMakeRange(0, [dataForParsing length]);
+            NSRange contentRange = NSMakeRange(0, [dataForParsing length]);
+            
+            
+            void(^malformedResponseParseErrorHandler)(NSData *, NSRange) = ^(NSData *responseData, NSRange subrange) {
+                
+                [PNLogger logDeserializerErrorMessageFrom:self withParametersFromBlock:^NSArray *{
+                    
+                    NSData *failedResponseData = [responseData subdataWithRange:subrange];
+                    NSString *encodedContent = [[NSString alloc] initWithData:failedResponseData encoding:NSUTF8StringEncoding];
+                    if (!encodedContent) {
+                        
+                        encodedContent = [[NSString alloc] initWithData:failedResponseData encoding:NSASCIIStringEncoding];
+                        
+                        if (!encodedContent) {
+                            
+                            encodedContent = @"Binary data (can't be stringified)";
+                        }
+                    }
+                    
+                    return @[PNLoggerSymbols.deserializer.unableToEncodeResponseData, @([failedResponseData length]),
+                             (encodedContent ? encodedContent : [NSNull null])];
+                }];
+            };
+                
+            NSUInteger nextResponseIndex = [self nextResponseStartIndexForData:dataForParsing
+                                                                       inRange:responseRange];
             if (nextResponseIndex == NSNotFound) {
                 
                 // Try construct response instance
-                PNResponse *response = [self responseInRange:contentRange ofData:data incompleteResponse:&incompleteBody];
+                PNResponse *response = [self responseInRange:contentRange ofData:dataForParsing
+                                          incompleteResponse:&incompleteBody];
                 if (response) {
                     
                     [parsedData addObject:response];
@@ -174,7 +177,7 @@ static NSString * const kPNCloseConnectionTypeFieldValue = @"close";
                     
                     if (!incompleteBody) {
                         
-                        malformedResponseParseErrorHandler(data, contentRange);
+                        malformedResponseParseErrorHandler(dataForParsing, contentRange);
                     }
                     else {
                         
@@ -196,7 +199,8 @@ static NSString * const kPNCloseConnectionTypeFieldValue = @"close";
                     
                     
                     // Try construct response instance
-                    PNResponse *response = [self responseInRange:contentRange ofData:data incompleteResponse:&incompleteBody];
+                    PNResponse *response = [self responseInRange:contentRange ofData:dataForParsing
+                                              incompleteResponse:&incompleteBody];
                     if(response) {
                         
                         [parsedData addObject:response];
@@ -206,7 +210,7 @@ static NSString * const kPNCloseConnectionTypeFieldValue = @"close";
                         
                         if (!response) {
                             
-                            malformedResponseParseErrorHandler(data, contentRange);
+                            malformedResponseParseErrorHandler(dataForParsing, contentRange);
                         }
                         
                         // Update content search range
@@ -214,7 +218,7 @@ static NSString * const kPNCloseConnectionTypeFieldValue = @"close";
                         responseRange.length = responseRange.length - contentRange.length;
                         if (responseRange.length > 0) {
                             
-                            nextResponseIndex = [self nextResponseStartIndexForData:data inRange:responseRange];
+                            nextResponseIndex = [self nextResponseStartIndexForData:dataForParsing inRange:responseRange];
                             if (nextResponseIndex == NSNotFound) {
                                 
                                 nextResponseIndex = responseRange.location + responseRange.length;
@@ -237,18 +241,25 @@ static NSString * const kPNCloseConnectionTypeFieldValue = @"close";
                     }
                 }
             }
-        }
-        
-        
-        if(contentRange.location != NSNotFound) {
             
-            // Update provided data to remove from it response content which successfully was parsed
-            NSUInteger lastResponseEndIndex = contentRange.location + contentRange.length;
-            [data setData:[data subdataWithRange:NSMakeRange(lastResponseEndIndex, [data length]-lastResponseEndIndex)]];
+            if(contentRange.location != NSNotFound) {
+                
+                // Truncate local copy of data to amount of processed bytes
+                NSUInteger lastResponseEndIndex = contentRange.location + contentRange.length;
+                if (([dataForParsing length] - lastResponseEndIndex) > 0) {
+                    
+                    [dataForParsing setData:[dataForParsing subdataWithRange:NSMakeRange(lastResponseEndIndex,
+                                                                                         [dataForParsing length]-lastResponseEndIndex)]];
+                }
+                
+                // Update provided data to remove from it response content which successfully was parsed
+                NSRange processedDataRange = [data rangeOfData:dataForParsing options:(NSDataSearchOptions)0 range:NSMakeRange(0, [data length])];
+                [data replaceBytesInRange:processedDataRange withBytes:NULL length:0];
+            }
+            
+            self.deserializing = NO;
+            parseCompletionBlock(parsedData);
         }
-
-        self.deserializing = NO;
-        parseCompletionBlock(parsedData);
     }];
 }
 
